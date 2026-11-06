@@ -1,0 +1,72 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  REQUESTER
+  REVIEWER
+  ADMIN
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum HistoryAction {
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id              String            @id @default(uuid())
+  email           String            @unique
+  passwordHash    String
+  name            String
+  role            Role              @default(REQUESTER)
+  createdAt       DateTime          @default(now())
+  requests        ApprovalRequest[] @relation("UserRequests")
+  assignedReviews ApprovalRequest[] @relation("AssignedReviews")
+  historyActions  ApprovalHistory[] @relation("UserActions")
+}
+
+model ApprovalRequest {
+  id                 String            @id @default(uuid())
+  requestNo          String            @unique
+  title              String
+  amount             Decimal           @db.Decimal(12, 2)
+  category           String
+  description        String
+  status             RequestStatus     @default(PENDING)
+  requesterId        String
+  requester          User              @relation("UserRequests", fields: [requesterId], references: [id])
+  assignedReviewerId String?
+  assignedReviewer   User?             @relation("AssignedReviews", fields: [assignedReviewerId], references: [id])
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  histories          ApprovalHistory[]
+
+  @@index([requesterId, createdAt])
+  @@index([assignedReviewerId, status])
+  @@index([status, createdAt])
+}
+
+model ApprovalHistory {
+  id        String          @id @default(uuid())
+  requestId String
+  request   ApprovalRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  actorId   String
+  actor     User            @relation("UserActions", fields: [actorId], references: [id])
+  action    HistoryAction
+  comment   String?
+  createdAt DateTime        @default(now())
+
+  @@index([requestId, createdAt])
+}
