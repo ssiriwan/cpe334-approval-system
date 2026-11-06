@@ -116,7 +116,7 @@
 | :--- | :---: | :--- | :--- |
 | **D-01** | Decision | Theme Selection | เลือก Theme 5: Workflow and Approval System (Oum รหัสลงท้าย 5, T รหัสลงท้าย 1) |
 | **D-02** | Decision | Reviewer Can Create Requests | ให้ผู้ใช้ Role `REVIEWER` สามารถยื่นคำขอได้ เพื่อให้สามารถจำลองและทดสอบกฎ BR-01 (No Self-Approval) ได้อย่างสมจริง |
-| **D-03** | Decision | Category-Based Reviewer Assignment | Sprint 1 มอบหมายผู้อนุมัติตามหมวดหมู่: `EQUIPMENT/TRAVEL` $\rightarrow$ T Reviewer, `SOFTWARE/SUPPLIES` $\rightarrow$ Manager Hybrid เพื่อให้ผลการทดสอบ deterministic |
+| **D-03** | Decision | Category-Based Reviewer Assignment | Sprint 1 มอบหมายผู้อนุมัติตามหมวดหมู่: `EQUIPMENT/TRAVEL` → T Reviewer, `SOFTWARE/SUPPLIES` → Manager Hybrid เพื่อให้ผลการทดสอบ deterministic |
 | **D-04** | Decision | ADMIN Role Deferred | Role `ADMIN` มีใน schema enum แต่ยังไม่มี endpoint หรือ seed ใน Sprint 1 เพื่อคุมขอบเขตงาน |
 | **D-05** | Assumption | Currency & Precision | ใช้สกุลเงินบาท (THB) สกุลเดียว; ยอดเงินใช้ประเภท `Decimal(12,2)` เพื่อป้องกัน floating-point precision error |
 | **D-06** | Decision | Category Whitelist | กำหนดหมวดหมู่ 4 ประเภท: `EQUIPMENT`, `TRAVEL`, `SOFTWARE`, `SUPPLIES` เพื่อความชัดเจนในการ validate และ route งาน |
