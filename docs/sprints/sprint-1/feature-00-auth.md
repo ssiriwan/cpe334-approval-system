@@ -5,7 +5,7 @@
 > **Linked requirements:** FR-01, NFR-01, NFR-04
 > **Owner:** T (67070501021)
 > **Reviewer:** Oum (67070501075)
-> **Status:** v1.0 pre-implementation
+> **Status:** v1.1 implemented and verified locally
 > **Artifact:** `docs/sprints/sprint-1/feature-00-auth.md`
 
 ---
@@ -136,15 +136,15 @@ Additional negative checks:
 
 ## 7. Definition of Done
 
-- [ ] Contract committed before implementation.
-- [ ] Migration and seed run from a clean database.
-- [ ] Login/logout/me implementation uses the standard response shape.
-- [ ] Cookie flags match this contract.
-- [ ] `TEST-AUTH-01..05` implemented and passing.
-- [ ] No plaintext password or hash in responses/logs.
-- [ ] Teammate review completed; author does not self-approve.
-- [ ] PR merged into `sprint-1-staging`.
-- [ ] Red/green TDD evidence recorded.
+- [x] Contract committed before implementation.
+- [x] Migration and seed run from a clean database (`prisma migrate reset` + seed).
+- [x] Login/logout/me implementation uses the standard response shape.
+- [x] Cookie flags match this contract.
+- [x] `TEST-AUTH-01..05` implemented and passing (9 server tests total).
+- [x] No plaintext password or hash in responses/logs.
+- [ ] Teammate review completed; author does not self-approve. (pending PR review)
+- [ ] PR merged into `sprint-1-staging`. (pending)
+- [x] Red/green TDD evidence recorded (red run: `8 failed | 1 passed`).
 
 ---
 
@@ -152,4 +152,5 @@ Additional negative checks:
 
 | Version | Date | Change | Reason | Commit/PR |
 | :--- | :--- | :--- | :--- | :--- |
-| v1.0 | 10 Nov 2026 | Initial auth contract. | Sprint 1 baseline. | This commit |
+| v1.0 | 10 Nov 2026 | Initial auth contract. | Sprint 1 baseline. | `fc8f548` |
+| v1.1 | 10 Nov 2026 | Implementation notes: config/env loader, Prisma singleton, central error handler, `requireAuth`/`requireRole`, auth routes, initial migration, TEST-AUTH-01..05 green. | Auth foundation implemented and verified. | This PR |
