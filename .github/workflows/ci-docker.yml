@@ -61,9 +61,6 @@ jobs:
       - name: Apply database migrations
         run: npx prisma migrate deploy --schema prisma/schema.prisma
 
-      - name: Seed demo accounts
-        run: npm run prisma:seed
-
       - name: Run automated tests
         run: npm test
 

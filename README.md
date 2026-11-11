@@ -143,7 +143,7 @@ environment.
 
 | Workflow | Trigger | What it does |
 | :--- | :--- | :--- |
-| `.github/workflows/ci-docker.yml` | Pull request or push to `sprint-1-staging` / `main` | Starts PostgreSQL, runs `prisma migrate deploy`, seed, `npm test`, `npm run build`, builds the Docker image, and smoke-tests the running container. |
+| `.github/workflows/ci-docker.yml` | Pull request or push to `sprint-1-staging` / `main` | Starts PostgreSQL, runs `prisma migrate deploy`, `npm test`, `npm run build`, builds the Docker image, and smoke-tests the running container. |
 | `.github/workflows/deploy.yml` | Push to `main` or manual dispatch | Builds and pushes an image tagged with the commit SHA, runs migrations as a Cloud Run job, deploys the image by digest, and verifies `/api/health` reports the release commit. |
 
 `CI quality gate` is the required status check configured for `main`.
