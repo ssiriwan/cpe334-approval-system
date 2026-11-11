@@ -104,7 +104,56 @@ npm run build
 
 ---
 
-## 5. Branching & Git Workflow Rules
+## 5. Docker and CI/CD (Lab 5)
+
+The application is packaged as one container that serves both the built React
+client and the Express API. Every setting is read from the environment.
+
+### 5.1 Run the full stack locally
+
+```bash
+cp .env.example .env
+docker compose up --build
+
+# Optional: create the three demo accounts
+docker compose --profile seed run --rm seed
+```
+
+Open `http://localhost:3000`. The health endpoint is
+`http://localhost:3000/api/health` and reports the running commit through the
+`commit` field.
+
+### 5.2 Image commands
+
+```bash
+npm run docker:build   # build approval-system:local
+npm run docker:up      # build and start db + migrate + app
+npm run docker:down    # stop the stack
+npm run docker:seed    # run the one-off seed job
+```
+
+### 5.3 Database migrations inside Docker
+
+The compose `migrate` service runs `prisma migrate deploy` as a one-off job that
+must finish before the application container starts. The same image is used in
+CI and in the Cloud Run migration job, so schema changes follow one path in every
+environment.
+
+### 5.4 Pipelines
+
+| Workflow | Trigger | What it does |
+| :--- | :--- | :--- |
+| `.github/workflows/ci-docker.yml` | Pull request or push to `sprint-1-staging` / `main` | Starts PostgreSQL, runs `prisma migrate deploy`, seed, `npm test`, `npm run build`, builds the Docker image, and smoke-tests the running container. |
+| `.github/workflows/deploy.yml` | Push to `main` or manual dispatch | Builds and pushes an image tagged with the commit SHA, runs migrations as a Cloud Run job, deploys the image by digest, and verifies `/api/health` reports the release commit. |
+
+`CI quality gate` is the required status check configured for `main`.
+
+See `docs/labs/lab-05/deployment.md` for the complete environment variable table,
+GCP resources, release procedure, rollback, and evidence mapping.
+
+---
+
+## 6. Branching & Git Workflow Rules
 
 1. **Base Branch:** All feature work branches from and targets `sprint-1-staging`.
 2. **Never commit directly** to `main` or `sprint-1-staging`.
@@ -114,8 +163,9 @@ npm run build
 
 ---
 
-## 6. Project Documentation & Artifacts
+## 7. Project Documentation & Artifacts
 
 - **Authoritative Plan & Rules:** `AGENTS.md` / `MASTER_PLAN.md`
 - **Peer Review Audit Log:** `docs/reviewer.md`
 - **Sprint 1 Contracts & Specs:** `docs/sprints/sprint-1/`
+- **Lab 5 Deployment Guide:** `docs/labs/lab-05/deployment.md`
