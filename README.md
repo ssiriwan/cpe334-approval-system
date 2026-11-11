@@ -97,6 +97,11 @@ npm run test:server
 npm run e2e
 ```
 
+> **Note:** Server API tests are integration tests against the real PostgreSQL
+> database configured by `DATABASE_URL`. Make sure PostgreSQL is running and the
+> migration/seed steps in section 2.4 have been applied before running them. The
+> auth tests create and remove their own `@cpe334.local` test users.
+
 ### Build Verification
 ```bash
 npm run build
