@@ -16,6 +16,10 @@
     "prisma:generate": "npm --workspace server run prisma:generate",
     "prisma:migrate": "npm --workspace server run prisma:migrate",
     "prisma:seed": "npm --workspace server run prisma:seed",
+    "docker:build": "docker build --tag approval-system:local .",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:seed": "docker compose --profile seed run --rm seed",
     "e2e": "playwright test --config playwright.config.ts"
   },
   "devDependencies": {

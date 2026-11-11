@@ -1,0 +1,89 @@
+# Local production-like stack: PostgreSQL, one-off Prisma migration job, the
+# application container, and an optional seed job.
+#
+#   cp .env.example .env
+#   docker compose up --build
+#   docker compose --profile seed run --rm seed     # optional demo accounts
+#
+# Compose builds the same image that CI builds and GCP deploys.
+
+name: cpe334-approval-system
+
+x-app-image: &app-image
+  build:
+    context: .
+    target: runtime
+  image: approval-system:local
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-approval_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-approval_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-approval_db}
+    ports:
+      - "${POSTGRES_PORT:-5434}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-approval_user} -d ${POSTGRES_DB:-approval_db}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  migrate:
+    <<: *app-image
+    command:
+      [
+        "npx",
+        "prisma",
+        "migrate",
+        "deploy",
+        "--schema",
+        "prisma/schema.prisma",
+      ]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-approval_user}:${POSTGRES_PASSWORD:-approval_pass}@db:5432/${POSTGRES_DB:-approval_db}?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  seed:
+    <<: *app-image
+    profiles: ["seed"]
+    command: ["npx", "tsx", "prisma/seed.ts"]
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-approval_user}:${POSTGRES_PASSWORD:-approval_pass}@db:5432/${POSTGRES_DB:-approval_db}?schema=public
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  app:
+    <<: *app-image
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${POSTGRES_USER:-approval_user}:${POSTGRES_PASSWORD:-approval_pass}@db:5432/${POSTGRES_DB:-approval_db}?schema=public
+      # Local-only default. Override JWT_SECRET in .env; never reuse it in GCP.
+      JWT_SECRET: ${JWT_SECRET:-local_compose_only_jwt_secret_change_me_32chars}
+      JWT_EXPIRES_IN_SECONDS: ${JWT_EXPIRES_IN_SECONDS:-28800}
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:3000}
+      COOKIE_SECURE: "false"
+      GIT_COMMIT: ${GIT_COMMIT:-local}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  db-data:
