@@ -1,17 +1,123 @@
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { Layout } from './components/Layout';
+import { LoginPage } from './pages/LoginPage';
+import { MyRequestsPage } from './pages/MyRequestsPage';
+import { NewRequestPage } from './pages/NewRequestPage';
+import { RequestDetailPage } from './pages/RequestDetailPage';
+import { ForbiddenPage, NotFoundPage, ReviewerPlaceholderPage } from './pages/ErrorPages';
+import type { Role } from './lib/api';
+
+function ProtectedRoute({
+  children,
+  allowedRoles,
+}: {
+  children: React.ReactNode;
+  allowedRoles?: Role[];
+}) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-sm text-slate-500">
+        Checking session...
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return (
+      <Layout>
+        <ForbiddenPage />
+      </Layout>
+    );
+  }
+
+  return <Layout>{children}</Layout>;
+}
+
+function PublicLoginRoute() {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-sm text-slate-500">
+        Checking session...
+      </div>
+    );
+  }
+  if (user) {
+    return <Navigate to="/requests/my" replace />;
+  }
+  return <LoginPage />;
+}
+
+export function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<PublicLoginRoute />} />
+      <Route
+        path="/requests/new"
+        element={
+          <ProtectedRoute allowedRoles={['REQUESTER', 'REVIEWER']}>
+            <NewRequestPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/requests/my"
+        element={
+          <ProtectedRoute>
+            <MyRequestsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/requests/:id"
+        element={
+          <ProtectedRoute>
+            <RequestDetailPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reviewer/pending"
+        element={
+          <ProtectedRoute allowedRoles={['REVIEWER']}>
+            <ReviewerPlaceholderPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/403"
+        element={
+          <Layout>
+            <ForbiddenPage />
+          </Layout>
+        }
+      />
+      <Route path="/" element={<Navigate to="/requests/my" replace />} />
+      <Route
+        path="*"
+        element={
+          <Layout>
+            <NotFoundPage />
+          </Layout>
+        }
+      />
+    </Routes>
+  );
+}
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-      <div className="bg-white p-8 rounded-xl shadow-sm border border-slate-200 max-w-md w-full text-center">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">
-          Approval Flow System
-        </h1>
-        <p className="text-slate-600 text-sm mb-6">
-          CPE 334 Software Engineering — Project Deliverable 1
-        </p>
-        <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-          ● Sprint 1 Baseline Active
-        </div>
-      </div>
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
