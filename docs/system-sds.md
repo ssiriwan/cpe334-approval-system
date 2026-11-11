@@ -242,7 +242,7 @@ Failure:
 | `/api/requests/:id` | GET | Get request detail and history when allowed. |
 | `/api/requests/pending` | GET | List the reviewer's assigned pending requests. |
 | `/api/requests/:id/review` | POST | Approve or reject an assigned request. |
-| `/api/health` | GET | Health check. |
+| `/api/health` | GET | Health check; reports `status`, `commit`, and `timestamp`. |
 
 ### 6.4 Validation and error handling
 
@@ -287,16 +287,20 @@ Sprint 1 uses stateless JWTs. Logout clears the client cookie, but a stolen toke
 ```text
 DATABASE_URL=postgresql://user:password@localhost:5434/approval_db
 JWT_SECRET=replace-with-long-random-secret
+JWT_EXPIRES_IN_SECONDS=28800
 PORT=3000
 NODE_ENV=development
 CLIENT_ORIGIN=http://localhost:5173
 COOKIE_SECURE=false
+GIT_COMMIT=local
 ```
 
 - `.env` is ignored by Git.
 - `.env.example` documents required variables without real secrets.
 - Production secrets are injected by the deployment platform, not committed.
 - The database configuration is externalized through `DATABASE_URL`.
+- `GIT_COMMIT` is set by CI/CD and returned by `/api/health`, so the running
+  release can be identified from the public URL.
 
 ### 8.2 Local development
 
@@ -305,14 +309,37 @@ COOKIE_SECURE=false
 - Run client and server as separate development servers.
 - Health endpoint: `GET /api/health`.
 
-### 8.3 Planned Docker and GCP deployment (Lab 5)
+### 8.3 Docker and GCP deployment (Lab 5, implemented)
 
-- Multi-stage build: build the React client into static assets, then build the server container.
-- `docker compose` for local PostgreSQL and application services.
-- Container health check uses `/api/health`.
-- GCP target: Cloud Run for the server container, Cloud SQL for PostgreSQL, Artifact Registry for images, Secret Manager for secrets, and Cloud Build/GitHub Actions for CI/CD.
-- Run migrations as a deployment step after the image is built and before traffic is served.
-- Do not bake secrets into images.
+- **One runtime image:** the multi-stage `Dockerfile` installs workspace
+  dependencies, generates the Prisma client, builds the React client and the
+  Express server, and copies only the runtime artifacts into the final stage.
+  The container serves the built client and the API on port `3000`.
+- **Local production-like stack:** `docker-compose.yml` runs PostgreSQL 17
+  (`db`), a one-off `prisma migrate deploy` job (`migrate`), the application
+  (`app`), and an optional `seed` profile. The app starts only after migrations
+  succeed, and database data lives in a named volume.
+- **Migrations in the pipeline:** CI runs `prisma migrate deploy` against a
+  service PostgreSQL before tests; deployment runs the same command as a
+  separate Cloud Run job before the service revision is updated. Schema changes
+  therefore follow one path locally, in CI, and in production.
+- **Container health check:** the image health check and the post-deploy smoke
+  test call `/api/health`, which returns `status`, `commit`, and `timestamp`.
+- **GCP target:** Cloud Run for the application container, Cloud SQL for
+  PostgreSQL, Artifact Registry for images tagged with the commit SHA and
+  deployed by digest, Secret Manager for `DATABASE_URL` and `JWT_SECRET`, and
+  GitHub Actions for CI/CD using Workload Identity Federation.
+- **Release identification:** the deploy workflow sets `GIT_COMMIT` to the
+  release SHA, so the running commit is observable from `/api/health` and from
+  the Cloud Run revision.
+- **Secrets:** no secret is committed or baked into an image. Local values come
+  from `.env`; cloud values come from Secret Manager and GitHub Actions secrets.
+- **Cost controls:** Cloud Run minimum instances `0`, maximum `3`; smallest
+  Cloud SQL tier with storage auto-increase off; resources stopped or removed
+  after grading.
+- **Deployment guide:** `docs/labs/lab-05/deployment.md` documents the complete
+  environment variable table, resource names, one-time setup, release
+  procedure, rollback, and evidence mapping.
 
 ### 8.4 Reproducibility
 
