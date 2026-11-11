@@ -154,3 +154,4 @@ Additional negative checks:
 | :--- | :--- | :--- | :--- | :--- |
 | v1.0 | 10 Nov 2026 | Initial auth contract. | Sprint 1 baseline. | `fc8f548` |
 | v1.1 | 10 Nov 2026 | Implementation notes: config/env loader, Prisma singleton, central error handler, `requireAuth`/`requireRole`, auth routes, initial migration, TEST-AUTH-01..05 green. | Auth foundation implemented and verified. | This PR |
+| v1.2 | 11 Nov 2026 | Prisma root scripts now load the repository-root `.env`; seed loads it explicitly. Verified `cp .env.example .env && npm run prisma:migrate && npm run prisma:seed` in a clean shell. | Review finding: clean-clone setup failed with `P1012 Environment variable not found: DATABASE_URL`. | This PR |
