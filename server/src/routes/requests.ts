@@ -8,6 +8,7 @@ import {
   getRequestDetail,
   listMyRequests,
 } from '../services/request.service.js';
+import { listPendingReviews, submitReview } from '../services/review.service.js';
 
 const createRequestSchema = z
   .object({
@@ -61,6 +62,19 @@ requestsRouter.get('/my', async (req, res, next) => {
   }
 });
 
+requestsRouter.get(
+  '/pending',
+  requireRole(Role.REVIEWER),
+  async (req, res, next) => {
+    try {
+      const requests = await listPendingReviews(req.user!.id);
+      res.status(200).json({ data: { requests } });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 requestsRouter.get('/:id', async (req, res, next) => {
   try {
     const detail = await getRequestDetail(req.params.id, req.user!.id);
@@ -69,3 +83,16 @@ requestsRouter.get('/:id', async (req, res, next) => {
     next(error);
   }
 });
+
+requestsRouter.post(
+  '/:id/review',
+  requireRole(Role.REVIEWER),
+  async (req, res, next) => {
+    try {
+      const result = await submitReview(String(req.params.id), req.user!.id, req.body);
+      res.status(200).json({ data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+);

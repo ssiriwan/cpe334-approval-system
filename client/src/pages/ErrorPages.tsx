@@ -40,20 +40,3 @@ export function NotFoundPage() {
     </div>
   );
 }
-
-export function ReviewerPlaceholderPage() {
-  return (
-    <div className="max-w-xl mx-auto bg-white rounded-xl border border-slate-200 p-8 text-center">
-      <h1 className="text-xl font-bold text-slate-900 mb-2">Pending Reviews</h1>
-      <p className="text-sm text-slate-600 mb-5">
-        Reviewer queue and approval decision workflow will be connected in Issue #5 (F-04).
-      </p>
-      <Link
-        to="/requests/my"
-        className="inline-flex px-4 py-2 rounded-lg text-sm font-medium text-indigo-700 bg-indigo-50 hover:bg-indigo-100"
-      >
-        View My Requests
-      </Link>
-    </div>
-  );
-}

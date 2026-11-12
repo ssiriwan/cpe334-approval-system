@@ -5,7 +5,9 @@ import { LoginPage } from './pages/LoginPage';
 import { MyRequestsPage } from './pages/MyRequestsPage';
 import { NewRequestPage } from './pages/NewRequestPage';
 import { RequestDetailPage } from './pages/RequestDetailPage';
-import { ForbiddenPage, NotFoundPage, ReviewerPlaceholderPage } from './pages/ErrorPages';
+import { PendingReviewsPage } from './pages/PendingReviewsPage';
+import { ReviewDetailPage } from './pages/ReviewDetailPage';
+import { ForbiddenPage, NotFoundPage } from './pages/ErrorPages';
 import type { Role } from './lib/api';
 
 function ProtectedRoute({
@@ -50,7 +52,7 @@ function PublicLoginRoute() {
     );
   }
   if (user) {
-    return <Navigate to="/requests/my" replace />;
+    return <Navigate to={user.role === 'REVIEWER' ? '/reviewer/pending' : '/requests/my'} replace />;
   }
   return <LoginPage />;
 }
@@ -87,7 +89,15 @@ export function AppRoutes() {
         path="/reviewer/pending"
         element={
           <ProtectedRoute allowedRoles={['REVIEWER']}>
-            <ReviewerPlaceholderPage />
+            <PendingReviewsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/reviewer/requests/:id"
+        element={
+          <ProtectedRoute allowedRoles={['REVIEWER']}>
+            <ReviewDetailPage />
           </ProtectedRoute>
         }
       />
