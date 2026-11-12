@@ -72,6 +72,11 @@ Every Sprint 1 Acceptance Criterion (`AC-AUTH-01..05` and `AC-01..12`) is mapped
   3. Requester logs out; `T Reviewer` logs in, lands on `/reviewer/pending`, opens the assigned request, selects `Approve` with comment `"Approved for project use"`, and submits (`POST /api/requests/:id/review`).
   4. Navigate back to `/reviewer/pending` (`E2E-02`).
 - **Expected & Actual Result:** `E2E-01` (2.7s) and `E2E-02` (1.6s) passed. Status updated to `APPROVED`, `APPROVED by T Reviewer` history appended in one transaction, and the request left the pending queue.
+- **Evidence Screenshots:**
+  - ![Login Screen](evidence/01-login.png)
+  - ![Requester Detail Pending](evidence/03-requester-detail-pending.png)
+  - ![Reviewer Pending Queue](evidence/04-reviewer-pending-queue.png)
+  - ![Reviewer Approved Detail & History](evidence/05-reviewer-approved-history.png)
 
 ### Scenario 2: Business-Rule & Boundary Rejection (`BR-02`, `BR-04`, `BR-07`)
 - **Feature / AC IDs:** `F-02`, `F-04` (`AC-02`, `AC-08`, `AC-12`)
@@ -82,6 +87,8 @@ Every Sprint 1 Acceptance Criterion (`AC-AUTH-01..05` and `AC-01..12`) is mapped
   2. `POST /api/requests/:id/review` with invalid `decision: "ESCALATE"`, lowercase `"approve"`, `REJECT` with `<3` char comment, or `>500` char comment (`TEST-12`).
   3. `POST /api/requests/:id/review` on an already `APPROVED` request (`TEST-09`).
 - **Expected & Actual Result:** All invalid payloads returned `400 VALIDATION_ERROR` and double-decision returned `400 INVALID_STATE_TRANSITION` with zero records created or modified in PostgreSQL (`TEST-02`, `TEST-09`, `TEST-12` all passed).
+- **Evidence Screenshot:**
+  - ![Boundary & Validation Rejection](evidence/02-boundary-validation.png)
 
 ### Scenario 3: Forbidden & Unauthenticated Access Control (`BR-01`, `BR-03`, `BR-05`)
 - **Feature / AC IDs:** `F-01`, `F-03`, `F-04` (`AC-AUTH-03`, `AC-AUTH-04`, `AC-04`, `AC-07`, `AC-09`, `AC-10`)
@@ -92,6 +99,8 @@ Every Sprint 1 Acceptance Criterion (`AC-AUTH-01..05` and `AC-01..12`) is mapped
   2. **Role Enforcement:** `REQUESTER` calling `POST /api/requests/:id/review` or `GET /api/requests/pending` → **`403 FORBIDDEN`** (`TEST-AUTH-04`, `TEST-10`).
   3. **Cross-User / Unrelated Reviewer:** Unrelated requester reading `GET /api/requests/:id` (`TEST-04`) or `Manager Hybrid` reviewing a request assigned to `T Reviewer` (`TEST-11`) → **`403 ACCESS_DENIED`**.
   4. **Self-Approval Guard (`BR-01`):** `Manager Hybrid` attempting to approve their own `EQUIPMENT` request (even though assigned to `T Reviewer`) → **`403 SELF_APPROVAL_NOT_ALLOWED`** before assignment check (`TEST-08`, `E2E-03` passed).
+- **Evidence Screenshot:**
+  - ![Self-Approval Blocked BR-01](evidence/06-self-approval-blocked.png)
 
 ---
 
