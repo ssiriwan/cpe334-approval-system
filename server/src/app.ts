@@ -6,6 +6,7 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { config } from './config.js';
 import { authRouter } from './routes/auth.js';
+import { requestsRouter } from './routes/requests.js';
 import { errorHandler, notFoundHandler } from './middleware/error.js';
 
 export const app = express();
@@ -28,6 +29,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/requests', requestsRouter);
 
 // Serve the production client from the same container as the API.
 // The directory exists after `npm run build` or in the Docker runtime image.
