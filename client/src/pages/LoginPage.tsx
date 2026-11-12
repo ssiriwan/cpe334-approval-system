@@ -29,11 +29,7 @@ export function LoginPage() {
     setSubmitting(true);
     try {
       const user = await login(trimmedEmail, password);
-      if (user.role === 'REVIEWER') {
-        navigate('/requests/my');
-      } else {
-        navigate('/requests/my');
-      }
+      navigate(user.role === 'REVIEWER' ? '/reviewer/pending' : '/requests/my');
     } catch (err) {
       if (err instanceof ApiError) {
         setError(`${err.code}: ${err.message}`);
