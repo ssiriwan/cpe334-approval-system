@@ -1,0 +1,100 @@
+name: CI and Docker
+
+on:
+  pull_request:
+    branches: [sprint-1-staging, main]
+  push:
+    branches: [sprint-1-staging, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gate:
+    name: CI quality gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: approval_user
+          POSTGRES_PASSWORD: approval_pass
+          POSTGRES_DB: approval_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U approval_user -d approval_db"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://approval_user:approval_pass@localhost:5432/approval_db?schema=public
+      JWT_SECRET: ci_only_jwt_secret_0123456789abcdef0123456789abcdef
+      JWT_EXPIRES_IN_SECONDS: "28800"
+      NODE_ENV: test
+      CLIENT_ORIGIN: http://localhost:5173
+      COOKIE_SECURE: "false"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate --schema prisma/schema.prisma
+
+      - name: Apply database migrations
+        run: npx prisma migrate deploy --schema prisma/schema.prisma
+
+      - name: Seed demo accounts
+        run: npm run prisma:seed
+
+      - name: Run automated tests
+        run: npm test
+
+      - name: Build client and server
+        run: npm run build
+
+      - name: Build Docker image
+        run: docker build --tag approval-system:ci .
+
+      - name: Start the container
+        run: |
+          docker run --detach --name approval-smoke --network host \
+            --env NODE_ENV=production \
+            --env PORT=3000 \
+            --env DATABASE_URL="${DATABASE_URL}" \
+            --env JWT_SECRET="${JWT_SECRET}" \
+            --env GIT_COMMIT="${GITHUB_SHA}" \
+            approval-system:ci
+
+      - name: Smoke-test the running container
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000/api/health > health.json; then
+              break
+            fi
+            sleep 2
+          done
+          cat health.json
+          grep --quiet '"status":"ok"' health.json
+          grep --quiet "${GITHUB_SHA}" health.json
+
+      - name: Stop the container
+        if: always()
+        run: docker rm --force approval-smoke || true
