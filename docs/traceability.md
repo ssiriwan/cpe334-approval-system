@@ -15,12 +15,12 @@
 ### 1.1 Functional Requirements (FR) Traceability
 | Req ID | Requirement Description | Linked Feature | Sprint | Acceptance Criteria (AC) | Verification Method & Test IDs | Baseline Status |
 | :---: | :--- | :---: | :---: | :--- | :--- | :---: |
-| **FR-01** | User Authentication & Cookie Session | F-01 | **Sprint 1** | AC-AUTH-01, AC-AUTH-02, AC-AUTH-03, AC-AUTH-04, AC-AUTH-05 | Integration Tests: `TEST-AUTH-01` ถึง `TEST-AUTH-05` | Planned (Sprint 1; Ready for Implementation) |
-| **FR-02** | Request Creation & Field Validation | F-02 | **Sprint 1** | AC-01, AC-02 | API & DB Tests: `TEST-01`, `TEST-02`, E2E: `E2E-01` | Planned (Sprint 1; Ready for Implementation) |
-| **FR-03** | My Requests & Detail Tracking | F-03 | **Sprint 1** | AC-03, AC-04 | API Isolation Tests: `TEST-03`, `TEST-04`, E2E: `E2E-01` | Planned (Sprint 1; Ready for Implementation) |
-| **FR-04** | Review Queue & Decision Workflow | F-04 | **Sprint 1** | AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-12 | Integration Tests: `TEST-05` ถึง `TEST-13`, E2E: `E2E-02`, `E2E-03` | Implemented — PR #16 (in review) |
-| **FR-05** | Approval History & Audit Trail | F-05 | **S1 (Write) / S2 (View)** | AC-06, AC-11 | Transaction Test: `TEST-06`, Persistence: `TEST-13` | Write implemented — PR #16 (in review); view Sprint 2 |
-| **FR-06** | Reviewer Assignment | F-04, F-10 | **S1 (Assign) / S3 (Admin)** | AC-01, AC-05, AC-09 | Assignment Tests: `TEST-01`, `TEST-05`, `TEST-11` | Assign implemented (`fd0c875`, PR #16); admin Sprint 3 |
+| **FR-01** | User Authentication & Cookie Session | F-01 | **Sprint 1** | AC-AUTH-01, AC-AUTH-02, AC-AUTH-03, AC-AUTH-04, AC-AUTH-05 | Integration Tests: `TEST-AUTH-01` ถึง `TEST-AUTH-05` | **Verified (Sprint 1, `2bcbf4a`)** |
+| **FR-02** | Request Creation & Field Validation | F-02 | **Sprint 1** | AC-01, AC-02 | API & DB Tests: `TEST-01`, `TEST-02`, E2E: `E2E-01` | **Verified (Sprint 1, `2bcbf4a`)** |
+| **FR-03** | My Requests & Detail Tracking | F-03 | **Sprint 1** | AC-03, AC-04 | API Isolation Tests: `TEST-03`, `TEST-04`, E2E: `E2E-01` | **Verified (Sprint 1, `2bcbf4a`)** |
+| **FR-04** | Review Queue & Decision Workflow | F-04 | **Sprint 1** | AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-12 | Integration Tests: `TEST-05` ถึง `TEST-13`, E2E: `E2E-02`, `E2E-03` | **Verified (Sprint 1, `2bcbf4a`)** |
+| **FR-05** | Approval History & Audit Trail | F-05 | **S1 (Write) / S2 (View)** | AC-06, AC-11 | Transaction Test: `TEST-06`, Persistence: `TEST-13` | **Write Verified (S1, `2bcbf4a`); view Sprint 2** |
+| **FR-06** | Reviewer Assignment | F-04, F-10 | **S1 (Assign) / S3 (Admin)** | AC-01, AC-05, AC-09 | Assignment Tests: `TEST-01`, `TEST-05`, `TEST-11` | **Assign Verified (S1, `2bcbf4a`); admin Sprint 3** |
 | **FR-07** | Return for Revision & Resubmission | F-06 | **Sprint 2** | Planned in Sprint 2 Contract | Unit & Integration Tests (Sprint 2) | *Planned (Sprint 2)* |
 | **FR-08** | Multi-Stage Approval Workflow | F-07 | **Sprint 2** | Planned in Sprint 2 Contract | Multi-stage Transition Tests (Sprint 2) | *Planned (Sprint 2)* |
 | **FR-09** | Document Attachments | F-08 | **Sprint 2** | Planned in Sprint 2 Contract | Multipart Upload & Auth Tests (Sprint 2) | *Planned (Sprint 2)* |
@@ -32,13 +32,13 @@
 ### 1.2 Business Rules (BR) Traceability
 | Rule ID | Business Rule / Domain Guard | Linked Feature | Sprint | Acceptance Criteria (AC) | Verification Method & Test IDs | Baseline Status |
 | :---: | :--- | :---: | :---: | :--- | :--- | :---: |
-| **BR-01** | **No Self-Approval:** ห้ามอนุมัติคำขอตนเองเด็ดขาด | F-04 | **Sprint 1** | AC-07 | Backend Guard Test: `TEST-08`, E2E: `E2E-03` | Implemented — PR #16 (in review) |
-| **BR-02** | **Valid State Lifecycle:** `PENDING` → `APPROVED` / `REJECTED` | F-04, F-06, F-07 | **Sprint 1 / S2** | AC-08 (S1) | State Transition Test: `TEST-09` | Implemented S1 — PR #16 (in review) |
-| **BR-03** | **Data Isolation:** เข้าถึงได้เฉพาะคำขอที่ตนมีสิทธิ์ | F-03, F-04, F-08 | **Sprint 1 / S2** | AC-04, AC-09 | Forbidden Access Tests: `TEST-04`, `TEST-11` | Implemented S1 (`fd0c875`, PR #16) |
-| **BR-04** | **Payload Validation:** Title, Amount > 0, Whitelist Category | F-02 | **Sprint 1** | AC-02 | Boundary & Negative Tests: `TEST-02` | Planned (Sprint 1; Ready for Implementation) |
-| **BR-05** | **Reviewer Assignment:** บังคับสิทธิ์ตามผู้อนุมัติที่ได้รับมอบหมาย | F-02, F-04, F-10 | **Sprint 1 / S3** | AC-01, AC-05, AC-09 | Assignment & Unrelated Reviewer Tests: `TEST-05`, `TEST-11` | Assign implemented — PR #16 (in review) |
-| **BR-06** | **Append-Only History:** บันทึกประวัติใน Transaction ห้ามแก้ไข/ลบ | F-04, F-05 | **Sprint 1** | AC-06, AC-11 | Immutability & Persistence Test: `TEST-06`, `TEST-13` | Implemented — PR #16 (in review) |
-| **BR-07** | **Decision Validation:** Approve/Reject format + Reason on Reject | F-04 | **Sprint 1** | AC-12 | Decision Payload Validation Test: `TEST-12` | Implemented — PR #16 (in review) |
+| **BR-01** | **No Self-Approval:** ห้ามอนุมัติคำขอตนเองเด็ดขาด | F-04 | **Sprint 1** | AC-07 | Backend Guard Test: `TEST-08`, E2E: `E2E-03` | **Verified (Sprint 1, `2bcbf4a`)** |
+| **BR-02** | **Valid State Lifecycle:** `PENDING` → `APPROVED` / `REJECTED` | F-04, F-06, F-07 | **Sprint 1 / S2** | AC-08 (S1) | State Transition Test: `TEST-09` | **Verified S1 (`2bcbf4a`)** |
+| **BR-03** | **Data Isolation:** เข้าถึงได้เฉพาะคำขอที่ตนมีสิทธิ์ | F-03, F-04, F-08 | **Sprint 1 / S2** | AC-04, AC-09 | Forbidden Access Tests: `TEST-04`, `TEST-11` | **Verified S1 (`2bcbf4a`)** |
+| **BR-04** | **Payload Validation:** Title, Amount > 0, Whitelist Category | F-02 | **Sprint 1** | AC-02 | Boundary & Negative Tests: `TEST-02` | **Verified (Sprint 1, `2bcbf4a`)** |
+| **BR-05** | **Reviewer Assignment:** บังคับสิทธิ์ตามผู้อนุมัติที่ได้รับมอบหมาย | F-02, F-04, F-10 | **Sprint 1 / S3** | AC-01, AC-05, AC-09 | Assignment & Unrelated Reviewer Tests: `TEST-05`, `TEST-11` | **Assign Verified (S1, `2bcbf4a`)** |
+| **BR-06** | **Append-Only History:** บันทึกประวัติใน Transaction ห้ามแก้ไข/ลบ | F-04, F-05 | **Sprint 1** | AC-06, AC-11 | Immutability & Persistence Test: `TEST-06`, `TEST-13` | **Verified (Sprint 1, `2bcbf4a`)** |
+| **BR-07** | **Decision Validation:** Approve/Reject format + Reason on Reject | F-04 | **Sprint 1** | AC-12 | Decision Payload Validation Test: `TEST-12` | **Verified (Sprint 1, `2bcbf4a`)** |
 
 ---
 
