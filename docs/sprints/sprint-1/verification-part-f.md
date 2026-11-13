@@ -5,15 +5,15 @@
 > **Issue:** #6 — `[Part F] Sprint 1 verification and evidence package`
 > **Verified Commit:** `2bcbf4a` (`sprint-1-staging`, post-PR #16 merge)
 > **Authors:** Oum (67070501075, `@ssiriwan`) & T (67070501021, `@thhanabun`)
-> **Verification Date:** 2026-11-12
+> **Verification Date:** 2026-11-12 (re-verified 2026-11-13 by T on a clean database)
 
 ---
 
 ## 1. Setup Summary
 
-- **Architecture:** TypeScript monorepo (`client/` React + Vite, `server/` Express + Prisma ORM, `prisma/` PostgreSQL 16 schema & seed).
+- **Architecture:** TypeScript monorepo (`client/` React + Vite, `server/` Express + Prisma ORM, `prisma/` PostgreSQL 17 schema & seed).
 - **Local Verification Stack:**
-  - PostgreSQL 16 running in Docker (`localhost:5434`, database `approval_db`)
+  - PostgreSQL 17 running in Docker (`localhost:5434`, database `approval_db`)
   - Schema & Seed: `npx prisma migrate deploy --schema=prisma/schema.prisma` + `npm run prisma:seed` (3 demo accounts: `oum.requester@cpe334.local`, `t.reviewer@cpe334.local`, `manager.hybrid@cpe334.local`)
   - Vitest Workspace (`vitest.config.ts` with `fileParallelism: false` to prevent shared-DB race conditions)
   - Playwright Chromium (`e2e/*.spec.ts`) starting `npm run dev:server` (`:3000`) and `npm run dev:client` (`:5173`)
@@ -29,6 +29,7 @@
 | **Production Build** | `npm run build` (`tsc -b && vite build` + `tsc -p tsconfig.json`) | **Pass** (client bundle + server JS compiled cleanly) | 2.94s+ |
 | **E2E Suite (Chromium)** | `npx playwright test --reporter=list` | **3 passed (3) \| 0 failed \| 0 skipped** (`E2E-01`, `E2E-02`, `E2E-03`) | 11.7s |
 | **GitHub Actions CI** | Workflow `CI and Docker` (Run [`43193876219`](https://github.com/ssiriwan/cpe334-approval-system/actions/runs/43193876219)) | **Success** (migrate, seed, 34 tests, build, Docker build & `/api/health` smoke test) | 1m49s |
+| **Re-verification by reviewer (T)** | `npx prisma migrate deploy` + `npm run prisma:seed` + `npm test` on a fresh PostgreSQL 17 volume | **Pass** (1 migration applied, 3 demo accounts seeded, **7 files / 34 tests passed**) | 79.86s |
 
 ---
 
@@ -186,9 +187,22 @@ Result: **Passed** (`749ms` in `vitest run` on `2bcbf4a`)
 
 ## 7. Governance, Contribution & Honest Disclosure
 
-### Issue / PR / CI Summary
-- **Merged PRs into `sprint-1-staging`:** PR #9 (Issue #8 Setup), PR #10 (Issue #2 Part C/D), PR #11 (Issue #1 Part A/B), PR #12 (Issue #3 F-01), PR #14 (Issue #13 Lab 5 Docker/CI), PR #15 (Issue #4 F-02/F-03), PR #16 (Issue #5 F-04/F-05).
+### Issue -> Branch -> PR -> Reviewer -> Merge Commit
+Every change reached `sprint-1-staging` through a reviewed pull request with no author self-approval:
+
+| Issue | Scope | Branch | PR | Author | Reviewer | Merge commit |
+| :---: | :--- | :--- | :---: | :---: | :---: | :---: |
+| #8 | Monorepo scaffold, tooling, base branches | `chore/8-repo-scaffold` | #9 | Oum | T | `caa56c7` |
+| #1 | Part A/B SRS, feature inventory, traceability | `feature/1-baseline-docs` | #11 | Oum | T | `ffcb38b` |
+| #2 | Part C/D system SDS and three-sprint plan | `feature/2-system-sds-sprint-plan` | #10 | T | Oum | `cf5d4da` |
+| #3 | F-01 auth foundation (schema, seed, login/logout/me) | `feature/3-auth-foundation` | #12 | T | Oum | `ad10d0b` |
+| #13 | Lab 5 Docker image, CI quality gate, Cloud Run pipeline | `feature/13-lab5-docker-cicd` | #14 | T | Oum | `001cb0c` |
+| #4 | F-02/F-03 requester slice | `feature/4-requester-slice` | #15 | Oum | T | `fd0c875` |
+| #5 | F-04/F-05 reviewer slice | `feature/5-reviewer-slice` | #16 | T | Oum | `2bcbf4a` |
+| #6 | Part F Sprint 1 verification and evidence package | `test/6-sprint1-verification` | #17 | Oum | T | merge of PR #17 |
+
 - **Peer Review Rule:** Zero self-approvals; every PR was reviewed and approved by the non-author teammate (`docs/reviewer.md`).
+- **Release:** Issue #7 opens the release PR `sprint-1-staging -> main` and tags `v0.1.0-sprint1` after PR #17 merges.
 
 ### Contribution Table
 | Member | Student ID | Primary Ownership | Peer Review Ownership |
