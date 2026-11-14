@@ -1,0 +1,2328 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=0.75in]{geometry}
+\usepackage{fontspec}
+\setmainfont{Tahoma}
+\usepackage{setspace}
+\setstretch{1.12}
+
+\usepackage[table]{xcolor}
+\definecolor{zenPrimary}{HTML}{006B3C}
+\definecolor{zenSecondary}{HTML}{0B7A46}
+\definecolor{zenPale}{HTML}{EAF6EF}
+\definecolor{zenPage}{HTML}{F5F7F6}
+\definecolor{primary}{RGB}{30, 58, 138}     % Deep Navy
+\definecolor{secondary}{RGB}{79, 70, 229}   % Indigo
+\definecolor{darkslate}{RGB}{30, 41, 59}    % Slate 800
+\definecolor{lightbg}{RGB}{248, 250, 252}   % Slate 50
+\definecolor{bordercolor}{RGB}{203, 213, 225} % Slate 300
+
+\usepackage{titlesec}
+\titleformat{\section}{\Large\bfseries\color{primary}}{\thesection}{1em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\color{secondary}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{darkslate}}{\thesubsubsection}{1em}{}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{ragged2e}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+\usepackage{microtype}
+\usepackage[htt]{hyphenat}
+\emergencystretch=3em
+
+\renewcommand{\arraystretch}{1.35}
+\setlength{\tabcolsep}{4pt}
+
+\makeatletter
+\g@addto@macro{\UrlBreaks}{\do\/\do\-\do\.\do\_}
+\makeatother
+
+\usepackage[colorlinks=true,linkcolor=secondary,urlcolor=secondary,citecolor=secondary]{hyperref}
+
+\sloppy
+\begin{document}
+
+% -------------------------------------------------------------
+% COVER PAGE
+% -------------------------------------------------------------
+\begin{titlepage}
+\centering
+\vspace*{1.2cm}
+
+{\Huge \bfseries \color{primary} CPE 334 Software Engineering}\\[0.4cm]
+{\LARGE \bfseries \color{darkslate} Group Project Deliverable 1 (Sprint 1)}\\[1.2cm]
+
+\begin{tcolorbox}[colback=lightbg,colframe=secondary,width=\textwidth,arc=4mm,boxrule=1.2pt]
+\centering\vspace{0.3cm}
+{\LARGE \bfseries Corporate Expense \& Purchase Request Approval System}\\[0.3cm]
+{\large \bfseries Theme 5: Workflow and Approval System}\\[0.2cm]
+{\small Full Lifecycle Software Engineering Specifications \& Working Verification Package}\\[0.2cm]
+\vspace{0.2cm}
+\end{tcolorbox}
+
+\vspace{1.0cm}
+
+\begin{minipage}{0.9\textwidth}
+\begin{tabular}{p{3.2cm}p{11.0cm}}
+\textbf{Course:} & CPE 334 Software Engineering (Semester 1/2026) \\
+\textbf{Submission Date:} & 14 November 2026 \\
+\textbf{GitHub Repository:} & \url{https://github.com/ssiriwan/cpe334-approval-system} \\
+\textbf{Release Tag:} & \texttt{v0.1.0-sprint1} \\
+\textbf{Assessed Commit (main):} & \texttt{fd40bfd4b9b94676100c5c4e7232230752d4c99c} \\
+\end{tabular}
+\end{minipage}
+
+\vspace{1.0cm}
+
+\textbf{\large Team Members}\\[0.4cm]
+\begin{tabularx}{0.85\textwidth}{|>{\RaggedRight}p{4.5cm}|>{\centering\arraybackslash}p{3.0cm}|>{\RaggedRight}X|}
+\toprule
+\textbf{Name} & \textbf{Student ID} & \textbf{GitHub Username} \\
+\midrule
+Siriwan Sirisuk (Oum) & 67070501075 & \texttt{@ssiriwan} \\
+Thanabun Tikaew (T) & 67070501021 & \texttt{@thhanabun} \\
+\bottomrule
+\end{tabularx}
+
+\vspace{1.0cm}
+
+\textbf{\large Document Navigation \& Key Artifact Index}\\[0.3cm]
+\begin{tabularx}{\textwidth}{|>{\RaggedRight}p{1.8cm}|>{\RaggedRight}p{5.5cm}|>{\centering\arraybackslash}p{2.0cm}|>{\RaggedRight}X|}
+\toprule
+\textbf{Part} & \textbf{Section Title} & \textbf{Page} & \textbf{Key Content \& Artifacts} \\
+\midrule
+\textbf{Part A} & Software Requirements Specification (SRS) & Page \pageref{sec:part-a} & FR-01..11, BR-01..07, NFR-01..06, Scope \\
+\textbf{Part A.2} & Feature Inventory & Page \pageref{sec:part-a-feat} & F-01..F-11 Definitions, Sprints, Dependencies \\
+\textbf{Part B} & Requirements Traceability Matrix & Page \pageref{sec:part-b} & Requirements-to-Feature-to-Test Mapping \\
+\textbf{Part C} & System-Level SDS & Page \pageref{sec:part-c} & Monorepo Arch, Prisma Schema, Role Matrix \\
+\textbf{Part D} & Three-Sprint Plan & Page \pageref{sec:part-d} & Sprint Breakdown, DoD, RACI Responsibilities \\
+\textbf{Part E.0} & Feature Contract E0 (Auth Foundation) & Page \pageref{sec:part-e0} & Auth Specification, AC-AUTH-01..05, Tests \\
+\textbf{Part E.1} & Feature Contract E1 (Requester Slice) & Page \pageref{sec:part-e1} & Requester Specification, AC-01..04b, Tests \\
+\textbf{Part E.2} & Feature Contract E2 (Reviewer Slice) & Page \pageref{sec:part-e2} & Reviewer Queue \& Decisions, AC-05..12, Tests \\
+\textbf{Part F} & Verification \& Evidence Package & Page \pageref{sec:part-f} & 34 Tests, 6 Screenshots, Excerpts, TDD Log \\
+\bottomrule
+\end{tabularx}
+
+\vfill
+{\small Department of Computer Engineering, Faculty of Engineering\\King Mongkut's University of Technology Thonburi}
+\end{titlepage}
+
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\newpage
+\section{Part A: Software Requirements Specification (SRS)}\label{sec:part-a}
+
+\begin{tcolorbox}[colback=lightbg,colframe=secondary,arc=2mm,boxrule=0.8pt]\small\itshape
+\textbf{CPE 334 Deliverable 1 — Part A} \quad $\bullet$ \quad \textbf{Project:} Corporate Expense \& Purchase Request Approval System \quad $\bullet$ \quad \textbf{Theme:} Theme 5 — Workflow and Approval System \quad $\bullet$ \quad \textbf{Authors:} Oum (67070501075) \& T (67070501021) \quad $\bullet$ \quad \textbf{Status:} Baseline Released (Sprint 1)
+\end{tcolorbox}
+
+
+\subsection{Stakeholder Problem \& Chosen Context}
+
+Organizations frequently face operational bottlenecks, submission delays, and auditing errors in managing corporate expense reimbursements and purchase requests due to legacy reliance on paper routing and ad-hoc chat channels. This unmanaged process leads to three fundamental failure modes:\\
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{No Request Visibility:} Requesters cannot track the status of their submissions, resulting in repeated inquiries, lost documentation, and unmanaged procurement pipelines.
+  \item \textbf{No Audit Trail:} Organizations lack verifiable records of reviewer identities, decision timestamps, and justifications, making compliance tracking and retrospective audits impossible.
+  \item \textbf{Unchecked Conflicts of Interest (Self-Approval Risk):} Reviewers or executives who submit requests can unilaterally approve their own requests (Self-Approval) in the absence of hard automated domain guards.
+\end{enumerate}
+This product is a dedicated \textbf{Workflow and Approval System} engineered to digitize corporate expense and procurement workflows with strict role boundaries: Requester, Reviewer, and Admin (Sprint 3).\\
+
+
+\subsection{Actors \& Responsibilities}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.0cm}|>{\RaggedRight}p{6.8cm}|>{\RaggedRight}p{5.2cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Actor} & \textbf{Responsibility} & \textbf{Sprint 1 Scope} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Actor} & \textbf{Responsibility} & \textbf{Sprint 1 Scope} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{Requester} & Authenticate into the platform, create expense/purchase requests, inspect personal submissions, view lifecycle status and decision audit history; restricted from calling Reviewer endpoints. & Yes \\ \hline
+\textbf{Reviewer} & View assigned pending requests (\texttt{PENDING}), execute \texttt{APPROVE} or \texttt{REJECT} decisions with audit comments; can create personal requests as a requester but \textbf{strictly prohibited from self-approving personal requests}. & Yes \\ \hline
+\textbf{Admin} & Manage user accounts, assign system roles, and configure department reviewer assignments (data model enum provisioned in Sprint 1; administrative management endpoints scheduled for Sprint 3). & No (Sprint 3) \\ \hline
+\textbf{System} & Issue formatted \texttt{requestNo} identifiers, assign reviewers deterministically based on category, enforce atomic state transitions, and record append-only audit logs. & Yes \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Product Scope \& Explicit Exclusions}
+
+\subsubsection{In Scope (Whole Product Baseline)}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Request creation and lifecycle tracking (\texttt{PENDING}, \texttt{APPROVED}, \texttt{REJECTED})
+  \item Reviewer task queue and decision workflow
+  \item Automated reviewer assignment engine
+  \item Immutable append-only approval history and audit trail
+  \item Return for revision and resubmission workflow (Sprint 2)
+  \item Multi-stage hierarchical approval workflow (Sprint 2)
+  \item Document and receipt attachments with secure access control (Sprint 2)
+  \item Search, filter, and aggregate expense reporting (Sprint 3)
+  \item Administrative user account and assignment management (Sprint 3)
+  \item Hardening, automated regression test suites, and containerized deployment (Docker/GCP)
+\end{itemize}
+\subsubsection{Sprint 1 Slice (Delivered in this Release)}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{F-01:} Authentication \& Session (Login/Logout/Current User with HTTP-only cookie)
+  \item \textbf{F-02:} Request Creation (Validation, requestNo generation, reviewer assignment)
+  \item \textbf{F-03:} My Requests \& Data Isolation (View personal requests with isolation guards)
+  \item \textbf{F-04:} Review Queue \& Decision (Approve/Reject with comment, Self-Approval Guard, State Guard)
+  \item \textbf{F-05:} Approval History write (Atomic append-only transaction logging)
+\end{itemize}
+\subsubsection{Explicit Exclusions (Sprint 1 Deferred Scope)}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Live payment gateway integration and automatic fund disbursement
+  \item External notifications (SMS, Email, or Slack/Teams webhooks)
+  \item Live banking system integrations
+  \item Multi-currency support (exclusively supports Thai Baht - THB)
+  \item Public self-registration or self-service password recovery (uses authenticated seed demo accounts)
+  \item File and receipt attachments in Sprint 1 (deferred to Sprint 2)
+  \item Return for revision workflow in Sprint 1 (deferred to Sprint 2)
+  \item Multi-stage approval hierarchy in Sprint 1 (deferred to Sprint 2)
+  \item Executive analytics dashboard in Sprint 1 (deferred to Sprint 3)
+  \item Real PII or production secrets (all fixtures utilize synthetic mock data)
+\end{itemize}
+
+\subsection{Functional Requirements (FR)}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.5cm}|>{\RaggedRight}p{7.0cm}|>{\centering\arraybackslash}p{1.8cm}|>{\RaggedRight}p{4.4cm}|}
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Requirement (Observable Behavior)} & \textbf{Sprint} & \textbf{Planned\allowbreak{} Verification} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Requirement (Observable Behavior)} & \textbf{Sprint} & \textbf{Planned\allowbreak{} Verification} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{FR-01} & Users can login, logout, and inspect current session user info via HTTP-only cookie; unauthenticated requests to protected endpoints are rejected with 401. & S1 & AC-AUTH-01..05 / TEST-AUTH-01..05 \\ \hline
+\textbf{FR-02} & Authenticated users can create requests with title, amount, category, and description; the system validates inputs, generates unique requestNo, sets PENDING status, and assigns reviewer. & S1 & AC-01, AC-02 / TEST-01, TEST-02 \\ \hline
+\textbf{FR-03} & Requesters can inspect their own submissions list, view status details, and read decision audit history. & S1 & AC-03, AC-04 / TEST-03, TEST-04 \\ \hline
+\textbf{FR-04} & Assigned Reviewers can view their assigned pending queue (PENDING) and execute APPROVE or REJECT decisions with comments; system updates status and records history. & S1 & AC-05..AC-12 / TEST-05..TEST-13 \\ \hline
+\textbf{FR-05} & The system records append-only decision audit history (actor, action, comment, timestamp) within an atomic transaction, providing an audit view. & S1 (write) / S2 (view) & AC-06, AC-11 / TEST-06, TEST-13 \\ \hline
+\textbf{FR-06} & The system assigns a reviewer to each request; only the assigned reviewer can make a decision; Admins can reconfigure assignments in future sprints. & S1 (assign) / S3 (admin) & AC-05, AC-09 / TEST-05, TEST-11 \\ \hline
+\textbf{FR-07} & Reviewers can return requests for revision (RETURNED); Requesters can edit fields and resubmit. & S2 & Planned S2 Contract \\ \hline
+\textbf{FR-08} & Multi-stage approval workflow support (e.g. Manager $\rightarrow$ Finance) with separate history records per stage. & S2 & Planned S2 Contract \\ \hline
+\textbf{FR-09} & Document and receipt attachment upload with secure authorized file retrieval. & S2 & Planned S2 Contract \\ \hline
+\textbf{FR-10} & Search, filter requests, and export aggregated budget reports by status and category. & S3 & Planned S3 Contract \\ \hline
+\textbf{FR-11} & Admin user account management, role assignment, and reviewer queue routing configuration. & S3 & Planned S3 Contract \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Business Rules (BR)}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.5cm}|>{\RaggedRight}p{7.0cm}|>{\RaggedRight}p{4.6cm}|>{\centering\arraybackslash}p{1.6cm}|}
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Rule \& Domain Constraint} & \textbf{Failure Behavior} & \textbf{Sprint} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Rule \& Domain Constraint} & \textbf{Failure Behavior} & \textbf{Sprint} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{BR-01} & \textbf{No Self-Approval:} Requesters are strictly prohibited from approving or rejecting their own requests, regardless of whether their account possesses REVIEWER or ADMIN privileges. & 403 \texttt{SELF\_\allowbreak APPROVAL\_\allowbreak NOT\_\allowbreak ALLOWED} (evaluated prior to assignment check) & S1 \\ \hline
+\textbf{BR-02} & \textbf{Valid State Lifecycle:} Requests initialize in \texttt{PENDING}; unidirectional transition allowed to \texttt{APPROVED} or \texttt{REJECTED}; terminal decisions cannot be transitioned again. & 400 \texttt{INVALID\_\allowbreak STATE\_\allowbreak TRANSITION} & S1 \\ \hline
+\textbf{BR-03} & \textbf{Data Isolation:} Requesters can only access their own requests; Reviewers can only access requests assigned to them (or requests they created themselves). & 403 \texttt{ACCESS\_\allowbreak DENIED} & S1 \\ \hline
+\textbf{BR-04} & \textbf{Payload Validation:} \texttt{title} must be 3--150 characters (trimmed); \texttt{amount} must be positive $> 0$ and $\le 9,999,999,999.99$ (Decimal(12,2)); \texttt{category} must match whitelist; \texttt{description} must be 1--1,000 characters. & 400 \texttt{VALIDATION\_\allowbreak ERROR} & S1 \\ \hline
+\textbf{BR-05} & \textbf{Reviewer Assignment:} Every request must have an assigned reviewer; only the designated assigned reviewer has authorization to execute decisions. & 403 \texttt{ACCESS\_\allowbreak DENIED} & S1 \\ \hline
+\textbf{BR-06} & \textbf{Append-Only History:} Every state-changing action (submit/approve/reject) must append an immutable record to \texttt{ApprovalHistory}; modifications/deletions forbidden; status and history update atomically. & No update/delete endpoints; full database transaction rollback on error & S1 \\ \hline
+\textbf{BR-07} & \textbf{Decision Validation:} Decision action must be either \texttt{APPROVE} or \texttt{REJECT}; \texttt{REJECT} requires a non-empty comment between 3--500 characters; \texttt{APPROVE} allows optional comment up to 500 characters. & 400 \texttt{VALIDATION\_\allowbreak ERROR} & S1 \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Non-Functional Requirements (NFR)}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.4cm}|>{\RaggedRight}p{2.0cm}|>{\RaggedRight}p{4.2cm}|>{\RaggedRight}p{5.0cm}|>{\centering\arraybackslash}p{1.8cm}|}
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Category} & \textbf{Measurable Target} & \textbf{Verification Method} & \textbf{Sprint Allocation} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Category} & \textbf{Measurable Target} & \textbf{Verification Method} & \textbf{Sprint Allocation} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{NFR-01} & Security & Passwords hashed with bcrypt cost 12; stateless JWT session stored in HTTP-only Lax Cookie; zero credentials in git. & Security code review, Automated auth test suite (TEST-AUTH-01..05) & Sprint 1 \\ \hline
+\textbf{NFR-02} & Performance & API p95 response time $< 300$ ms under 50 concurrent requests; zero N+1 database queries via eager loading. & Benchmark timing script, Prisma query log review & S1 (Design) / S3 (Load) \\ \hline
+\textbf{NFR-03} & Persistence & Zero data loss on server restart; transactional consistency; repeatable seed scripts. & Container restart test, Seed replay test & Sprint 1 \\ \hline
+\textbf{NFR-04} & Error Safety & 100\% of invalid inputs return standard error JSON with HTTP 4xx and unambiguous machine-readable error code. & Negative API integration test suite (TEST-02, TEST-07..12) & Sprint 1 \\ \hline
+\textbf{NFR-05} & Testability & Automated integration test coverage covers 100\% of Sprint 1 Acceptance Criteria. & Vitest suite (34 tests) + Playwright E2E suite (3 scenarios) & Sprint 1 \\ \hline
+\textbf{NFR-06} & Deployability & Single container Docker build; configuration via environment variables; health check endpoint. & Docker container build, \texttt{/api/health} HTTP 200 verification & S1 (Design) / Lab 5 \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Assumptions, Decisions \& Open Questions}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.4cm}|>{\centering\arraybackslash}p{2.0cm}|>{\RaggedRight}p{3.8cm}|>{\RaggedRight}p{7.5cm}|}
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Type} & \textbf{Title} & \textbf{Description \& Rationale} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Type} & \textbf{Title} & \textbf{Description \& Rationale} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{D-01} & Decision & Theme Selection & Theme 5: Workflow and Approval System based on student ID endings (Oum ends in 5, T ends in 1). \\ \hline
+\textbf{D-02} & Decision & Architecture Pattern & Single-origin monorepo (Express API + React Vite SPA) sharing unified types and zero-CORS cookie delivery. \\ \hline
+\textbf{D-03} & Decision & Security Baseline & HTTP-only, SameSite=Lax JWT authentication cookies; bcrypt cost 12 password hashing; no plaintext credentials stored. \\ \hline
+\textbf{D-04} & Decision & Strict No-Self-Approval & Hard-coded domain rule preventing users from reviewing their own submissions, tested via positive and negative suites. \\ \hline
+\textbf{D-05} & Decision & Decimal Precision & Currency values stored using \texttt{Decimal(12,2)} to prevent floating-point rounding inaccuracies. \\ \hline
+\textbf{D-06} & Decision & Category Whitelist & 4 whitelisted categories: \texttt{EQUIPMENT}, \texttt{TRAVEL}, \texttt{SOFTWARE}, \texttt{SUPPLIES} for structured routing and validation. \\ \hline
+\textbf{D-07} & Decision & No File Upload in Sprint 1 & Document attachment system deferred to Sprint 2 according to release baseline. \\ \hline
+\textbf{D-08} & Assumption & Synthetic Demo Data Only & No live banking, SMS, or payment gateways; all operations run on synthetic test data per academic guidelines. \\ \hline
+\textbf{D-09} & Decision & Stateless JWT in Cookie & Logout is handled client-side by clearing cookies; server token blacklist deferred (documented under Known Limitations). \\ \hline
+\textbf{D-10} & Decision & Request Number Format & Identifiers follow format \texttt{REQ-\allowbreak YYYYMMDD-\allowbreak NNNN} with unique constraint and retry loop to prevent collisions. \\ \hline
+\textbf{D-11} & Decision & Comment Requirement on Rejection & Mandatory comment on reject to maintain audit accountability; optional on approval. \\ \hline
+\textbf{D-12} & Decision & Assigned Queue Only & Reviewers view only their explicitly assigned items rather than all organizational requests, ensuring departmental data segregation. \\ \hline
+\textbf{D-13} & Assumption & Demo Credentials & All seeded demonstration test accounts utilize password \texttt{Password123!} for local development environments. \\ \hline
+\textbf{D-14} & Decision & Atomic Status \& History Update & State transitions and audit history insertions are executed atomically within a single \texttt{prisma.\allowbreak \$transaction}. \\ \hline
+\textbf{Q-01} & Open (S3) & Global Admin Visibility & Determine whether global administrators should view all organizational requests across departments (to be resolved in F-10). \\ \hline
+\textbf{Q-02} & Open (S2) & Return for Revision Rules & Determine whether resubmitted requests return to the original reviewer or restart the approval workflow. \\ \hline
+\textbf{Q-03} & Open (S2) & Attachment Storage Strategy & Establish maximum upload size limits and permitted MIME types for document attachments in Sprint 2. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+\newpage
+\section{Part A.2: Feature Inventory (F-01 to F-11)}\label{sec:part-a-feat}
+
+\begin{tcolorbox}[colback=lightbg,colframe=secondary,arc=2mm,boxrule=0.8pt]\small\itshape
+\textbf{CPE 334 Deliverable 1 — Part B (Feature Inventory)} \quad $\bullet$ \quad \textbf{Project:} Corporate Expense \& Purchase Request Approval System \quad $\bullet$ \quad \textbf{Theme:} Theme 5 — Workflow and Approval System \quad $\bullet$ \quad \textbf{Authors:} Oum (67070501075) \& T (67070501021) \quad $\bullet$ \quad \textbf{Status:} Baseline Released (Sprint 1)
+\end{tcolorbox}
+
+
+\subsection{Feature Inventory Table}
+
+Complete inventory of all product features from conception to final delivery, specifying linkages to Requirements, Dependencies, and Sprint execution plans:\\
+
+
+\small
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.1cm}|>{\RaggedRight}p{2.2cm}|>{\RaggedRight}p{3.4cm}|>{\RaggedRight}p{1.6cm}|>{\RaggedRight}p{1.2cm}|>{\centering\arraybackslash}p{1.6cm}|>{\RaggedRight}p{2.8cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Feat ID} & \textbf{Feature Name} & \textbf{Description} & \textbf{Related Reqs} & \textbf{Dependencies} & \textbf{Sprint} & \textbf{Planned\allowbreak{} Verification} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Feat ID} & \textbf{Feature Name} & \textbf{Description} & \textbf{Related Reqs} & \textbf{Dependencies} & \textbf{Sprint} & \textbf{Planned\allowbreak{} Verification} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{F-01} & \textbf{Auth \& Session Management} & User login, logout, and identity inspection via HTTP-only JWT Cookie, preventing unauthorized access to protected endpoints. & FR-01, NFR-01, NFR-04 & None & \textbf{Sprint 1} & Automated API Integration Tests (TEST-AUTH-01..05) \\ \hline
+\textbf{F-02} & \textbf{Request Creation \& Validation} & Users submit expense/purchase requests with title, amount, category, with automated validation, request number generation, and reviewer assignment. & FR-02, BR-04, BR-05, NFR-04 & F-01 & \textbf{Sprint 1} & API Validation \& Persistence Tests (TEST-01, TEST-02), E2E-01 \\ \hline
+\textbf{F-03} & \textbf{My Requests \& Data Isolation} & Requesters inspect personal requests and details, enforced by data isolation guards preventing other users from accessing personal records. & FR-03, BR-03, NFR-03 & F-01, F-02 & \textbf{Sprint 1} & API Data Isolation Tests (TEST-03, TEST-04), E2E-01 \\ \hline
+\textbf{F-04} & \textbf{Review Queue \& Decision Workflow} & Reviewers inspect assigned queue items, approve or reject with comments, enforcing strict no-self-approval domain rules. & FR-04, FR-06, BR-01, BR-02, BR-05, BR-06, BR-07 & F-01, F-02 & \textbf{Sprint 1} & Domain Rule Tests (TEST-05..TEST-13), E2E-02, E2E-03 \\ \hline
+\textbf{F-05} & \textbf{Approval History \& Audit Trail} & Records submission, approval, and rejection history in append-only format within atomic transactions, with audit log presentation. & FR-05, BR-06, NFR-03 & F-04 & \textbf{S1 (Write) / S2 (View)} & Database Transaction \& Immutability Test (TEST-06, TEST-13) \\ \hline
+\textbf{F-06} & \textbf{Return for Revision \& Resubmission} & Reviewers can return requests for applicant revision, and applicants can update and resubmit modified requests for re-review. & FR-07, BR-02, BR-06 & F-04 & \textbf{Sprint 2} & Sprint 2 Contract \& Integration Tests \\ \hline
+\textbf{F-07} & \textbf{Multi-Stage Approval Workflow} & Multi-stage sequential approval workflow (e.g., Department Manager $\rightarrow$ Finance Director) for high-value requests. & FR-08, BR-02, BR-05, BR-06 & F-04, F-06 & \textbf{Sprint 2} & Sprint 2 Multi-stage Decision Tests \\ \hline
+\textbf{F-08} & \textbf{Document \& Receipt Attachments} & Requesters can upload receipts and quotation documents, enforced by secure role-based access control policies. & FR-09, BR-03, NFR-01 & F-02, F-04 & \textbf{Sprint 2} & Sprint 2 Attachment API \& Auth Tests \\ \hline
+\textbf{F-09} & \textbf{Search, Filter \& Expense Reporting} & Search, filter requests, and generate aggregated department expense reports by status, category, and date range. & FR-10, NFR-02 & F-03, F-04, F-05 & \textbf{Sprint 3} & Sprint 3 Reporting \& Aggregate Query Tests \\ \hline
+\textbf{F-10} & \textbf{Admin User \& Assignment Management} & System administrators manage user accounts, roles, departments, and category-to-reviewer assignment rules. & FR-11, BR-05 & F-01, F-04 & \textbf{Sprint 3} & Sprint 3 Admin RBAC \& Management Tests \\ \hline
+\textbf{F-11} & \textbf{System Hardening, Regression \& Deployment} & Performance tuning, full automated regression test suites, Docker containerization, and GCP cloud deployment. & NFR-01..NFR-06 & All (F-01..10) & \textbf{Sprint 1 (Base) / Sprint 3} & Continuous Integration, Benchmark Suite, Health Probes \\ \hline
+\end{longtable}
+\vspace{0.3em}
+\normalsize
+
+
+\subsection{Feature Dependency Graph}
+
+Hierarchical dependency structure between product features showing how each layer builds upon prior functionality:\\
+
+\begin{tcolorbox}[colback=codebg,colframe=lightbg,arc=1mm,boxrule=0.5pt]\small
+\texttt{F-01 (Auth \& Session Foundation)}\\
+\hspace*{1.5em}$\downarrow$\\
+\texttt{F-02 (Request Creation \& Validation)}\\
+\hspace*{1.5em}$\downarrow$\hspace*{4.5em}$\searrow$\\
+\texttt{F-03 (My Requests)}\hspace*{1.5em}\texttt{F-04 (Review Queue \& Decision Workflow)}\\
+\hspace*{12.5em}$\downarrow$\hspace*{4.5em}$\searrow$\\
+\hspace*{9.5em}\texttt{F-05 (History)}\hspace*{1.5em}\texttt{F-06 (Return for Revision)}\\
+\hspace*{18.5em}$\downarrow$\\
+\hspace*{15.5em}\texttt{F-07 (Multi-Stage Approval)}\\
+\hspace*{18.5em}$\downarrow$\\
+\hspace*{15.5em}\texttt{F-08 (Attachments)}\\
+\hspace*{1.5em}$\downarrow$\hspace*{10.5em}$\downarrow$\\
+\texttt{F-09 (Search \& Reporting)}\hspace*{1.5em}\texttt{F-10 (Admin Management)}\\
+\hspace*{7.5em}$\searrow$\hspace*{3.5em}$\swarrow$\\
+\hspace*{4.5em}\texttt{F-11 (Hardening, Regression \& GCP Deployment)}
+\end{tcolorbox}
+
+
+\subsection{Sprint Allocation Summary}
+
+Features are mapped into three release increments to guarantee early delivery of the core value proposition:\\
+
+\begin{itemize}[leftmargin=*,itemsep=3pt,topsep=2pt]
+  \item \textbf{Sprint 1 (Deliverable 1 — Delivered \& Released):}
+  \item \texttt{F-01} Authentication \& Session Management
+  \item \texttt{F-02} Request Creation \& Field Validation
+  \item \texttt{F-03} My Requests \& Data Isolation
+  \item \texttt{F-04} Review Queue \& Decision Workflow
+  \item \texttt{F-05} (Write part) Atomic Append-Only Approval History
+  \item \textbf{Sprint 2 (Deliverable 2 — Planned):}
+  \item \texttt{F-05} (View part) Audit Trail UI View
+  \item \texttt{F-06} Return for Revision \& Resubmission
+  \item \texttt{F-07} Multi-Stage Approval Workflow
+  \item \texttt{F-08} Document \& Receipt Attachments
+  \item \textbf{Sprint 3 (Final Delivery — Planned):}
+  \item \texttt{F-09} Search, Filter \& Expense Reporting
+  \item \texttt{F-10} Admin User \& Assignment Management
+  \item \texttt{F-11} System Hardening, Regression Suite \& GCP Deployment
+\end{itemize}
+\newpage
+\section{Part B: Requirements Traceability Matrix}\label{sec:part-b}
+
+\begin{tcolorbox}[colback=lightbg,colframe=secondary,arc=2mm,boxrule=0.8pt]\small\itshape
+\textbf{CPE 334 Deliverable 1 — Part B (Traceability)} \quad $\bullet$ \quad \textbf{Project:} Corporate Expense \& Purchase Request Approval System \quad $\bullet$ \quad \textbf{Theme:} Theme 5 — Workflow and Approval System \quad $\bullet$ \quad \textbf{Authors:} Oum (67070501075) \& T (67070501021) \quad $\bullet$ \quad \textbf{Status:} Baseline Released (Sprint 1)
+\end{tcolorbox}
+
+
+\subsection{Requirements-to-Feature-to-Sprint Traceability Matrix}
+
+Complete bidirectional traceability mapping between \textbf{Requirements (FR, BR, NFR)} $\rightarrow$ \textbf{Features (F-01..11)} $\rightarrow$ \textbf{Responsible Sprint} $\rightarrow$ \textbf{Acceptance Criteria (AC) \& Test IDs}:\\
+
+\subsubsection{Functional Requirements (FR) Traceability}
+
+\small
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.3cm}|>{\RaggedRight}p{2.8cm}|>{\centering\arraybackslash}p{1.3cm}|>{\centering\arraybackslash}p{1.4cm}|>{\RaggedRight}p{2.4cm}|>{\RaggedRight}p{2.6cm}|>{\RaggedRight}p{2.1cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Req ID} & \textbf{Requirement Description} & \textbf{Linked Feature} & \textbf{Sprint} & \textbf{Acceptance Criteria (AC)} & \textbf{Verification Method \& Test IDs} & \textbf{Baseline Status} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Req ID} & \textbf{Requirement Description} & \textbf{Linked Feature} & \textbf{Sprint} & \textbf{Acceptance Criteria (AC)} & \textbf{Verification Method \& Test IDs} & \textbf{Baseline Status} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{FR-01} & User Authentication \& Cookie Session & F-01 & \textbf{Sprint 1} & AC-AUTH-01, AC-AUTH-02, AC-AUTH-03, AC-AUTH-04, AC-AUTH-05 & Integration Tests: \texttt{TEST-\allowbreak AUTH-\allowbreak 01} to \texttt{TEST-\allowbreak AUTH-\allowbreak 05} & \textbf{Verified (Sprint 1, \texttt{2bcbf4a})} \\ \hline
+\textbf{FR-02} & Request Creation \& Field Validation & F-02 & \textbf{Sprint 1} & AC-01, AC-02 & API \& DB Tests: \texttt{TEST-\allowbreak 01}, \texttt{TEST-\allowbreak 02}, E2E: \texttt{E2E-\allowbreak 01} & \textbf{Verified (Sprint 1, \texttt{2bcbf4a})} \\ \hline
+\textbf{FR-03} & My Requests \& Detail Tracking & F-03 & \textbf{Sprint 1} & AC-03, AC-04 & API Isolation Tests: \texttt{TEST-\allowbreak 03}, \texttt{TEST-\allowbreak 04}, E2E: \texttt{E2E-\allowbreak 01} & \textbf{Verified (Sprint 1, \texttt{2bcbf4a})} \\ \hline
+\textbf{FR-04} & Review Queue \& Decision Workflow & F-04 & \textbf{Sprint 1} & AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-12 & Integration Tests: \texttt{TEST-\allowbreak 05} to \texttt{TEST-\allowbreak 13}, E2E: \texttt{E2E-\allowbreak 02}, \texttt{E2E-\allowbreak 03} & \textbf{Verified (Sprint 1, \texttt{2bcbf4a})} \\ \hline
+\textbf{FR-05} & Approval History \& Audit Trail & F-05 & \textbf{S1 (Write) / S2 (View)} & AC-06, AC-11 & Transaction Test: \texttt{TEST-\allowbreak 06}, Persistence: \texttt{TEST-\allowbreak 13} & \textbf{Write Verified (S1, \texttt{2bcbf4a}); view Sprint 2} \\ \hline
+\textbf{FR-06} & Reviewer Assignment & F-04, F-10 & \textbf{S1 (Assign) / S3 (Admin)} & AC-01, AC-05, AC-09 & Assignment Tests: \texttt{TEST-\allowbreak 01}, \texttt{TEST-\allowbreak 05}, \texttt{TEST-\allowbreak 11} & \textbf{Assign Verified (S1, \texttt{2bcbf4a}); admin Sprint 3} \\ \hline
+\textbf{FR-07} & Return for Revision \& Resubmission & F-06 & \textbf{Sprint 2} & Planned in Sprint 2 Contract & Unit \& Integration Tests (Sprint 2) & \textit{Planned (Sprint 2)} \\ \hline
+\textbf{FR-08} & Multi-Stage Approval Workflow & F-07 & \textbf{Sprint 2} & Planned in Sprint 2 Contract & Multi-stage Transition Tests (Sprint 2) & \textit{Planned (Sprint 2)} \\ \hline
+\textbf{FR-09} & Document Attachments & F-08 & \textbf{Sprint 2} & Planned in Sprint 2 Contract & Multipart Upload \& Auth Tests (Sprint 2) & \textit{Planned (Sprint 2)} \\ \hline
+\textbf{FR-10} & Search, Filter \& Expense Reporting & F-09 & \textbf{Sprint 3} & Planned in Sprint 3 Contract & Reporting \& Aggregate Query Tests (Sprint 3) & \textit{Planned (Sprint 3)} \\ \hline
+\textbf{FR-11} & Admin User \& Role Management & F-10 & \textbf{Sprint 3} & Planned in Sprint 3 Contract & Admin Access \& Role Management Tests (Sprint 3) & \textit{Planned (Sprint 3)} \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+
+\subsubsection{Business Rules (BR) Traceability}
+
+\small
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.3cm}|>{\RaggedRight}p{2.8cm}|>{\centering\arraybackslash}p{1.3cm}|>{\centering\arraybackslash}p{1.4cm}|>{\RaggedRight}p{2.4cm}|>{\RaggedRight}p{2.6cm}|>{\RaggedRight}p{2.1cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Rule ID} & \textbf{Business Rule / Domain Guard} & \textbf{Linked Feature} & \textbf{Sprint} & \textbf{Acceptance Criteria (AC)} & \textbf{Verification Method \& Test IDs} & \textbf{Baseline Status} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Rule ID} & \textbf{Business Rule / Domain Guard} & \textbf{Linked Feature} & \textbf{Sprint} & \textbf{Acceptance Criteria (AC)} & \textbf{Verification Method \& Test IDs} & \textbf{Baseline Status} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{BR-01} & \textbf{No Self-Approval:} Strictly prohibit self-approval & F-04 & \textbf{Sprint 1} & AC-07 & Backend Guard Test: \texttt{TEST-\allowbreak 08}, E2E: \texttt{E2E-\allowbreak 03} & \textbf{Verified (Sprint 1, \texttt{2bcbf4a})} \\ \hline
+\textbf{BR-02} & \textbf{Valid State Lifecycle:} \texttt{PENDING} $\rightarrow$ \texttt{APPROVED} / \texttt{REJECTED} & F-04, F-06, F-07 & \textbf{Sprint 1 / S2} & AC-08 (S1) & State Transition Test: \texttt{TEST-\allowbreak 09} & \textbf{Verified S1 (\texttt{2bcbf4a})} \\ \hline
+\textbf{BR-03} & \textbf{Data Isolation:} Access limited strictly to authorized requests & F-03, F-04, F-08 & \textbf{Sprint 1 / S2} & AC-04, AC-09 & Forbidden Access Tests: \texttt{TEST-\allowbreak 04}, \texttt{TEST-\allowbreak 11} & \textbf{Verified S1 (\texttt{2bcbf4a})} \\ \hline
+\textbf{BR-04} & \textbf{Payload Validation:} Title, Amount $> 0$, Whitelist Category & F-02 & \textbf{Sprint 1} & AC-02 & Boundary \& Negative Tests: \texttt{TEST-\allowbreak 02} & \textbf{Verified (Sprint 1, \texttt{2bcbf4a})} \\ \hline
+\textbf{BR-05} & \textbf{Reviewer Assignment:} Enforce decisions by assigned reviewer only & F-02, F-04, F-10 & \textbf{Sprint 1 / S3} & AC-01, AC-05, AC-09 & Assignment \& Unrelated Reviewer Tests: \texttt{TEST-\allowbreak 05}, \texttt{TEST-\allowbreak 11} & \textbf{Assign Verified (S1, \texttt{2bcbf4a})} \\ \hline
+\textbf{BR-06} & \textbf{Append-Only History:} Immutable transaction logs; no edit/delete & F-04, F-05 & \textbf{Sprint 1} & AC-06, AC-11 & Immutability \& Persistence Test: \texttt{TEST-\allowbreak 06}, \texttt{TEST-\allowbreak 13} & \textbf{Verified (Sprint 1, \texttt{2bcbf4a})} \\ \hline
+\textbf{BR-07} & \textbf{Decision Validation:} Approve/Reject format + Reason on Reject & F-04 & \textbf{Sprint 1} & AC-12 & Decision Payload Validation Test: \texttt{TEST-\allowbreak 12} & \textbf{Verified (Sprint 1, \texttt{2bcbf4a})} \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+
+\subsubsection{Non-Functional Requirements (NFR) Traceability}
+
+\small
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.5cm}|>{\RaggedRight}p{2.2cm}|>{\RaggedRight}p{3.8cm}|>{\centering\arraybackslash}p{1.4cm}|>{\centering\arraybackslash}p{1.4cm}|>{\RaggedRight}p{3.9cm}|}
+\hline
+\rowcolor{zenPale}\textbf{NFR ID} & \textbf{Quality Category} & \textbf{Target \& Measure} & \textbf{Linked Feature} & \textbf{Sprint} & \textbf{Verification Method \& Evidence} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{NFR ID} & \textbf{Quality Category} & \textbf{Target \& Measure} & \textbf{Linked Feature} & \textbf{Sprint} & \textbf{Verification Method \& Evidence} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{NFR-01} & Security & bcrypt cost 12, JWT 8h, httpOnly Lax Cookie, no plaintext passwords & F-01, F-04, F-11 & \textbf{Sprint 1} & Code audit, \texttt{TEST-\allowbreak AUTH-\allowbreak 01.\allowbreak .\allowbreak 05}, Secret scan inspection \\ \hline
+\textbf{NFR-02} & Performance & API latency p95 $< 300$ ms under 50 concurrent requests, no N+1 query & F-01..F-04, F-09, F-11 & \textbf{S1 / S3} & Local execution timing benchmark scripts \\ \hline
+\textbf{NFR-03} & Persistence \& Durability & Data and history persist across restarts; repeatable migration \& seed & F-02..F-05, F-11 & \textbf{Sprint 1 / Lab 5} & Database restart verification, clean DB seed execution \\ \hline
+\textbf{NFR-04} & Error Safety \& Validation & 100\% of invalid inputs return 4xx with clear machine-readable error codes & F-01..F-04, F-11 & \textbf{Sprint 1} & Negative integration test suites (\texttt{TEST-\allowbreak 02}, \texttt{TEST-\allowbreak 12}, \texttt{TEST-\allowbreak AUTH-\allowbreak 02}) \\ \hline
+\textbf{NFR-05} & Testability \& Traceability & 100\% of Sprint 1 ACs covered by automated tests & F-01..F-04 & \textbf{Sprint 1} & Traceability matrix cross-check + Vitest suite (34 tests) \& Playwright E2E-01..03 (all green locally, PR \#16) \\ \hline
+\textbf{NFR-06} & Deployability \& Config & Containerized deployment, zero hardcoded secrets, health probe & F-11 & \textbf{S1 (Design) / Lab 5} & Dockerfile inspection, \texttt{/\allowbreak api/\allowbreak health} probe test \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Coverage Gaps \& Honest Disclosure}
+
+In accordance with CPE 334 course governance principles, requirements and features that have not yet undergone full implementation or verification are transparently disclosed:\\
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Requirements Tracking Status (All Requirements Accounted For):}
+\end{enumerate}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Every Requirement (\texttt{FR-01..FR-11}, \texttt{BR-01..BR-07}, \texttt{NFR-01..NFR-06}) is fully inventoried in this document and assigned to an explicit delivery sprint.
+  \item \textbf{No untracked requirements exist in the project baseline.}
+\end{itemize}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Sprint 1 Implemented \& Verified Scope:}
+\end{enumerate}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{FR-01} through \texttt{FR-04}, \texttt{FR-05 (Write)}, \texttt{FR-06 (Assignment)}, and \texttt{BR-01..BR-07} constitute the complete implementation scope of Sprint 1 (via Issues \#3, \#4, and \#5). Baseline status is fully updated to \textbf{Verified} backed by test execution evidence and merged PRs.
+\end{itemize}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Later Sprints Scope (Honest Planned Disclosure):}
+\end{enumerate}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{FR-07} (Return for revision), \texttt{FR-08} (Multi-stage), and \texttt{FR-09} (Attachments) are marked as \textbf{Planned for Sprint 2}.
+  \item \texttt{FR-10} (Reporting) and \texttt{FR-11} (Admin) are marked as \textbf{Planned for Sprint 3}.
+  \item Acceptance Criteria and executable test suites for these items are deferred to the detailed Feature Engineering Contracts of Sprints 2 and 3 respectively.
+\end{itemize}
+
+\subsection{Approved Change Log}
+
+Formal register of specification and scope modifications agreed upon by the engineering team (Approved Changes):\\
+
+
+\small
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.3cm}|>{\centering\arraybackslash}p{1.6cm}|>{\RaggedRight}p{1.9cm}|>{\RaggedRight}p{3.0cm}|>{\RaggedRight}p{3.4cm}|>{\centering\arraybackslash}p{1.5cm}|>{\centering\arraybackslash}p{1.2cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Change ID} & \textbf{Date} & \textbf{Requirement\allowbreak{} / Feature} & \textbf{Change\allowbreak{} Description} & \textbf{Justification\allowbreak{} \& Impact} & \textbf{Approved By} & \textbf{Status} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Change ID} & \textbf{Date} & \textbf{Requirement\allowbreak{} / Feature} & \textbf{Change\allowbreak{} Description} & \textbf{Justification\allowbreak{} \& Impact} & \textbf{Approved By} & \textbf{Status} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{CR-01} & 2026-11-04 & Scope / Theme & Theme 5: Workflow and Approval System & Based on student ID endings (Oum ends in 5, T ends in 1); mutually agreed on Theme 5 & Oum \& T & Approved \\ \hline
+\textbf{CR-02} & 2026-11-04 & FR-02 / Role Matrix & Allow \texttt{REVIEWER} role to submit requests & Crucial for validating \texttt{BR-\allowbreak 01 No Self-\allowbreak Approval} in realistic production scenarios & Oum \& T & Approved \\ \hline
+\textbf{CR-03} & 2026-11-04 & BR-05 / F-02 & Category-based Reviewer Assignment & Ensures deterministic reviewer assignment and reliable negative testing for Unrelated Reviewers & Oum \& T & Approved \\ \hline
+\textbf{CR-04} & 2026-11-04 & FR-05 / Scope & Bifurcate F-05: Write (S1), View (S2) & Defer redundant UI complexity in Sprint 1 while ensuring 100\% atomic transaction logging in DB & Oum \& T & Approved \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\newpage
+\section{Part C: System-Level Software Design Specification (SDS)}\label{sec:part-c}
+
+\begin{tcolorbox}[colback=lightbg,colframe=secondary,arc=2mm,boxrule=0.8pt]\small\itshape
+\textbf{Project:} CPE 334 - Workflow and Approval System (Theme 5) \quad $\bullet$ \quad \textbf{Deliverable:} Deliverable 1 / Sprint 1 \quad $\bullet$ \quad \textbf{Owner:} T (67070501021) \quad $\bullet$ \quad \textbf{Reviewer:} Oum (67070501075) \quad $\bullet$ \quad \textbf{Related issue:} \#2 - System-Level SDS and Three-Sprint Plan \quad $\bullet$ \quad \textbf{Status:} v1.0 baseline, reviewed before Sprint 1 feature implementation
+\end{tcolorbox}
+
+
+\subsection{Purpose and Scope}
+
+This document defines the system-level design for the Corporate Expense and Purchase Request approval system. It describes the architecture, data model, role and permission rules, UI structure, API conventions, authentication lifecycle, configuration, deployment approach, and security expectations.\\
+
+Sprint 1 implements a working vertical slice:\\
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item authentication and session handling;
+  \item request creation;
+  \item requester-owned request tracking;
+  \item reviewer assignment and review decisions;
+  \item append-only approval history;
+  \item backend enforcement of self-approval, state, validation, and access-control rules.
+\end{itemize}
+The design is intentionally a modular monolith. It does not use microservices, message queues, external caches, real payment integrations, or external notification services in Sprint 1.\\
+
+
+\subsection{Architecture and Technology Stack}
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+React 19 + Vite + TypeScript + Tailwind CSS (client)
+        |
+        | HTTPS / JSON, httpOnly JWT cookie
+        v
+Node.js + Express + TypeScript (API and application layer)
+        |
+        | Prisma ORM
+        v
+PostgreSQL 17 (persistent database)
+\end{lstlisting}
+
+\subsubsection{Component responsibilities}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Component} & \textbf{Responsibility} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Component} & \textbf{Responsibility} \\ \hline
+\endhead
+\hline
+\endfoot
+Client (\texttt{client/\allowbreak }) & Render role-aware screens, collect input, mirror validation feedback, call REST APIs, display loading/empty/error states. UI hiding is not an authorization mechanism. \\ \hline
+Server (\texttt{server/\allowbreak }) & Authenticate requests, enforce roles and business rules, validate payloads, manage request lifecycle, write history, return standardized API responses. \\ \hline
+Prisma & Type-safe database access, migrations, seed support, relationship loading, transaction support. \\ \hline
+PostgreSQL & Durable storage for users, approval requests, and approval history. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Architecture decisions}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Business rules live in server controllers/services, never only in the client.
+  \item Client and server run as separate development servers.
+  \item Production builds the client into static assets and runs the server as a container; the client calls the server over HTTP.
+  \item No microservices and no external queue/cache are required for Sprint 1.
+  \item All secrets are supplied through environment variables; no secret is committed or baked into an image.
+\end{itemize}
+
+\subsection{Data Model, Constraints, and Persistence}
+
+\subsubsection{Entities}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Entity} & \textbf{Purpose} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Entity} & \textbf{Purpose} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{User} & Authenticated actor with role \texttt{REQUESTER}, \texttt{REVIEWER}, or future \texttt{ADMIN}. \\ \hline
+\texttt{ApprovalRequest} & Expense/purchase request owned by a requester and assigned to a reviewer. \\ \hline
+\texttt{ApprovalHistory} & Append-only audit record for submission, approval, or rejection. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Relationships and ownership}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{ApprovalRequest.requesterId -> User.id}: the user who created the request.
+  \item \texttt{ApprovalRequest.assignedReviewerId -> User.id}: the reviewer allowed to decide the request.
+  \item \texttt{ApprovalHistory.actorId -> User.id}: the user who performed the action.
+  \item \texttt{ApprovalHistory.requestId -> ApprovalRequest.id} with cascade delete from request to history.
+\end{itemize}
+\subsubsection{Constraints}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Area} & \textbf{Constraint} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Area} & \textbf{Constraint} \\ \hline
+\endhead
+\hline
+\endfoot
+User identity & \texttt{User.\allowbreak email} is unique. \texttt{passwordHash} stores a bcrypt hash, never plaintext. \\ \hline
+Request identity & \texttt{ApprovalRequest.\allowbreak requestNo} is unique, formatted as \texttt{REQ-\allowbreak YYYYMMDD-\allowbreak NNNN}. \\ \hline
+Amount & Stored as \texttt{Decimal(12,2)}; service validation requires \texttt{amount > 0} and \texttt{amount <= 9,999,999,999.\allowbreak 99}. \\ \hline
+Title & Trimmed length must be 3-150 characters. \\ \hline
+Category & Must be one of \texttt{EQUIPMENT}, \texttt{TRAVEL}, \texttt{SOFTWARE}, \texttt{SUPPLIES}. \\ \hline
+Description & Required, non-empty, maximum 1,000 characters. \\ \hline
+Status & Starts at \texttt{PENDING}; valid transitions are only \texttt{PENDING -\allowbreak > APPROVED} or \texttt{PENDING -\allowbreak > REJECTED}. \\ \hline
+Reviewer assignment & \texttt{assignedReviewerId} is nullable at database level for migration safety, but the service must set it when creating a request. \\ \hline
+History & Append-only. No update/delete endpoint is exposed in Sprint 1. Status update and history insert must share one transaction. \\ \hline
+Decision & \texttt{decision} must be \texttt{APPROVE} or \texttt{REJECT}; \texttt{REJECT} requires a 3-500 character comment; \texttt{APPROVE} comment is optional and at most 500 characters. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Indexes}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{(requesterId, createdAt)} for "My Requests" ordering.
+  \item \texttt{(assignedReviewerId, status)} for the reviewer's pending queue.
+  \item \texttt{(status, createdAt)} for status-based views and future reporting.
+  \item \texttt{(requestId, createdAt)} for request history retrieval.
+\end{itemize}
+\subsubsection{Migrations and seed data}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Local development: \texttt{npx prisma migrate dev}.
+  \item Released/production environments: \texttt{npx prisma migrate deploy}.
+  \item Seed: \texttt{prisma/seed.ts} uses idempotent upserts for three synthetic demo accounts.
+  \item Demo requests are created through the UI/API; financial records are not hard-coded in the seed.
+  \item Durability: PostgreSQL volume or Cloud SQL; data and history must survive process restart and redeploy.
+\end{itemize}
+\subsubsection{Demo accounts}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{5.5cm}|>{\centering\arraybackslash}p{2.5cm}|>{\RaggedRight}p{7.8cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Email} & \textbf{Role} & \textbf{Purpose} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Email} & \textbf{Role} & \textbf{Purpose} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{oum.\allowbreak requester@cpe334.\allowbreak local} & \texttt{REQUESTER} & Requester flows. \\ \hline
+\texttt{t.\allowbreak reviewer@cpe334.\allowbreak local} & \texttt{REVIEWER} & Reviewer for \texttt{EQUIPMENT} and \texttt{TRAVEL}. \\ \hline
+\texttt{manager.\allowbreak hybrid@cpe334.\allowbreak local} & \texttt{REVIEWER} & Reviewer for \texttt{SOFTWARE} and \texttt{SUPPLIES}; self-approval test account. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+All demo accounts use a synthetic local password documented in the README. No production credentials are used.\\
+
+
+\subsection{Roles and Permission Matrix}
+
+\subsubsection{Principles}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Every protected endpoint checks authentication on the backend.
+  \item Authorization checks role, ownership, assignment, and state in the required order.
+  \item Hiding a button is not authorization; the API must return the correct \texttt{401}/\texttt{403}/\texttt{400} error.
+  \item \texttt{REVIEWER} may create requests in Sprint 1 so that BR-01 no-self-approval can be tested with a real reviewer-owned request.
+  \item \texttt{ADMIN} is present in the enum for future work only; it is not seeded and has no Sprint 1 endpoint.
+\end{itemize}
+\subsubsection{Endpoint permission matrix}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.5cm}|>{\centering\arraybackslash}p{1.4cm}|>{\RaggedRight}p{2.2cm}|>{\RaggedRight}p{5.2cm}|>{\RaggedRight}p{3.5cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Endpoint} & \textbf{Method} & \textbf{Allowed roles} & \textbf{Access rule} & \textbf{Failure behavior} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Endpoint} & \textbf{Method} & \textbf{Allowed roles} & \textbf{Access rule} & \textbf{Failure behavior} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{/\allowbreak api/\allowbreak auth/\allowbreak login} & POST & Public & Validate email/password, issue JWT cookie. & \texttt{400 VALIDATION\_\allowbreak ERROR}; \texttt{401 UNAUTHORIZED} \\ \hline
+\texttt{/\allowbreak api/\allowbreak auth/\allowbreak logout} & POST & Any authenticated user & Clear the \texttt{token} cookie. & \texttt{401 UNAUTHORIZED} \\ \hline
+\texttt{/\allowbreak api/\allowbreak auth/\allowbreak me} & GET & Any authenticated user & Return current user without \texttt{passwordHash}. & \texttt{401 UNAUTHORIZED} \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests} & POST & \texttt{REQUESTER}, \texttt{REVIEWER} & Create request, generate \texttt{requestNo}, assign reviewer by category. & \texttt{401 UNAUTHORIZED}; \texttt{400 VALIDATION\_\allowbreak ERROR} \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak my} & GET & Any authenticated user & Return only \texttt{requesterId = currentUser.\allowbreak id}, newest first. & \texttt{401 UNAUTHORIZED} \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak :\allowbreak id} & GET & Owner or assigned reviewer & Requester sees own request; reviewer sees only assigned request. & \texttt{401 UNAUTHORIZED}; \texttt{403 ACCESS\_\allowbreak DENIED}; \texttt{404 NOT\_\allowbreak FOUND} \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak pending} & GET & \texttt{REVIEWER} & Return only \texttt{assignedReviewerId = currentUser.\allowbreak id} and \texttt{status = PENDING}. & \texttt{401 UNAUTHORIZED}; \texttt{403 FORBIDDEN} \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak :\allowbreak id/\allowbreak review} & POST & \texttt{REVIEWER} & Must not be owner; must be assigned reviewer; request must be \texttt{PENDING}; decision must be valid. & \texttt{401}; \texttt{403 FORBIDDEN}; \texttt{403 SELF\_\allowbreak APPROVAL\_\allowbreak NOT\_\allowbreak ALLOWED}; \texttt{403 ACCESS\_\allowbreak DENIED}; \texttt{400 INVALID\_\allowbreak STATE\_\allowbreak TRANSITION}; \texttt{400 VALIDATION\_\allowbreak ERROR} \\ \hline
+\texttt{/\allowbreak api/\allowbreak health} & GET & Public & Health check. & No auth required \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Review endpoint check order}
+
+The backend must enforce checks in this order:\\
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Authentication $\rightarrow$ \texttt{401 UNAUTHORIZED}.
+  \item Role is \texttt{REVIEWER} $\rightarrow$ \texttt{403 FORBIDDEN}.
+  \item Current user is not the request owner $\rightarrow$ \texttt{403 SELF\_APPROVAL\_NOT\_ALLOWED}.
+  \item Current user is the assigned reviewer $\rightarrow$ \texttt{403 ACCESS\_DENIED}.
+  \item Request status is \texttt{PENDING} $\rightarrow$ \texttt{400 INVALID\_STATE\_TRANSITION}.
+  \item Decision payload is valid $\rightarrow$ \texttt{400 VALIDATION\_ERROR}.
+\end{enumerate}
+Checking self-approval before assignment ensures BR-01 is enforced even when the request is assigned to another reviewer.\\
+
+\subsubsection{Reviewer assignment rule}
+
+Sprint 1 uses a deterministic category mapping:\\
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Category} & \textbf{Assigned reviewer} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Category} & \textbf{Assigned reviewer} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{EQUIPMENT}, \texttt{TRAVEL} & \texttt{t.\allowbreak reviewer@cpe334.\allowbreak local} \\ \hline
+\texttt{SOFTWARE}, \texttt{SUPPLIES} & \texttt{manager.\allowbreak hybrid@cpe334.\allowbreak local} \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+If the requester is the mapped reviewer, the system assigns the other reviewer instead. Admin reassignment is deferred to Sprint 3.\\
+
+
+\subsection{UI Structure and Conventions}
+
+\subsubsection{Screens and routes}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.2cm}|>{\RaggedRight}p{3.2cm}|>{\centering\arraybackslash}p{2.0cm}|>{\RaggedRight}p{5.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Route} & \textbf{Screen} & \textbf{Access} & \textbf{Key states} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Route} & \textbf{Screen} & \textbf{Access} & \textbf{Key states} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{/\allowbreak login} & \texttt{LoginPage} & Public & default, loading, invalid credentials, server error \\ \hline
+\texttt{/\allowbreak requests/\allowbreak new} & \texttt{NewRequestPage} & Authenticated & Validation, submit, redirect, API error \\ \hline
+\texttt{/\allowbreak requests/\allowbreak my} & \texttt{MyRequestsPage} & Authenticated & loading, empty list, populated list, error \\ \hline
+\texttt{/\allowbreak requests/\allowbreak :\allowbreak id} & \texttt{RequestDetailPage} & Owner or assigned reviewer & loading, not found, forbidden, fields, history \\ \hline
+\texttt{/\allowbreak reviewer/\allowbreak pending} & \texttt{PendingReviewsPage} & \texttt{REVIEWER} & loading, empty queue, assigned list, error \\ \hline
+\texttt{/\allowbreak reviewer/\allowbreak requests/\allowbreak :\allowbreak id} & \texttt{ReviewDetailPage} & Assigned reviewer & request detail, approve/reject form, validation, forbidden, conflict \\ \hline
+\texttt{/\allowbreak 403}, \texttt{/\allowbreak 404} & Error pages & All & static error state \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Shared UI behavior}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Client-side validation mirrors server validation, but the server is the source of truth.
+  \item Submit controls are disabled while a request is in flight.
+  \item API errors display a banner or field-level message using the server error code/message.
+  \item Empty, loading, and error states are explicit on every list/detail screen.
+  \item No optimistic status change: the UI updates after a successful API response.
+  \item Role-aware navigation is a usability aid, not a security boundary.
+  \item The UI must not display \texttt{passwordHash}, tokens, or other sensitive fields.
+\end{itemize}
+
+\subsection{API Approach and Conventions}
+
+\subsubsection{Response shape}
+
+Success:\\
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+{ "data": { "...": "..." } }
+\end{lstlisting}
+
+Failure:\\
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Human-readable description",
+    "details": []
+  }
+}
+\end{lstlisting}
+
+\texttt{details} is optional and may contain field-level validation information.\\
+
+\subsubsection{HTTP status codes}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Status} & \textbf{Meaning} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Status} & \textbf{Meaning} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{200} & Successful read/update/decision. \\ \hline
+\texttt{201} & Request created. \\ \hline
+\texttt{400} & Validation failure or invalid state transition. \\ \hline
+\texttt{401} & Missing, invalid, or expired authentication. \\ \hline
+\texttt{403} & Authenticated but not allowed. \\ \hline
+\texttt{404} & Resource not found. \\ \hline
+\texttt{500} & Unexpected server error; no stack trace or secret in the response. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Endpoint summary}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.0cm}|>{\RaggedRight}p{6.8cm}|>{\RaggedRight}p{5.2cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Endpoint} & \textbf{Method} & \textbf{Purpose} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Endpoint} & \textbf{Method} & \textbf{Purpose} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{/\allowbreak api/\allowbreak auth/\allowbreak login} & POST & Login and set the JWT cookie. \\ \hline
+\texttt{/\allowbreak api/\allowbreak auth/\allowbreak logout} & POST & Clear the JWT cookie. \\ \hline
+\texttt{/\allowbreak api/\allowbreak auth/\allowbreak me} & GET & Return current user. \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests} & POST & Create a request. \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak my} & GET & List current user's requests. \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak :\allowbreak id} & GET & Get request detail and history when allowed. \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak pending} & GET & List the reviewer's assigned pending requests. \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak :\allowbreak id/\allowbreak review} & POST & Approve or reject an assigned request. \\ \hline
+\texttt{/\allowbreak api/\allowbreak health} & GET & Health check; reports \texttt{status}, \texttt{commit}, and \texttt{timestamp}. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Validation and error handling}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Validate input at the API boundary with Zod schemas.
+  \item Reject unknown or malformed fields.
+  \item Parse monetary values carefully; persist as \texttt{Decimal(12,2)}.
+  \item Return field-specific \texttt{details} when useful.
+  \item Use a central error middleware to map domain errors to the standard response shape.
+  \item Production responses must not expose stack traces, SQL, secrets, or PII.
+  \item Pagination and advanced filtering are not required in Sprint 1; lists are bounded by demo data.
+\end{itemize}
+
+\subsection{Authentication and Session Lifecycle}
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Login:} validate body, find user by email, compare with \texttt{bcrypt.compare}, sign a JWT \texttt{\{ sub, role, iat, exp \}} using \texttt{JWT\_SECRET}, set the \texttt{token} cookie, return the user without \texttt{passwordHash}.
+  \item \textbf{Authenticated request:} read the cookie, verify signature and expiry, load the user, attach \texttt{req.user}. Missing/invalid/expired cookie $\rightarrow$ \texttt{401 UNAUTHORIZED}.
+  \item \textbf{Authorization:} enforce role, ownership, assignment, and state in the order defined in section 4.3.
+  \item \textbf{Current user:} \texttt{GET /api/auth/me} returns \texttt{\{ id, email, name, role \}} only.
+  \item \textbf{Logout:} \texttt{POST /api/auth/logout} clears the cookie with \texttt{maxAge: 0}; the client redirects to \texttt{/login}.
+  \item \textbf{Password handling:} bcrypt cost 12; hashes are never logged or returned; demo password is local-only.
+\end{enumerate}
+\subsubsection{Cookie flags}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Flag} & \textbf{Value} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Flag} & \textbf{Value} \\ \hline
+\endhead
+\hline
+\endfoot
+Name & \texttt{token} \\ \hline
+\texttt{httpOnly} & \texttt{true} \\ \hline
+\texttt{sameSite} & \texttt{lax} \\ \hline
+\texttt{secure} & \texttt{true} when \texttt{NODE\_\allowbreak ENV=production} \\ \hline
+\texttt{path} & \texttt{/\allowbreak } \\ \hline
+\texttt{maxAge} & 8 hours \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+Sprint 1 uses stateless JWTs. Logout clears the client cookie, but a stolen token remains valid until expiry; server-side revocation is a known limitation and is deferred.\\
+
+
+\subsection{Configuration, Secrets, and Deployment Design}
+
+\subsubsection{Environment variables}
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+DATABASE_URL=postgresql://user:password@localhost:5434/approval_db
+JWT_SECRET=replace-with-long-random-secret
+JWT_EXPIRES_IN_SECONDS=28800
+PORT=3000
+NODE_ENV=development
+CLIENT_ORIGIN=http://localhost:5173
+COOKIE_SECURE=false
+GIT_COMMIT=local
+\end{lstlisting}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{.env} is ignored by Git.
+  \item \texttt{.env.example} documents required variables without real secrets.
+  \item Production secrets are injected by the deployment platform, not committed.
+  \item The database configuration is externalized through \texttt{DATABASE\_URL}.
+  \item \texttt{GIT\_COMMIT} is set by CI/CD and returned by \texttt{/api/health}, so the running
+\end{itemize}
+release can be identified from the public URL.\\
+
+\subsubsection{Local development}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item PostgreSQL 17 is the target database; run locally or via Docker on host port \texttt{5434}.
+  \item Run migrations and seed before starting feature work.
+  \item Run client and server as separate development servers.
+  \item Health endpoint: \texttt{GET /api/health}.
+\end{itemize}
+\subsubsection{Docker and GCP deployment (Lab 5, implemented)}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{One runtime image:} the multi-stage \texttt{Dockerfile} installs workspace
+\end{itemize}
+dependencies, generates the Prisma client, builds the React client and the\\
+Express server, and copies only the runtime artifacts into the final stage.\\
+The container serves the built client and the API on port \texttt{3000}.\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Local production-like stack:} \texttt{docker-compose.yml} runs PostgreSQL 17
+\end{itemize}
+(\texttt{db}), a one-off \texttt{prisma migrate deploy} job (\texttt{migrate}), the application\\
+(\texttt{app}), and an optional \texttt{seed} profile. The app starts only after migrations\\
+succeed, and database data lives in a named volume.\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Migrations in the pipeline:} CI runs \texttt{prisma migrate deploy} against a
+\end{itemize}
+service PostgreSQL before tests; deployment runs the same command as a\\
+separate Cloud Run job before the service revision is updated. Schema changes\\
+therefore follow one path locally, in CI, and in production.\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Container health check:} the image health check and the post-deploy smoke
+\end{itemize}
+test call \texttt{/api/health}, which returns \texttt{status}, \texttt{commit}, and \texttt{timestamp}.\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{GCP target:} Cloud Run for the application container, Cloud SQL for
+\end{itemize}
+PostgreSQL, Artifact Registry for images tagged with the commit SHA and\\
+deployed by digest, Secret Manager for \texttt{DATABASE\_URL} and \texttt{JWT\_SECRET}, and\\
+GitHub Actions for CI/CD using Workload Identity Federation.\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Release identification:} the deploy workflow sets \texttt{GIT\_COMMIT} to the
+\end{itemize}
+release SHA, so the running commit is observable from \texttt{/api/health} and from\\
+the Cloud Run revision.\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Secrets:} no secret is committed or baked into an image. Local values come
+\end{itemize}
+from \texttt{.env}; cloud values come from Secret Manager and GitHub Actions secrets.\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Cost controls:} Cloud Run minimum instances \texttt{0}, maximum \texttt{3}; smallest
+\end{itemize}
+Cloud SQL tier with storage auto-increase off; resources stopped or removed\\
+after grading.\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Deployment guide:} \texttt{docs/labs/lab-05/deployment.md} documents the complete
+\end{itemize}
+environment variable table, resource names, one-time setup, release\\
+procedure, rollback, and evidence mapping.\\
+
+\subsubsection{Reproducibility}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item A clean clone must support install, build, test, migration, and seed commands.
+  \item Node and npm versions are documented in the README.
+  \item No real production data is used in local or demo environments.
+\end{itemize}
+
+\subsection{Error Handling, Logging, and Security}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item A central error\allowbreak{} handler maps validation and domain errors to the standard error shape.
+  \item Prisma uses parameterized queries, reducing SQL injection risk.
+  \item React escapes rendered text by default; avoid \texttt{dangerouslySetInnerHTML}.
+  \item The JSON API plus \texttt{sameSite=lax} cookie reduces CSRF risk. Additional CSRF hardening is deferred.
+  \item Rate limiting, audit export, and admin actions are Sprint 3 concerns.
+  \item Logs must not contain passwords, tokens, secrets, or unnecessary personal data.
+  \item Error responses must not reveal stack traces or internal implementation details in production.
+\end{itemize}
+
+\subsection{Requirements Traceability}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Design area} & \textbf{Requirements} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Design area} & \textbf{Requirements} \\ \hline
+\endhead
+\hline
+\endfoot
+Authentication and session & FR-01, NFR-01, NFR-04 \\ \hline
+Request creation and validation & FR-02, BR-04, BR-05, NFR-04 \\ \hline
+My requests and data isolation & FR-03, BR-03 \\ \hline
+Review queue and decision & FR-04, FR-06, BR-01, BR-02, BR-05, BR-06, BR-07 \\ \hline
+History and audit write & FR-05, BR-06 \\ \hline
+Persistence and durability & NFR-03 \\ \hline
+Testability and traceability & NFR-05 \\ \hline
+Deployability and configuration & NFR-06 \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+Detailed feature allocation, acceptance criteria, and test IDs are defined in the feature inventory, traceability matrix, and Sprint 1 engineering contracts.\\
+
+
+\subsection{Known Limitations in Sprint 1}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{ADMIN} role and admin management endpoints are deferred to Sprint 3.
+  \item No attachments, multi-stage approval, or return-for-revision in Sprint 1.
+  \item No real payment, bank, email, or SMS integration.
+  \item Stateless JWT logout clears the cookie but does not revoke an already stolen token.
+  \item Search, filtering, reporting, and analytics are deferred.
+  \item Advanced CSRF protection and rate limiting are deferred unless required by later hardening.
+\end{itemize}
+
+\subsection{Version History}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\centering\arraybackslash}p{1.2cm}|>{\centering\arraybackslash}p{1.8cm}|>{\RaggedRight}p{6.6cm}|>{\RaggedRight}p{3.2cm}|>{\centering\arraybackslash}p{1.6cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Version} & \textbf{Date} & \textbf{Change} & \textbf{Author} & \textbf{Reviewer} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Version} & \textbf{Date} & \textbf{Change} & \textbf{Author} & \textbf{Reviewer} \\ \hline
+\endhead
+\hline
+\endfoot
+v1.0 & 6 Nov 2026 & Initial system-level SDS baseline for Sprint 1. & T & Oum \\ \hline
+\end{longtable}
+\vspace{0.3em}
+\newpage
+\section{Part D: Three-Sprint Plan}\label{sec:part-d}
+
+\begin{tcolorbox}[colback=lightbg,colframe=secondary,arc=2mm,boxrule=0.8pt]\small\itshape
+\textbf{Project:} CPE 334 - Workflow and Approval System (Theme 5) \quad $\bullet$ \quad \textbf{Deliverable:} Deliverable 1 baseline plan \quad $\bullet$ \quad \textbf{Owner:} T (67070501021) \quad $\bullet$ \quad \textbf{Reviewer:} Oum (67070501075) \quad $\bullet$ \quad \textbf{Related issue:} \#2 - System-Level SDS and Three-Sprint Plan \quad $\bullet$ \quad \textbf{Status:} v1.0 baseline, reviewed before Sprint 1 feature implementation
+\end{tcolorbox}
+
+
+\subsection{Planning Principles}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Deliver a working vertical slice in every sprint, not isolated layers.
+  \item Keep Sprint 1 scope fixed: authentication, requester flow, reviewer flow, history write, and verification evidence.
+  \item Use engineering contracts and acceptance criteria before implementation.
+  \item Every feature PR is reviewed by the teammate; authors never approve or merge their own PR.
+  \item Later-sprint work stays planned, not silently marked as complete.
+  \item Scope changes require a recorded change request and updated traceability.
+\end{itemize}
+
+\subsection{Sprint Overview}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.8cm}|>{\RaggedRight}p{2.2cm}|>{\RaggedRight}p{6.2cm}|>{\RaggedRight}p{4.5cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Sprint} & \textbf{Target date} & \textbf{Goal} & \textbf{Features} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Sprint} & \textbf{Target date} & \textbf{Goal} & \textbf{Features} \\ \hline
+\endhead
+\hline
+\endfoot
+Sprint 1 & 8 Nov 2026 (Deliverable 1) & Working approval vertical slice with enforced business rules and evidence. & F-01, F-02, F-03, F-04, F-05 (write) \\ \hline
+Sprint 2 & 29 Nov 2026 (Deliverable 2) & Expand audit visibility, revision flow, multi-stage approval, and attachments. & F-05 (view), F-06, F-07, F-08 \\ \hline
+Sprint 3 & 13 Dec 2026 (Final) & Search/reporting, admin management, hardening, regression, final release. & F-09, F-10, F-11 \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Feature dependency graph}
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+F-01 -> F-02 -> F-03
+F-01/F-02 -> F-04 -> F-05
+F-04 -> F-06 -> F-07
+F-02 -> F-08
+F-03/F-04/F-05 -> F-09
+F-01/F-04 -> F-10
+F-01..F-10 -> F-11
+\end{lstlisting}
+
+
+\subsection{Sprint 1 - Deliverable 1 (8 Nov 2026)}
+
+\subsubsection{Goal}
+
+Deliver a working vertical slice that supports login, request creation, requester-owned tracking, reviewer assignment, approve/reject decisions, append-only history, and backend enforcement of the Sprint 1 business rules, with automated tests and selected E2E evidence.\\
+
+\subsubsection{Features and scope}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.0cm}|>{\RaggedRight}p{6.8cm}|>{\RaggedRight}p{5.2cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Feature ID} & \textbf{Feature} & \textbf{Sprint 1 scope} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Feature ID} & \textbf{Feature} & \textbf{Sprint 1 scope} \\ \hline
+\endhead
+\hline
+\endfoot
+F-01 & Auth and Session & Login, logout, current user, JWT httpOnly cookie, role loading, 401 behavior. \\ \hline
+F-02 & Request Creation & Validate payload, generate \texttt{requestNo}, assign reviewer, persist \texttt{PENDING}, write \texttt{SUBMITTED} history. \\ \hline
+F-03 & My Requests and Data Isolation & List own requests, open own detail/history, block cross-user access. \\ \hline
+F-04 & Review Queue and Decision & Assigned pending queue, approve/reject with comment, state and assignment guards, self-approval guard. \\ \hline
+F-05 & Approval History & Write append-only history entries for submit/approve/reject. Audit view is Sprint 2. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Dependencies}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item F-01 must precede F-02/F-03.
+  \item F-02 must precede F-04.
+  \item Schema and seed foundation from the repository scaffold must be available before F-01.
+  \item Contract E0, E1, and E2 must be committed before their related implementation.
+\end{itemize}
+\subsubsection{Issue mapping}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.6cm}|>{\RaggedRight}p{3.5cm}|>{\RaggedRight}p{2.5cm}|>{\RaggedRight}p{4.2cm}|>{\RaggedRight}p{4.0cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Issue} & \textbf{Work} & \textbf{Owner} & \textbf{Reviewer} & \textbf{Depends on} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Issue} & \textbf{Work} & \textbf{Owner} & \textbf{Reviewer} & \textbf{Depends on} \\ \hline
+\endhead
+\hline
+\endfoot
+\#1 & Part A/B baseline documents & Oum & T & - \\ \hline
+\#2 & Part C/D SDS and sprint plan & T & Oum & - \\ \hline
+\#3 & F-01 Auth foundation & T & Oum & \#2 \\ \hline
+\#4 & F-02/F-03 Requester slice & Oum & T & \#3 \\ \hline
+\#5 & F-04/F-05 Reviewer slice & T & Oum & \#3, \#4 \\ \hline
+\#6 & Part F verification and evidence & Oum + T & Oum + T & \#3, \#4, \#5 \\ \hline
+\#7 & Release and Deliverable 1 PDF & Oum + T & Oum + T & \#1-\#6 \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Completion outcome}
+
+Sprint 1 is complete when:\\
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item AC-AUTH-01..05 and AC-01..AC-12 pass.
+  \item TEST-AUTH-01..05, TEST-01..TEST-13, and selected E2E-01..E2E-03 are implemented and passing on the submitted commit.
+  \item All required Sprint 1 business rules are enforced by the backend, not only by the UI.
+  \item Every acceptance criterion maps to at least one automated test or documented verification.
+  \item The release PR from \texttt{sprint-1-staging} to \texttt{main} is reviewed and merged.
+  \item Release tag \texttt{v0.1.0-sprint1} is created and recorded in the report.
+  \item Parts A-F of the Deliverable 1 PDF are assembled with evidence.
+\end{itemize}
+\subsubsection{Out of scope}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Attachments (F-08).
+  \item Return-for-revision and resubmission (F-06).
+  \item Multi-stage approval (F-07).
+  \item Search, filtering, and reporting (F-09).
+  \item Admin user/assignment management (F-10).
+  \item Real payment, bank, email, SMS, or external notification integrations.
+  \item Production hardening beyond the Sprint 1 security baseline.
+\end{itemize}
+\subsubsection{Sprint 1 execution order and parallel work}
+
+Critical path:\\
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+#2 -> #3 -> #4 -> #5 -> #6 -> #7
+\end{lstlisting}
+
+Safe parallel work:\\
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \#1 (Oum) and \#2 (T) start in parallel.
+  \item While T implements \#3, Oum can finish \#1 and draft Contract E1 plus the requester UI shell for \#4.
+  \item While Oum implements \#4, T can draft Contract E2 and reviewer UI/test scaffolding for \#5.
+  \item After \#5, both teammates can split \#6 evidence collection and \#7 PDF assembly.
+  \item Contracts and documentation can be written in parallel, but implementation must wait for the relevant contract and dependencies.
+\end{itemize}
+
+\subsection{Sprint 2 - Deliverable 2 (29 Nov 2026)}
+
+\subsubsection{Goal}
+
+Expand the approval workflow beyond the Sprint 1 vertical slice: expose history/audit, add return-for-revision and resubmission, support multi-stage approval, and add controlled attachments.\\
+
+\subsubsection{Features and scope}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.0cm}|>{\RaggedRight}p{6.8cm}|>{\RaggedRight}p{5.2cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Feature ID} & \textbf{Feature} & \textbf{Sprint 2 scope} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Feature ID} & \textbf{Feature} & \textbf{Sprint 2 scope} \\ \hline
+\endhead
+\hline
+\endfoot
+F-05 & Approval History and Audit View & Read-only history/audit view built on Sprint 1 append-only records. \\ \hline
+F-06 & Return for Revision and Resubmission & Reviewer returns a request; requester edits and resubmits under defined state rules. \\ \hline
+F-07 & Multi-stage Approval & Multiple approval stages with per-stage decision and history. \\ \hline
+F-08 & Attachments & File upload, storage, authorization, and access control for request attachments. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Dependencies}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item F-04 $\rightarrow$ F-06 $\rightarrow$ F-07.
+  \item F-02 $\rightarrow$ F-08.
+  \item F-05 view depends on Sprint 1 history records.
+  \item Contracts, acceptance criteria, and tests must be defined before each feature is implemented.
+\end{itemize}
+\subsubsection{Completion outcome}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Sprint 2 contracts, acceptance criteria, STS, and DoD are complete.
+  \item Features are integrated, tested, reviewed, and merged into \texttt{sprint-1-staging}.
+  \item Updated traceability matrix records actual results, not planned status.
+  \item A deployed candidate is available through the Lab 5 deployment pipeline.
+  \item No Sprint 1 regression is introduced.
+\end{itemize}
+
+\subsection{Sprint 3 - Final (13 Dec 2026; progress checkpoint 29 Nov 2026)}
+
+\subsubsection{Goal}
+
+Complete the product and harden it for final release: search/filter/reporting, admin management, security/performance review, regression testing, UAT fixes, and final deployment.\\
+
+\subsubsection{Features and scope}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.0cm}|>{\RaggedRight}p{6.8cm}|>{\RaggedRight}p{5.2cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Feature ID} & \textbf{Feature} & \textbf{Sprint 3 scope} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Feature ID} & \textbf{Feature} & \textbf{Sprint 3 scope} \\ \hline
+\endhead
+\hline
+\endfoot
+F-09 & Search, Filter, and Reporting & Search/filter requests and summarize by status, category, and amount. \\ \hline
+F-10 & Admin User and Assignment Management & Admin user/role/reviewer assignment management. \\ \hline
+F-11 & Hardening, Regression, and Deployment & Security/performance checks, regression, UAT re-test, final release, demo video. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Dependencies}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item F-05 $\rightarrow$ F-09.
+  \item F-01/F-04 $\rightarrow$ F-10.
+  \item F-01..F-10 $\rightarrow$ F-11.
+\end{itemize}
+\subsubsection{Completion outcome}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Final release is merged to \texttt{main} and deployed to the planned GCP environment.
+  \item Complete traceability shows actual results for every feature.
+  \item UAT/re-test records and regression results are documented.
+  \item Final PDF and demo video are complete.
+  \item Known limitations, failed/skipped tests, and technical debt are disclosed.
+\end{itemize}
+
+\subsection{Exam-Period Finish Plan (1-11 Dec 2026)}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item 29 Nov 2026: product should be substantially complete; Sprint 2 is complete and Sprint 3 has meaningful implemented progress.
+  \item 1-11 Dec 2026: bounded fixes, integration, regression, UAT re-test, documentation, and video. Do not reserve main workflows for this period.
+  \item 13 Dec 2026: final release, PDF, and demo video due.
+\end{itemize}
+\subsubsection{Remaining-work template}
+
+
+\small
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{2.2cm}|>{\RaggedRight}p{1.8cm}|>{\RaggedRight}p{3.5cm}|>{\RaggedRight}p{1.5cm}|>{\RaggedRight}p{1.8cm}|>{\RaggedRight}p{2.0cm}|>{\RaggedRight}p{3.0cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Feature/Defect ID} & \textbf{Status} & \textbf{Missing AC/Tests} & \textbf{Owner} & \textbf{Dependency} & \textbf{Target date} & \textbf{Evidence} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Feature/Defect ID} & \textbf{Status} & \textbf{Missing AC/Tests} & \textbf{Owner} & \textbf{Dependency} & \textbf{Target date} & \textbf{Evidence} \\ \hline
+\endhead
+\hline
+\endfoot
+Example: F-09 & Planned & AC/test not yet written & TBD & F-05 & TBD & TBD \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+Allowed status values: \texttt{Planned}, \texttt{In Progress}, \texttt{Implemented}, \texttt{Tested}, \texttt{Accepted}.\\
+
+
+\subsection{Risks and Mitigations}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.0cm}|>{\RaggedRight}p{6.8cm}|>{\RaggedRight}p{5.2cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Risk} & \textbf{Impact} & \textbf{Mitigation} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Risk} & \textbf{Impact} & \textbf{Mitigation} \\ \hline
+\endhead
+\hline
+\endfoot
+Scope creep into multi-stage, attachments, or admin work during Sprint 1 & Sprint 1 misses its deadline & Keep Sprint 1 scope fixed; record any change request and re-plan explicitly. \\ \hline
+Auth or assignment bugs & Security and business-rule failures & Contract E0/E2, negative tests, teammate review, explicit check order. \\ \hline
+E2E flakiness & Unreliable evidence & Use stable seeded data, limit E2E journeys, document retry/reset policy. \\ \hline
+PostgreSQL setup differences across machines & Reproduction failures & Docker compose, README commands, migration/seed from a clean clone. \\ \hline
+Exam-period schedule compression & Incomplete final release & Freeze scope on 29 Nov, maintain remaining-work list, check progress daily. \\ \hline
+Secret leakage & Security and grading failure & \texttt{.\allowbreak env} ignored, \texttt{.\allowbreak env.\allowbreak example} only, secret scan before submission. \\ \hline
+Planned work presented as complete & Loss of credibility and traceability & Mark later-sprint items as planned until they have real AC/test evidence. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Change Control}
+
+Any change to sprint allocation, feature scope, acceptance criteria, or release timing must be recorded with:\\
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Field} & \textbf{Description} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Field} & \textbf{Description} \\ \hline
+\endhead
+\hline
+\endfoot
+Change ID & Unique change identifier. \\ \hline
+Date & Date of the change. \\ \hline
+Requirement/Feature & Affected FR/BR/NFR/feature. \\ \hline
+Change & What changed. \\ \hline
+Reason & Why it changed. \\ \hline
+Approved by & Both teammates. \\ \hline
+Affected AC/TEST/SDS & Impacted artifacts. \\ \hline
+Status & Proposed, approved, or rejected. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+Planned items must not be silently removed or moved to a later sprint.\\
+
+
+\subsection{Definition of Done Summary}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Required behavior is implemented and integrated across UI, API, and database.
+  \item Every in-scope acceptance criterion has an automated test or documented verification.
+  \item Required tests are enabled and pass on the submitted commit.
+  \item Teammate review is complete; the author does not self-approve.
+  \item Documentation and traceability match the code.
+  \item Migration and seed run from a clean database.
+  \item No real secrets or production data are committed.
+  \item Known limitations and incomplete work are disclosed honestly.
+\end{itemize}
+
+\subsection{Version History}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\centering\arraybackslash}p{1.2cm}|>{\centering\arraybackslash}p{1.8cm}|>{\RaggedRight}p{6.6cm}|>{\RaggedRight}p{3.2cm}|>{\centering\arraybackslash}p{1.6cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Version} & \textbf{Date} & \textbf{Change} & \textbf{Author} & \textbf{Reviewer} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Version} & \textbf{Date} & \textbf{Change} & \textbf{Author} & \textbf{Reviewer} \\ \hline
+\endhead
+\hline
+\endfoot
+v1.0 & 6 Nov 2026 & Initial three-sprint plan baseline. & T & Oum \\ \hline
+\end{longtable}
+\vspace{0.3em}
+\newpage
+\section{Part E.0: Feature Contract E0 (F-01 Auth Foundation)}\label{sec:part-e0}
+
+\begin{tcolorbox}[colback=lightbg,colframe=secondary,arc=2mm,boxrule=0.8pt]\small\itshape
+\textbf{Feature ID:} F-01 \quad $\bullet$ \quad \textbf{Issue:} \#3 - Auth foundation: schema, seed, login/logout/me \quad $\bullet$ \quad \textbf{Linked requirements:} FR-01, NFR-01, NFR-04 \quad $\bullet$ \quad \textbf{Owner:} T (67070501021) \quad $\bullet$ \quad \textbf{Reviewer:} Oum (67070501075) \quad $\bullet$ \quad \textbf{Status:} v1.1 implemented and verified locally \quad $\bullet$ \quad \textbf{Artifact:} \texttt{docs/sprints/sprint-1/feature-00-auth.md}
+\end{tcolorbox}
+
+
+\subsection{Feature SDS}
+
+The system must support authenticated sessions for the requester and reviewer\\
+slices:\\
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item verify email/password credentials against the \texttt{User} table;
+  \item issue a signed JWT in an httpOnly cookie;
+  \item load the current user for protected requests;
+  \item expose login, logout, and current-user endpoints;
+  \item reject missing, invalid, expired, or deleted-user sessions with \texttt{401};
+  \item reject authenticated users who lack the required role with \texttt{403};
+  \item never return or log \texttt{passwordHash}.
+\end{itemize}
+Authentication is stateless in Sprint 1. Logout clears the cookie on the client;\\
+server-side token revocation is a documented limitation and is deferred.\\
+
+
+\subsection{UI Specification}
+
+\subsubsection{LoginPage}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Fields: \texttt{email}, \texttt{password}.
+  \item Inline validation for required fields and email format.
+  \item Loading state while the request is in flight.
+  \item Invalid credentials show the server error code/message.
+  \item Successful login redirects according to the user's role.
+  \item The client must not store the JWT in \texttt{localStorage}.
+\end{itemize}
+\subsubsection{Session behavior}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Authenticated screens call \texttt{GET /api/auth/me} on load or use the login response.
+  \item A \texttt{401} response clears client auth state and redirects to \texttt{/login}.
+  \item The logout action calls \texttt{POST /api/auth/logout} and redirects to \texttt{/login}.
+  \item Role-aware navigation is a UX aid, not an authorization boundary.
+\end{itemize}
+
+\subsection{API Specification}
+
+All responses use the standard envelope:\\
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Success: \texttt{\{ "data": ... \}}
+  \item Failure: \texttt{\{ "error": \{ "code": "...", "message": "...", "details"?: ... \} \}}
+\end{itemize}
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.5cm}|>{\centering\arraybackslash}p{1.4cm}|>{\RaggedRight}p{2.2cm}|>{\RaggedRight}p{5.2cm}|>{\RaggedRight}p{3.5cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Endpoint} & \textbf{Method} & \textbf{Request} & \textbf{Success} & \textbf{Errors} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Endpoint} & \textbf{Method} & \textbf{Request} & \textbf{Success} & \textbf{Errors} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{/\allowbreak api/\allowbreak auth/\allowbreak login} & POST & \texttt{\{ email, password \}} & \texttt{200 \{ data:\allowbreak  \{ user:\allowbreak  \{ id, email, name, role \} \} \}} + \texttt{Set-\allowbreak Cookie} & \texttt{400 VALIDATION\_\allowbreak ERROR}; \texttt{401 UNAUTHORIZED} \\ \hline
+\texttt{/\allowbreak api/\allowbreak auth/\allowbreak logout} & POST & cookie & \texttt{200 \{ data:\allowbreak  \{ message \} \}} + cleared cookie & \texttt{401 UNAUTHORIZED} \\ \hline
+\texttt{/\allowbreak api/\allowbreak auth/\allowbreak me} & GET & cookie & \texttt{200 \{ data:\allowbreak  \{ user \} \}} & \texttt{401 UNAUTHORIZED} \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Cookie contract}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Attribute} & \textbf{Value} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Attribute} & \textbf{Value} \\ \hline
+\endhead
+\hline
+\endfoot
+Name & \texttt{token} \\ \hline
+\texttt{httpOnly} & \texttt{true} \\ \hline
+\texttt{sameSite} & \texttt{lax} \\ \hline
+\texttt{secure} & \texttt{true} in production; \texttt{false} for local/test \\ \hline
+\texttt{path} & \texttt{/\allowbreak } \\ \hline
+\texttt{maxAge} & 8 hours \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Authentication header behavior}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item The API reads the cookie, not an \texttt{Authorization} header.
+  \item Missing or invalid cookie $\rightarrow$ \texttt{401 UNAUTHORIZED}.
+  \item Expired token $\rightarrow$ \texttt{401 UNAUTHORIZED}.
+  \item A token whose user no longer exists $\rightarrow$ \texttt{401 UNAUTHORIZED}.
+\end{itemize}
+\subsubsection{Role guard behavior}
+
+\texttt{requireRole('REVIEWER')} returns \texttt{403 FORBIDDEN} for an authenticated\\
+\texttt{REQUESTER}. For Issue \#3, \texttt{TEST-AUTH-04} exercises this middleware through a\\
+test-only reviewer route; the product reviewer endpoints are added in Issue \#5.\\
+
+
+\subsection{Data Specification}
+
+Uses the existing Prisma models:\\
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{User.id} (UUID)
+  \item \texttt{User.email} (unique)
+  \item \texttt{User.passwordHash} (bcrypt, cost 12)
+  \item \texttt{User.name}
+  \item \texttt{User.role} (\texttt{REQUESTER}, \texttt{REVIEWER}, future \texttt{ADMIN})
+  \item \texttt{User.createdAt}
+\end{itemize}
+The seed script is idempotent and upserts three synthetic accounts. No schema\\
+change beyond the foundation is required for this contract.\\
+
+
+\subsection{Acceptance Criteria}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Acceptance criterion} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Acceptance criterion} \\ \hline
+\endhead
+\hline
+\endfoot
+AC-AUTH-01 & Valid email/password login returns \texttt{200}, sets an httpOnly \texttt{token} cookie, and returns the user without \texttt{passwordHash}. \\ \hline
+AC-AUTH-02 & Wrong password or unknown email returns \texttt{401 UNAUTHORIZED} and does not set a cookie. \\ \hline
+AC-AUTH-03 & \texttt{GET /\allowbreak api/\allowbreak auth/\allowbreak me} returns the current user when authenticated; missing/invalid session returns \texttt{401}; logout clears the cookie and subsequent \texttt{/\allowbreak me} returns \texttt{401}. \\ \hline
+AC-AUTH-04 & A \texttt{REQUESTER} calling a reviewer-only route receives \texttt{403 FORBIDDEN}; backend role enforcement is not UI-only. \\ \hline
+AC-AUTH-05 & Stored passwords use bcrypt with cost 12; JWT expiry is 8 hours; no plaintext password or hash appears in responses. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Software Test Specification}
+
+
+\small
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.6cm}|>{\centering\arraybackslash}p{1.4cm}|>{\centering\arraybackslash}p{1.2cm}|>{\RaggedRight}p{3.8cm}|>{\RaggedRight}p{3.8cm}|>{\RaggedRight}p{4.0cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Test ID} & \textbf{AC} & \textbf{Level} & \textbf{Preconditions / input} & \textbf{Action} & \textbf{Expected} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Test ID} & \textbf{AC} & \textbf{Level} & \textbf{Preconditions / input} & \textbf{Action} & \textbf{Expected} \\ \hline
+\endhead
+\hline
+\endfoot
+TEST-AUTH-01 & AC-AUTH-01 & API integration & Seeded active user & \texttt{POST /\allowbreak api/\allowbreak auth/\allowbreak login} with valid credentials & \texttt{200}; \texttt{Set-\allowbreak Cookie} contains httpOnly \texttt{token}; body contains public user fields; no \texttt{passwordHash} \\ \hline
+TEST-AUTH-02 & AC-AUTH-02 & API integration & Wrong password and unknown email & \texttt{POST /\allowbreak api/\allowbreak auth/\allowbreak login} & \texttt{401 UNAUTHORIZED}; no \texttt{Set-\allowbreak Cookie} \\ \hline
+TEST-AUTH-03 & AC-AUTH-03 & API integration & No cookie; valid session; logout & \texttt{GET /\allowbreak me}; \texttt{POST /\allowbreak logout}; \texttt{GET /\allowbreak me} again & \texttt{401}; then \texttt{200}; then cleared cookie and \texttt{401} \\ \hline
+TEST-AUTH-04 & AC-AUTH-04 & API integration & Requester cookie and reviewer cookie & Request a reviewer-only guard route & Requester \texttt{403 FORBIDDEN}; reviewer \texttt{200} \\ \hline
+TEST-AUTH-05 & AC-AUTH-05 & Unit/API integration & DB user row and login response & Inspect hash and decode JWT & Hash starts with \texttt{\$2} and cost 12; \texttt{exp -\allowbreak  iat = 8h}; no plaintext password \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+Additional negative checks:\\
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item invalid email shape $\rightarrow$ \texttt{400 VALIDATION\_ERROR};
+  \item missing body fields $\rightarrow$ \texttt{400 VALIDATION\_ERROR};
+  \item logout without a session $\rightarrow$ \texttt{401 UNAUTHORIZED};
+  \item tampered token $\rightarrow$ \texttt{401 UNAUTHORIZED}.
+\end{itemize}
+
+\subsection{Definition of Done}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item [x] Contract committed before implementation.
+  \item [x] Migration and seed run from a clean database (\texttt{prisma migrate reset} + seed).
+  \item [x] Login/logout/me implementation uses the standard response shape.
+  \item [x] Cookie flags match this contract.
+  \item [x] \texttt{TEST-AUTH-01..05} implemented and passing (9 server tests total).
+  \item [x] No plaintext password or hash in responses/logs.
+  \item [ ] Teammate review completed; author does not self-approve. (pending PR review)
+  \item [ ] PR merged into \texttt{sprint-1-staging}. (pending)
+  \item [x] Red/green TDD evidence recorded (red run: \texttt{8 failed | 1 passed}).
+\end{itemize}
+
+\subsection{Version History}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\centering\arraybackslash}p{1.2cm}|>{\centering\arraybackslash}p{1.8cm}|>{\RaggedRight}p{6.6cm}|>{\RaggedRight}p{3.2cm}|>{\centering\arraybackslash}p{1.6cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Version} & \textbf{Date} & \textbf{Change} & \textbf{Reason} & \textbf{Commit/PR} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Version} & \textbf{Date} & \textbf{Change} & \textbf{Reason} & \textbf{Commit/PR} \\ \hline
+\endhead
+\hline
+\endfoot
+v1.0 & 10 Nov 2026 & Initial auth contract. & Sprint 1 baseline. & \texttt{fc8f548} \\ \hline
+v1.1 & 10 Nov 2026 & Implementation notes: config/env loader, Prisma singleton, central error\allowbreak{} handler, \texttt{requireAuth}\allowbreak{}/\texttt{requireRole}, auth routes, initial\allowbreak{} migration, TEST\allowbreak -AUTH\allowbreak -01..05 green. & Auth foundation implemented and verified. & PR \#12 (\texttt{ad10d0b}) \\ \hline
+v1.2 & 11 Nov 2026 & Prisma root scripts now load the repository-root \texttt{.\allowbreak env}; seed loads it explicitly. Verified \texttt{cp .\allowbreak env.\allowbreak example .\allowbreak env \&\& npm run prisma:\allowbreak migrate \&\& npm run prisma:\allowbreak seed} in a clean shell. & Review finding: clean-clone setup failed with \texttt{P1012 Environment variable not found:\allowbreak  DATABASE\_\allowbreak URL}. & PR \#12 (\texttt{ad10d0b}) \\ \hline
+\end{longtable}
+\vspace{0.3em}
+\newpage
+\section{Part E.1: Feature Contract E1 (F-02/F-03 Requester Slice)}\label{sec:part-e1}
+
+\begin{tcolorbox}[colback=lightbg,colframe=secondary,arc=2mm,boxrule=0.8pt]\small\itshape
+\textbf{Feature IDs:} F-02, F-03 \quad $\bullet$ \quad \textbf{Issue:} \#4 - Requester slice: create request, my requests, data isolation \quad $\bullet$ \quad \textbf{Linked requirements:} FR-02, FR-03, BR-03, BR-04, BR-05, BR-06, NFR-03, NFR-04 \quad $\bullet$ \quad \textbf{Owner:} Oum (67070501075) \quad $\bullet$ \quad \textbf{Reviewer:} T (67070501021) \quad $\bullet$ \quad \textbf{Status:} v1.1 implemented and verified in CI (5 test files / 20 tests passed) \quad $\bullet$ \quad \textbf{Artifact:} \texttt{docs/sprints/sprint-1/feature-01.md}
+\end{tcolorbox}
+
+
+\subsection{Feature SDS}
+
+The requester vertical slice allows authenticated users (\texttt{REQUESTER} and \texttt{REVIEWER}, per D-02) to create expense/purchase approval requests, persist them with an initial \texttt{SUBMITTED} history record, and retrieve only the requests they own (or are assigned to review).\\
+
+\subsubsection{Workflow \& Business Rules}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Creation \& Validation (\texttt{F-02} / \texttt{BR-04}):}
+\end{enumerate}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Validate request payload on the server using Zod (\texttt{.strict()}).
+  \item \texttt{title}: trimmed string, 3–150 characters.
+  \item \texttt{amount}: positive number > 0 and \texttt{<= 9,999,999,999.99} (stored as \texttt{Decimal(12,2)}).
+  \item \texttt{category}: must be one of \texttt{EQUIPMENT | TRAVEL | SOFTWARE | SUPPLIES}.
+  \item \texttt{description}: trimmed string, 1–1,000 characters.
+  \item Invalid payloads return \texttt{400 VALIDATION\_ERROR} with field details and persist nothing.
+\end{itemize}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Request Number Generation (\texttt{D-10}):}
+\end{enumerate}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Server generates \texttt{requestNo} in format \texttt{REQ-YYYYMMDD-NNNN} (e.g. \texttt{REQ-20261111-0001}), retrying on unique-constraint collision.
+\end{itemize}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Deterministic Reviewer Assignment (\texttt{BR-05} / \texttt{D-03}):}
+\end{enumerate}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{EQUIPMENT} or \texttt{TRAVEL} → assigned to \texttt{t.reviewer@cpe334.local}.
+  \item \texttt{SOFTWARE} or \texttt{SUPPLIES} → assigned to \texttt{manager.hybrid@cpe334.local}.
+  \item If the requester is the mapped reviewer for that category, the system assigns the alternate reviewer instead.
+\end{itemize}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Atomic Creation (\texttt{BR-06} / \texttt{D-14}):}
+\end{enumerate}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Inside \texttt{prisma.\$transaction}: insert \texttt{ApprovalRequest} with \texttt{status = PENDING} and insert \texttt{ApprovalHistory} with \texttt{action = SUBMITTED} and \texttt{actorId = currentUser.id}.
+\end{itemize}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{My Requests \& Data Isolation (\texttt{F-03} / \texttt{BR-03}):}
+\end{enumerate}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{GET /api/requests/my} returns only records where \texttt{requesterId = currentUser.id}, ordered by \texttt{createdAt DESC}.
+  \item \texttt{GET /api/requests/:id} returns request details and ordered histories only if \texttt{requesterId === currentUser.id} or \texttt{assignedReviewerId === currentUser.id}; otherwise returns \texttt{403 ACCESS\_DENIED} without leaking any private request fields.
+\end{itemize}
+
+\subsection{UI Specification}
+
+\subsubsection{Screens \& Routes}
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.2cm}|>{\RaggedRight}p{3.2cm}|>{\centering\arraybackslash}p{2.0cm}|>{\RaggedRight}p{5.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Route} & \textbf{Screen} & \textbf{Access} & \textbf{Key States} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Route} & \textbf{Screen} & \textbf{Access} & \textbf{Key States} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{/\allowbreak login} & \texttt{LoginPage} & Public & email/password form, inline validation, loading, error banner, role redirect \\ \hline
+\texttt{/\allowbreak requests/\allowbreak new} & \texttt{NewRequestPage} & Authenticated & fields (\texttt{title}, \texttt{amount}, \texttt{category}, \texttt{description}), validation, submitting disabled state, API error banner, redirect to detail/list on 201 \\ \hline
+\texttt{/\allowbreak requests/\allowbreak my} & \texttt{MyRequestsPage} & Authenticated & loading state, empty state with CTA, table (\texttt{requestNo}, \texttt{title}, \texttt{amount}, \texttt{category}, \texttt{status}, \texttt{assignedReviewer}, \texttt{createdAt}), error banner \\ \hline
+\texttt{/\allowbreak requests/\allowbreak :\allowbreak id} & \texttt{RequestDetailPage} & Owner or assigned reviewer & loading, 404 not found, 403 forbidden state, full request fields, chronological approval history timeline \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Shared UI Conventions}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Client-side validation mirrors server rules (\texttt{title} 3–150, \texttt{amount > 0}, \texttt{category} select, \texttt{description} 1–1000).
+  \item Submit button disabled while in flight; no optimistic status mutation.
+  \item Navigation bar displays current user name/role and Logout button (\texttt{POST /api/auth/logout}).
+  \item Never expose \texttt{passwordHash} or token values.
+\end{itemize}
+
+\subsection{API Specification}
+
+All responses use the standard envelope:\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Success: \texttt{\{ "data": ... \}}
+  \item Failure: \texttt{\{ "error": \{ "code": "...", "message": "...", "details"?: ... \} \}}
+\end{itemize}
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.5cm}|>{\centering\arraybackslash}p{1.4cm}|>{\RaggedRight}p{2.2cm}|>{\RaggedRight}p{5.2cm}|>{\RaggedRight}p{3.5cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Endpoint} & \textbf{Method} & \textbf{Request} & \textbf{Success} & \textbf{Errors} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Endpoint} & \textbf{Method} & \textbf{Request} & \textbf{Success} & \textbf{Errors} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{/\allowbreak api/\allowbreak requests} & POST & \texttt{\{ title, amount, category, description \}} & \texttt{201 \{ data:\allowbreak  \{ request \} \}} & \texttt{400 VALIDATION\_\allowbreak ERROR}; \texttt{401 UNAUTHORIZED}; \texttt{403 FORBIDDEN} \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak my} & GET & cookie & \texttt{200 \{ data:\allowbreak  \{ requests:\allowbreak  [.\allowbreak .\allowbreak .\allowbreak ] \} \}} & \texttt{401 UNAUTHORIZED} \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak :\allowbreak id} & GET & cookie & \texttt{200 \{ data:\allowbreak  \{ request, histories \} \}} & \texttt{401 UNAUTHORIZED}; \texttt{403 ACCESS\_\allowbreak DENIED}; \texttt{404 NOT\_\allowbreak FOUND} \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Response Field Notes}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{amount} is serialized as a 2-decimal string (e.g., \texttt{"1500.00"}) to preserve \texttt{Decimal(12,2)} precision.
+  \item \texttt{requester}, \texttt{assignedReviewer}, and \texttt{actor} nested objects expose only \texttt{\{ id, name, email, role \}} (never \texttt{passwordHash}).
+  \item \texttt{histories} are ordered chronologically (\texttt{createdAt ASC}).
+\end{itemize}
+
+\subsection{Data Specification}
+
+Uses existing Prisma models from the foundation schema (\texttt{20261110084745\_init\_schema}):\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{ApprovalRequest}: \texttt{id}, \texttt{requestNo} (unique), \texttt{title}, \texttt{amount} (\texttt{Decimal(12,2)}), \texttt{category}, \texttt{description}, \texttt{status} (\texttt{PENDING}), \texttt{requesterId}, \texttt{assignedReviewerId}, \texttt{createdAt}, \texttt{updatedAt}.
+  \item \texttt{ApprovalHistory}: \texttt{id}, \texttt{requestId}, \texttt{actorId}, \texttt{action} (\texttt{SUBMITTED}), \texttt{comment}, \texttt{createdAt}.
+  \item Indexes utilized: \texttt{ApprovalRequest\_requesterId\_createdAt\_idx} and \texttt{ApprovalHistory\_requestId\_createdAt\_idx}.
+  \item No new database migration is required for Contract E1.
+\end{itemize}
+
+\subsection{Acceptance Criteria}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Acceptance Criterion} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Acceptance Criterion} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{AC-01} & Authenticated \texttt{REQUESTER} (or \texttt{REVIEWER}) submitting valid request fields receives \texttt{201} with \texttt{status = PENDING}, a unique \texttt{requestNo}, a deterministic \texttt{assignedReviewerId} per BR-05, and an initial \texttt{SUBMITTED} history entry. \\ \hline
+\textbf{AC-02} & Submitting invalid payloads (\texttt{amount <= 0}, \texttt{amount > 9999999999.\allowbreak 99}, trimmed \texttt{title} < 3 or > 150 chars, unknown \texttt{category}, empty or > 1000 char \texttt{description}, unknown body keys) returns \texttt{400 VALIDATION\_\allowbreak ERROR} and creates no database record. \\ \hline
+\textbf{AC-03} & \texttt{GET /\allowbreak api/\allowbreak requests/\allowbreak my} returns \texttt{200} with only the authenticated user's own requests, ordered newest first (\texttt{createdAt DESC}). \\ \hline
+\textbf{AC-04} & \texttt{GET /\allowbreak api/\allowbreak requests/\allowbreak :\allowbreak id} returns \texttt{403 ACCESS\_\allowbreak DENIED} without private data when requested by a user who is neither the requester nor the assigned reviewer; unauthenticated requests to any \texttt{/\allowbreak api/\allowbreak requests*} route return \texttt{401 UNAUTHORIZED}. \\ \hline
+\textbf{AC-04b} & Created requests and their \texttt{SUBMITTED} history entries persist in PostgreSQL across process/client restarts. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Software Test Specification (STS)}
+
+
+\small
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.6cm}|>{\centering\arraybackslash}p{1.4cm}|>{\centering\arraybackslash}p{1.2cm}|>{\RaggedRight}p{3.8cm}|>{\RaggedRight}p{3.8cm}|>{\RaggedRight}p{4.0cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Test ID} & \textbf{AC} & \textbf{Level} & \textbf{Preconditions / Input} & \textbf{Action} & \textbf{Expected Result} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Test ID} & \textbf{AC} & \textbf{Level} & \textbf{Preconditions / Input} & \textbf{Action} & \textbf{Expected Result} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{TEST-01} & AC-01 & API/DB integration & Authenticated requester + valid \texttt{EQUIPMENT} payload & \texttt{POST /\allowbreak api/\allowbreak requests} & \texttt{201}; \texttt{status = PENDING}; \texttt{requestNo} matches \texttt{REQ-\allowbreak YYYYMMDD-\allowbreak NNNN}; \texttt{assignedReviewerId} is \texttt{t.\allowbreak reviewer}; \texttt{SUBMITTED} history row exists in DB \\ \hline
+\textbf{TEST-02} & AC-02 & API integration (boundary/negative) & \texttt{amount} 0 / -10 / \allowbreak\texttt{10000000000}; \texttt{title} 2/151c; bad \texttt{category}; empty \texttt{desc} & \texttt{POST /\allowbreak api/\allowbreak requests} & \texttt{400 VALIDATION\_\allowbreak ERROR}; DB request count unchanged \\ \hline
+\textbf{TEST-03} & AC-03 & API integration & User A has 2 requests, User B has 1 request & \texttt{GET /\allowbreak api/\allowbreak requests/\allowbreak my} as User A & \texttt{200}; returns only A's 2 requests, ordered newest first \\ \hline
+\textbf{TEST-04} & AC-04 & API integration & Request owned by User A (assigned to Reviewer R1); User B and unrelated Reviewer R2 try to access & \texttt{GET /\allowbreak api/\allowbreak requests/\allowbreak :\allowbreak id} as B / R2 / anonymous & Anonymous → \texttt{401 UNAUTHORIZED}; User B \& R2 → \texttt{403 ACCESS\_\allowbreak DENIED} with no private data \\ \hline
+\textbf{E2E-01} & AC-01, AC-03, AC-04b & E2E (Playwright) & Seeded requester account & Login → navigate to \texttt{/\allowbreak requests/\allowbreak new} → submit valid request → view \texttt{/\allowbreak requests/\allowbreak my} → open detail → reload page & Persisted request and \texttt{SUBMITTED} history visible after page reload \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+Additional boundary \& unit checks:\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Reviewer creating a request in their own primary category (e.g., \texttt{t.reviewer} creating \texttt{EQUIPMENT}) automatically gets assigned to the alternate reviewer (\texttt{manager.hybrid}) so \texttt{assignedReviewerId !== requesterId}.
+  \item Unknown request UUID returns \texttt{404 NOT\_FOUND}.
+  \item Client component tests verify form validation messages, loading/disabled submit state, and empty/error states in \texttt{MyRequestsPage}.
+\end{itemize}
+
+\subsection{Definition of Done}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item [x] Contract E1 (\texttt{v1.0}) committed before feature tests and implementation (\texttt{bb4251b}).
+  \item [x] Automated API/DB tests (\texttt{TEST-01..TEST-04}, 6 server tests) and client component tests (\texttt{App.test.tsx}, \texttt{Requests.test.tsx}, 4 tests) implemented and passing in CI (\texttt{43047999614}: 5 files / 20 tests passed).
+  \item [x] Playwright \texttt{E2E-01} spec (\texttt{e2e/requester.spec.ts}) implemented (to be executed against local running stack when Docker is up).
+  \item [x] TDD commit sequence visible (\texttt{bb4251b} contract → \texttt{d80cc44} tests → \texttt{331294f} implementation → \texttt{37a343b} workspace test fix).
+  \item [x] All responses conform to \texttt{\{ data \}} / \texttt{\{ error: \{ code, message, details? \} \}} and leak no \texttt{passwordHash}.
+  \item [x] Persistence verified against PostgreSQL in CI (\texttt{requests.test.ts} queries \texttt{ApprovalRequest} and \texttt{ApprovalHistory} directly via Prisma).
+  \item [ ] Teammate review completed on PR \#15 targeting \texttt{sprint-1-staging} (pending T's review).
+\end{itemize}
+
+\subsection{Version History}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\centering\arraybackslash}p{1.2cm}|>{\centering\arraybackslash}p{1.8cm}|>{\RaggedRight}p{6.6cm}|>{\RaggedRight}p{3.2cm}|>{\centering\arraybackslash}p{1.6cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Version} & \textbf{Date} & \textbf{Change} & \textbf{Reason} & \textbf{Commit/PR} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Version} & \textbf{Date} & \textbf{Change} & \textbf{Reason} & \textbf{Commit/PR} \\ \hline
+\endhead
+\hline
+\endfoot
+v1.0 & 11 Nov 2026 & Initial Contract E1 specification (SDS, UI, API, AC, STS, DoD). & Sprint 1 pre-implementation contract for Issue \#4. & \texttt{bb4251b} \\ \hline
+v1.1 & 11 Nov 2026 & Implementation notes: \texttt{request.\allowbreak service.\allowbreak ts}, \allowbreak\texttt{routes/\allowbreak requests.\allowbreak ts}, React requester UI (\texttt{LoginPage}, \allowbreak\texttt{NewRequestPage}, \allowbreak\texttt{MyRequestsPage}, \allowbreak\texttt{RequestDetailPage}), \texttt{vitest.\allowbreak workspace.\allowbreak ts}, \texttt{E2E-\allowbreak 01} spec, and CI verification (20 tests green). & Requester slice implemented and verified. & PR \#15 (\texttt{fd0c875}) \\ \hline
+\end{longtable}
+\vspace{0.3em}
+\newpage
+\section{Part E.2: Feature Contract E2 (F-04/F-05 Reviewer Slice)}\label{sec:part-e2}
+
+\begin{tcolorbox}[colback=lightbg,colframe=secondary,arc=2mm,boxrule=0.8pt]\small\itshape
+\textbf{Feature IDs:} F-04, F-05 \quad $\bullet$ \quad \textbf{Issue:} \#5 - Reviewer slice: assigned queue, decision, history, self-approval guard \quad $\bullet$ \quad \textbf{Linked requirements:} FR-04, FR-05, FR-06, BR-01, BR-02, BR-05, BR-06, BR-07, NFR-01, NFR-04 \quad $\bullet$ \quad \textbf{Owner:} T (67070501021) \quad $\bullet$ \quad \textbf{Reviewer:} Oum (67070501075) \quad $\bullet$ \quad \textbf{Status:} v1.1 implemented and verified locally (PR pending review) \quad $\bullet$ \quad \textbf{Artifact:} \texttt{docs/sprints/sprint-1/feature-02.md}
+\end{tcolorbox}
+
+
+\subsection{Feature SDS}
+
+The reviewer slice lets a \texttt{REVIEWER} see only the \texttt{PENDING} requests assigned to them, inspect one request with its history, and record an \texttt{APPROVE} or \texttt{REJECT} decision with an optional/required comment. A decision changes the request status and appends an \texttt{ApprovalHistory} row inside one database transaction. The backend enforces every business rule; hiding UI controls is not authorization.\\
+
+\subsubsection{Workflow and enforcement order}
+
+\texttt{POST /api/requests/:id/review} checks are executed in this exact order:\\
+
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Authentication} - no/invalid \texttt{token} cookie $\rightarrow$ \texttt{401 UNAUTHORIZED}.
+  \item \textbf{Role} - role other than \texttt{REVIEWER} $\rightarrow$ \texttt{403 FORBIDDEN}.
+  \item \textbf{Existence} - unknown request id $\rightarrow$ \texttt{404 NOT\_FOUND}.
+  \item \textbf{No self-approval (BR-01)} - \texttt{requesterId === currentUser.id} $\rightarrow$ \texttt{403 SELF\_APPROVAL\_NOT\_ALLOWED}.
+  \item \textbf{Assignment (BR-05)} - \texttt{assignedReviewerId !== currentUser.id} $\rightarrow$ \texttt{403 ACCESS\_DENIED}.
+  \item \textbf{State lifecycle (BR-02)} - status is not \texttt{PENDING} $\rightarrow$ \texttt{400 INVALID\_STATE\_TRANSITION}.
+  \item \textbf{Decision payload (BR-07)} - invalid \texttt{decision}/\texttt{comment} $\rightarrow$ \texttt{400 VALIDATION\_ERROR}.
+  \item \textbf{Commit} - status update + \texttt{ApprovalHistory} insert in one transaction (BR-06).
+\end{enumerate}
+Checking self-approval before assignment makes BR-01 testable even when the owner's request is assigned to another reviewer.\\
+
+\subsubsection{Rules}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{GET /api/requests/pending} returns only requests where \texttt{assignedReviewerId = currentUser.id} and \texttt{status = PENDING}, oldest first (\texttt{createdAt ASC}).
+  \item \texttt{APPROVE} sets \texttt{APPROVED}; \texttt{REJECT} sets \texttt{REJECTED}; no other transitions are allowed.
+  \item \texttt{REJECT} requires a trimmed comment of 3-500 characters.
+  \item \texttt{APPROVE} accepts no comment or a trimmed comment of at most 500 characters. Empty/whitespace-only comments are stored as \texttt{null}.
+  \item The status update uses a conditional write (\texttt{where: \{ id, status: PENDING \}}); if the request was decided concurrently, the transaction fails with \texttt{INVALID\_STATE\_TRANSITION} and no history row is added.
+  \item History rows are append-only. Sprint 1 exposes no update or delete history endpoint.
+\end{itemize}
+
+\subsection{UI Specification}
+
+\subsubsection{Routes and screens}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.2cm}|>{\RaggedRight}p{3.2cm}|>{\centering\arraybackslash}p{2.0cm}|>{\RaggedRight}p{5.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Route} & \textbf{Screen} & \textbf{Access} & \textbf{Key states} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Route} & \textbf{Screen} & \textbf{Access} & \textbf{Key states} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{/\allowbreak reviewer/\allowbreak pending} & \texttt{PendingReviewsPage} & \texttt{REVIEWER} & loading, empty ("no assigned pending requests"), list, error banner with \texttt{code:\allowbreak  message} \\ \hline
+\texttt{/\allowbreak reviewer/\allowbreak requests/\allowbreak :\allowbreak id} & \texttt{ReviewDetailPage} & \texttt{REVIEWER} & loading, 404 not found, 403 forbidden, request fields, chronological history, decision form, submitting/disabled, success state, error banner \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{PendingReviewsPage}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Table columns: \texttt{requestNo}, \texttt{title}, \texttt{requester}, \texttt{category}, \texttt{amount}, \texttt{createdAt}, \texttt{action}.
+  \item Amount rendered as a 2-decimal THB value.
+  \item "Review" link navigates to \texttt{/reviewer/requests/:id}.
+  \item Empty state explains that only requests assigned by category appear here.
+\end{itemize}
+\subsubsection{ReviewDetailPage}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Shows the same request fields as the requester detail page plus the assigned reviewer and history timeline.
+  \item When the request is \texttt{PENDING}, a decision form is shown with \texttt{APPROVE}/\texttt{REJECT} options and a comment textarea.
+  \item When the current user is the owner, a warning explains that self-approval is forbidden and the server will reject the attempt (\texttt{SELF\_APPROVAL\_NOT\_ALLOWED}). The form remains submit-capable so the backend rule can be demonstrated and tested; the UI never silently bypasses it.
+  \item When the current user is not the assigned reviewer, a warning explains that the request is not assigned to them (\texttt{ACCESS\_DENIED} from the server).
+  \item Client validation mirrors the server for \texttt{REJECT} comments (3-500 characters) and \texttt{APPROVE} comments (max 500).
+  \item On success the page re-renders the updated status and appends the new history row; no optimistic status change.
+  \item After a successful decision, the request no longer appears in the pending queue.
+\end{itemize}
+\subsubsection{Navigation}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{LoginPage} sends \texttt{REVIEWER} users to \texttt{/reviewer/pending} and \texttt{REQUESTER} users to \texttt{/requests/my} after login.
+  \item \texttt{Layout} shows the \texttt{Pending Reviews} link only for \texttt{REVIEWER} users (existing behavior).
+\end{itemize}
+
+\subsection{API Specification}
+
+All responses use the standard envelope:\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Success: \texttt{\{ "data": ... \}}
+  \item Failure: \texttt{\{ "error": \{ "code": "...", "message": "...", "details"?: ... \} \}}
+\end{itemize}
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.5cm}|>{\centering\arraybackslash}p{1.4cm}|>{\RaggedRight}p{2.2cm}|>{\RaggedRight}p{5.2cm}|>{\RaggedRight}p{3.5cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Endpoint} & \textbf{Method} & \textbf{Request} & \textbf{Success} & \textbf{Errors} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Endpoint} & \textbf{Method} & \textbf{Request} & \textbf{Success} & \textbf{Errors} \\ \hline
+\endhead
+\hline
+\endfoot
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak pending} & GET & cookie & \texttt{200 \{ data:\allowbreak  \{ requests:\allowbreak  [.\allowbreak .\allowbreak .\allowbreak ] \} \}} & \texttt{401 UNAUTHORIZED}; \texttt{403 FORBIDDEN} \\ \hline
+\texttt{/\allowbreak api/\allowbreak requests/\allowbreak :\allowbreak id/\allowbreak review} & POST & `\{ decision: "APPROVE" \ & "REJECT", comment?: string \}` & \texttt{200 \{ data:\allowbreak  \{ request, history \} \}} \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{Response field notes}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{request} uses the same serialization as Contract E1: \texttt{amount} is a 2-decimal string; nested \texttt{requester}/\texttt{assignedReviewer} expose only \texttt{\{ id, name, email, role \}}.
+  \item \texttt{history} is the newly appended row with \texttt{\{ id, requestId, actorId, actor, action, comment, createdAt \}}.
+  \item \texttt{GET /api/requests/pending} items include the requester public profile and are ordered by \texttt{createdAt ASC}.
+\end{itemize}
+
+\subsection{Data Specification}
+
+Uses the existing schema from migration \texttt{20261110084745\_init\_schema}; no new migration is required.\\
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{ApprovalRequest.status}: \texttt{PENDING} $\rightarrow$ \texttt{APPROVED} or \texttt{REJECTED}.
+  \item \texttt{ApprovalRequest.updatedAt} changes automatically on update.
+  \item \texttt{ApprovalHistory} insert: \texttt{requestId}, \texttt{actorId = currentUser.id}, \texttt{action = APPROVED | REJECTED}, \texttt{comment = trimmed comment or null}.
+  \item The status update and history insert run inside \texttt{prisma.\$transaction}.
+  \item The conditional update (\texttt{where: \{ id, status: PENDING \}}) protects against double decisions and concurrent reviewers.
+  \item History is append-only; Sprint 1 has no update/delete endpoint for \texttt{ApprovalHistory}.
+\end{itemize}
+
+\subsection{Acceptance Criteria}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{4.5cm}|>{\RaggedRight}p{11.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Acceptance Criterion} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{ID} & \textbf{Acceptance Criterion} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{AC-05} & \texttt{GET /\allowbreak api/\allowbreak requests/\allowbreak pending} returns \texttt{200} with only \texttt{PENDING} requests where \texttt{assignedReviewerId = currentUser.\allowbreak id}; requests assigned to another reviewer and already-decided requests are excluded. Non-reviewers receive \texttt{403 FORBIDDEN}; unauthenticated requests receive \texttt{401 UNAUTHORIZED}. \\ \hline
+\textbf{AC-06} & The assigned reviewer submits \texttt{APPROVE} or \texttt{REJECT} with a comment and receives \texttt{200}; the request status changes to \texttt{APPROVED}/\texttt{REJECTED}, \texttt{updatedAt} changes, and exactly one new \texttt{ApprovalHistory} row is appended with the actor, action, and comment. \\ \hline
+\textbf{AC-07} & A \texttt{REVIEWER} who owns the request cannot approve or reject it, even when it is assigned to another reviewer, and receives \texttt{403 SELF\_\allowbreak APPROVAL\_\allowbreak NOT\_\allowbreak ALLOWED}; the status and history do not change. The check runs before the assignment check. \\ \hline
+\textbf{AC-08} & Approving or rejecting a request that is already \texttt{APPROVED} or \texttt{REJECTED} returns \texttt{400 INVALID\_\allowbreak STATE\_\allowbreak TRANSITION} and appends no history. \\ \hline
+\textbf{AC-09} & A \texttt{REVIEWER} who is not \texttt{assignedReviewerId} receives \texttt{403 ACCESS\_\allowbreak DENIED} and cannot change the request. \\ \hline
+\textbf{AC-10} & A \texttt{REQUESTER} (no \texttt{REVIEWER} role) calling either reviewer endpoint receives \texttt{403 FORBIDDEN} from the backend, independent of the UI. \\ \hline
+\textbf{AC-11} & History is append-only: decisions add new rows, existing rows are never modified or deleted, no update/delete endpoint exists, and rows persist after an application process restart. \\ \hline
+\textbf{AC-12} & \texttt{decision} outside `APPROVE \ \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Software Test Specification (STS)}
+
+
+\small
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.6cm}|>{\centering\arraybackslash}p{1.4cm}|>{\centering\arraybackslash}p{1.2cm}|>{\RaggedRight}p{3.8cm}|>{\RaggedRight}p{3.8cm}|>{\RaggedRight}p{4.0cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Test ID} & \textbf{AC} & \textbf{Level} & \textbf{Preconditions / Input} & \textbf{Action} & \textbf{Expected Result} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Test ID} & \textbf{AC} & \textbf{Level} & \textbf{Preconditions / Input} & \textbf{Action} & \textbf{Expected Result} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{TEST-05} & AC-05 & API/DB integration & Pending requests assigned to R1 and R2; one decided request assigned to R1 & \texttt{GET /\allowbreak api/\allowbreak requests/\allowbreak pending} as R1 & \texttt{200}; only R1's \texttt{PENDING} request; excludes R2's and the decided request; requester profile included \\ \hline
+\textbf{TEST-06} & AC-06 & API/DB integration & Assigned \texttt{PENDING} request & \texttt{POST /\allowbreak review} with \texttt{APPROVE} + comment & \texttt{200}; \texttt{APPROVED}; \texttt{updatedAt} changed; one \texttt{APPROVED} history row with actor/comment \\ \hline
+\textbf{TEST-07} & AC-06 & API/DB integration & Assigned \texttt{PENDING} request & \texttt{POST /\allowbreak review} with \texttt{REJECT} + 3-500 char comment & \texttt{200}; \texttt{REJECTED}; one \texttt{REJECTED} history row with comment \\ \hline
+\textbf{TEST-08} & AC-07 & API/DB integration & \texttt{manager.\allowbreak hybrid} (REVIEWER) owns an \texttt{EQUIPMENT} request assigned to \texttt{t.\allowbreak reviewer} & \texttt{POST /\allowbreak review} as \texttt{manager.\allowbreak hybrid} & \texttt{403 SELF\_\allowbreak APPROVAL\_\allowbreak NOT\_\allowbreak ALLOWED}; status remains \texttt{PENDING}; history unchanged \\ \hline
+\textbf{TEST-09} & AC-08 & API/DB integration & Request already \texttt{APPROVED} & \texttt{POST /\allowbreak review} again & \texttt{400 INVALID\_\allowbreak STATE\_\allowbreak TRANSITION}; no new history \\ \hline
+\textbf{TEST-10} & AC-10 & API integration & \texttt{REQUESTER} cookie & \texttt{GET /\allowbreak pending} and \texttt{POST /\allowbreak review} & \texttt{403 FORBIDDEN} on both \\ \hline
+\textbf{TEST-11} & AC-09 & API integration & \texttt{manager.\allowbreak hybrid} reviews a request assigned to \texttt{t.\allowbreak reviewer} & \texttt{POST /\allowbreak review} & \texttt{403 ACCESS\_\allowbreak DENIED}; no change \\ \hline
+\textbf{TEST-12} & AC-12 & API integration & Bad \texttt{decision}; \texttt{REJECT} with no/2/501-char comment; \texttt{APPROVE} with 501-char comment & \texttt{POST /\allowbreak review} & \texttt{400 VALIDATION\_\allowbreak ERROR} for each; status/history unchanged \\ \hline
+\textbf{TEST-13} & AC-11 & API/DB integration & Request with \texttt{SUBMITTED} history; approve it; restart the application & Inspect history rows before/after; attempt \texttt{PUT}/\texttt{DELETE} on history & Existing row unchanged; new row appended; no update/delete route; rows persist after restart \\ \hline
+\textbf{E2E-02} & AC-06 & E2E (Playwright) & Request created by a requester and assigned to \texttt{t.\allowbreak reviewer} & Login as reviewer $\rightarrow$ pending queue $\rightarrow$ open request $\rightarrow$ \texttt{APPROVE} + comment & Success state; status \texttt{APPROVED}; \texttt{APPROVED} history visible; request leaves the pending queue \\ \hline
+\textbf{E2E-03} & AC-07 & E2E (Playwright) & \texttt{manager.\allowbreak hybrid} owns a request & Login as \texttt{manager.\allowbreak hybrid} $\rightarrow$ open \texttt{/\allowbreak reviewer/\allowbreak requests/\allowbreak :\allowbreak id} $\rightarrow$ attempt \texttt{APPROVE} & Error banner contains \texttt{SELF\_\allowbreak APPROVAL\_\allowbreak NOT\_\allowbreak ALLOWED}; status remains \texttt{PENDING} \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+Additional negative checks:\\
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Unauthenticated \texttt{GET /api/requests/pending} and \texttt{POST /api/requests/:id/review} $\rightarrow$ \texttt{401 UNAUTHORIZED}.
+  \item Unknown request id $\rightarrow$ \texttt{404 NOT\_FOUND}.
+  \item \texttt{REJECT} comment is trimmed before the 3-500 length check.
+\end{itemize}
+
+\subsection{Definition of Done}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item [x] Contract E2 (\texttt{v1.0}) committed before feature tests and implementation (\texttt{4d3731a}).
+  \item [x] \texttt{review.service.ts} implemented with the exact check order in §1.
+  \item [x] PendingReviewsPage and ReviewDetailPage implemented with loading/empty/error/forbidden states.
+  \item [x] \texttt{TEST-05..TEST-13} implemented and passing (11 server tests); 3 client component tests added.
+  \item [x] \texttt{E2E-02} and \texttt{E2E-03} implemented and executed against the local stack (Playwright, 2 passed).
+  \item [x] History is append-only and survives process restart (verified: \texttt{SUBMITTED,APPROVED} retained after restart).
+  \item [x] All responses use \texttt{\{ data \}} / \texttt{\{ error: \{ code, message, details? \} \}} and leak no \texttt{passwordHash}.
+  \item [ ] Teammate review completed on the PR targeting \texttt{sprint-1-staging}; author does not self-approve.
+  \item [x] Contract version history and sprint README updated.
+\end{itemize}
+
+\subsection{Implementation Notes}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.5cm}|>{\RaggedRight}p{4.8cm}|>{\RaggedRight}p{7.5cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Area} & \textbf{Artifact} & \textbf{Notes} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Area} & \textbf{Artifact} & \textbf{Notes} \\ \hline
+\endhead
+\hline
+\endfoot
+Queue + decision service & \texttt{server/\allowbreak src/\allowbreak services/\allowbreak review.\allowbreak service.\allowbreak ts} & \texttt{listPendingReviews} (assigned + \texttt{PENDING}, \texttt{createdAt ASC}) and \texttt{submitReview} (BR-01 $\rightarrow$ BR-05 $\rightarrow$ BR-02 $\rightarrow$ BR-07 $\rightarrow$ transaction). \\ \hline
+Routes & \texttt{server/\allowbreak src/\allowbreak routes/\allowbreak requests.\allowbreak ts} & \texttt{GET /\allowbreak api/\allowbreak requests/\allowbreak pending} and \texttt{POST /\allowbreak api/\allowbreak requests/\allowbreak :\allowbreak id/\allowbreak review} behind \texttt{requireRole(Role.\allowbreak REVIEWER)}. \\ \hline
+Reviewer UI & \texttt{client/\allowbreak src/\allowbreak pages/\allowbreak PendingReviewsPage.\allowbreak tsx}, \texttt{client/\allowbreak src/\allowbreak pages/\allowbreak ReviewDetailPage.\allowbreak tsx} & Queue table; detail with decision form, owner/unassigned warnings, client-side comment validation, no optimistic status change. \\ \hline
+Routing & \texttt{client/\allowbreak src/\allowbreak App.\allowbreak tsx}, \texttt{client/\allowbreak src/\allowbreak pages/\allowbreak LoginPage.\allowbreak tsx} & \texttt{/\allowbreak reviewer/\allowbreak pending} and \texttt{/\allowbreak reviewer/\allowbreak requests/\allowbreak :\allowbreak id} wired; \texttt{REVIEWER} login redirects to the queue. \\ \hline
+Tests & \texttt{server/\allowbreak tests/\allowbreak review.\allowbreak test.\allowbreak ts}, \texttt{client/\allowbreak src/\allowbreak pages/\allowbreak Reviews.\allowbreak test.\allowbreak tsx}, \texttt{e2e/\allowbreak reviewer.\allowbreak spec.\allowbreak ts} & Red-phase commit \texttt{2c74f2c}; green after implementation. \\ \hline
+Test isolation & \texttt{vitest.\allowbreak config.\allowbreak ts} & Root projects now run with \texttt{fileParallelism:\allowbreak  false} because every project shares one PostgreSQL database, which made the requester suite's global row-count assertion race. \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Version History}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\centering\arraybackslash}p{1.2cm}|>{\centering\arraybackslash}p{1.8cm}|>{\RaggedRight}p{6.6cm}|>{\RaggedRight}p{3.2cm}|>{\centering\arraybackslash}p{1.6cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Version} & \textbf{Date} & \textbf{Change} & \textbf{Reason} & \textbf{Commit/PR} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Version} & \textbf{Date} & \textbf{Change} & \textbf{Reason} & \textbf{Commit/PR} \\ \hline
+\endhead
+\hline
+\endfoot
+v1.0 & 12 Nov 2026 & Initial Contract E2 specification (SDS, UI, API, AC-05..AC-12, STS, DoD). & Sprint 1 pre-implementation contract for Issue \#5. & \texttt{4d3731a} \\ \hline
+v1.1 & 12 Nov 2026 & Marked implemented: backend service/\allowbreak{}routes, reviewer UI, TEST-05..13, E2E-02/03, restart check, implementation notes, test-isolation\allowbreak{} note. & Reviewer slice implemented and verified. & PR \#16 (\texttt{2bcbf4a}) \\ \hline
+\end{longtable}
+\vspace{0.3em}
+\newpage
+\section{Part F: Working Sprint 1 Verification & Evidence Package}\label{sec:part-f}
+
+\begin{tcolorbox}[colback=lightbg,colframe=secondary,arc=2mm,boxrule=0.8pt]\small\itshape
+\textbf{Deliverable:} CPE 334 Group Project Deliverable 1 — Part F \quad $\bullet$ \quad \textbf{Project:} Corporate Expense \& Purchase Request Approval System (\texttt{ssiriwan/cpe334-approval-system}) \quad $\bullet$ \quad \textbf{Issue:} \#6 — \texttt{[Part F] Sprint 1 verification and evidence package} \quad $\bullet$ \quad \textbf{Verified Commit:} \texttt{2bcbf4a} (\texttt{sprint-1-staging}, post-PR \#16 merge) \quad $\bullet$ \quad \textbf{Authors:} Oum (67070501075, \texttt{@ssiriwan}) \& T (67070501021, \texttt{@thhanabun}) \quad $\bullet$ \quad \textbf{Verification Date:} 2026-11-12 (re-verified 2026-11-13 by T on a clean database)
+\end{tcolorbox}
+
+
+\subsection{Setup Summary}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Architecture:} TypeScript monorepo (\texttt{client/} React + Vite, \texttt{server/} Express + Prisma ORM, \texttt{prisma/} PostgreSQL 17 schema \& seed).
+  \item \textbf{Local Verification Stack:}
+  \item PostgreSQL 17 running in Docker (\texttt{localhost:5434}, database \texttt{approval\_db})
+  \item Schema \& Seed: \texttt{npx prisma migrate deploy --schema=prisma/schema.prisma} + \texttt{npm run prisma:seed} (3 demo accounts: \texttt{oum.requester@cpe334.local}, \texttt{t.reviewer@cpe334.local}, \texttt{manager.hybrid@cpe334.local})
+  \item Vitest Workspace (\texttt{vitest.config.ts} with \texttt{fileParallelism: false} to prevent shared-DB race conditions)
+  \item Playwright Chromium (\texttt{e2e/*.spec.ts}) starting \texttt{npm run dev:server} (\texttt{:3000}) and \texttt{npm run dev:client} (\texttt{:5173})
+\end{itemize}
+
+\subsection{Build \& Automated Test Results (Commit \texttt{2bcbf4a})}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{3.2cm}|>{\RaggedRight}p{6.0cm}|>{\RaggedRight}p{3.5cm}|>{\centering\arraybackslash}p{2.0cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Check} & \textbf{Command} & \textbf{Result} & \textbf{Duration} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Check} & \textbf{Command} & \textbf{Result} & \textbf{Duration} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{DB Migration \& Seed} & \texttt{npx prisma migrate deploy -\allowbreak -\allowbreak schema=prisma/\allowbreak schema.\allowbreak prisma \&\& npm run prisma:\allowbreak seed} & \textbf{Pass} (1 migration applied, 3 demo accounts seeded) & - \\ \hline
+\textbf{Unit / API / DB Suite} & \texttt{npx vitest run -\allowbreak -\allowbreak config vitest.\allowbreak config.\allowbreak ts -\allowbreak -\allowbreak reporter=verbose} & \textit{}7 files passed (7) \ & 34 tests passed (34) \ \\ \hline
+\textbf{Production Build} & \texttt{npm run build} (\texttt{tsc -\allowbreak b \&\& vite build} + \texttt{tsc -\allowbreak p tsconfig.\allowbreak json}) & \textbf{Pass} (client bundle + server JS compiled cleanly) & 2.94s+ \\ \hline
+\textbf{E2E Suite (Chromium)} & \texttt{npx playwright test -\allowbreak -\allowbreak reporter=list} & \textit{}3 passed (3) \ & 0 failed \ \\ \hline
+\textbf{GitHub Actions CI} & Workflow \texttt{CI and Docker} (Run \texttt{43193876219} (\url{https://github.com/ssiriwan/cpe334-approval-system/actions/runs/43193876219})) & \textbf{Success} (migrate, seed, 34 tests, build, Docker build \& \texttt{/\allowbreak api/\allowbreak health} smoke test) & 1m49s \\ \hline
+\textbf{Re-verification by reviewer (T)} & \texttt{npx prisma migrate deploy} + \texttt{npm run prisma:\allowbreak seed} + \texttt{npm test} on a fresh PostgreSQL 17 volume & \textbf{Pass} (1 migration applied, 3 demo accounts seeded, \textbf{7 files / 34 tests passed}) & 79.86s \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Acceptance Criteria → Test Traceability Matrix}
+
+Every Sprint 1 Acceptance Criterion (\texttt{AC-AUTH-01..05} and \texttt{AC-01..12}) is mapped to executed automated tests on commit \texttt{2bcbf4a}:\\
+
+
+\small
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{2.3cm}|>{\RaggedRight}p{2.3cm}|>{\RaggedRight}p{2.3cm}|>{\RaggedRight}p{2.3cm}|>{\RaggedRight}p{2.3cm}|>{\RaggedRight}p{2.3cm}|>{\RaggedRight}p{2.3cm}|}
+\hline
+\rowcolor{zenPale}\textbf{AC ID} & \textbf{Feature / Rule} & \textbf{Test ID} & \textbf{Test File \& Case Name} & \textbf{Result} & \textbf{Commit} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{AC ID} & \textbf{Feature / Rule} & \textbf{Test ID} & \textbf{Test File \& Case Name} & \textbf{Result} & \textbf{Commit} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{AC-AUTH-01} & F-01 Login & \texttt{TEST-\allowbreak AUTH-\allowbreak 01} & \texttt{server/\allowbreak tests/\allowbreak auth.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak AUTH-\allowbreak 01:\allowbreak  logs in with valid credentials and sets an httpOnly cookie} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-AUTH-02} & F-01 Invalid Login & \texttt{TEST-\allowbreak AUTH-\allowbreak 02} & \texttt{server/\allowbreak tests/\allowbreak auth.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak AUTH-\allowbreak 02:\allowbreak  rejects wrong passwords and unknown users without setting a cookie} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-AUTH-03} & F-01 Session / Logout & \texttt{TEST-\allowbreak AUTH-\allowbreak 03} & \texttt{server/\allowbreak tests/\allowbreak auth.\allowbreak test.\allowbreak ts} — \texttt{TEST-AUTH-03: rejects unauth /me, returns user, clears session} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-AUTH-04} & F-01 Role Guard & \texttt{TEST-\allowbreak AUTH-\allowbreak 04} & \texttt{server/\allowbreak tests/\allowbreak auth.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak AUTH-\allowbreak 04:\allowbreak  allows REVIEWER and rejects REQUESTER on a reviewer-\allowbreak only route} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-AUTH-05} & F-01 / NFR-01 Security & \texttt{TEST-\allowbreak AUTH-\allowbreak 05} & \texttt{server/\allowbreak tests/\allowbreak auth.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak AUTH-\allowbreak 05:\allowbreak  stores bcrypt cost 12 and issues an 8-\allowbreak hour JWT without leaking secrets} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-01} & F-02 / BR-05 Create \& Assign & \texttt{TEST-\allowbreak 01} & \texttt{server/\allowbreak tests/\allowbreak requests.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 01:\allowbreak  creates a PENDING request with requestNo, assigned reviewer, and SUBMITTED history} (+ \texttt{E2E-\allowbreak 01}) & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-02} & F-02 / BR-04 Validation & \texttt{TEST-\allowbreak 02} & \texttt{server/\allowbreak tests/\allowbreak requests.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 02:\allowbreak  rejects invalid payloads and boundary violations without persisting records} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-03} & F-03 My Requests & \texttt{TEST-\allowbreak 03} & \texttt{server/\allowbreak tests/\allowbreak requests.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 03:\allowbreak  returns only the authenticated user requests ordered newest first} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-04} & F-03 / BR-03 Isolation \& Persistence & \texttt{TEST-\allowbreak 04}, \texttt{E2E-\allowbreak 01} & \texttt{server/\allowbreak tests/\allowbreak requests.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 04:\allowbreak  enforces data isolation on GET /\allowbreak api/\allowbreak requests/\allowbreak :\allowbreak id}; \texttt{e2e/\allowbreak requester.\allowbreak spec.\allowbreak ts} — \texttt{E2E-\allowbreak 01} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-05} & F-04 / BR-05 Pending Queue & \texttt{TEST-\allowbreak 05} & \texttt{server/\allowbreak tests/\allowbreak review.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 05:\allowbreak  returns only PENDING requests assigned to the current reviewer} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-06} & F-04 / F-05 Approve \& Reject & \texttt{TEST-\allowbreak 06}, \texttt{TEST-\allowbreak 07}, \texttt{E2E-\allowbreak 02} & \texttt{server/\allowbreak tests/\allowbreak review.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 06}, \texttt{TEST-\allowbreak 07}; \texttt{e2e/\allowbreak reviewer.\allowbreak spec.\allowbreak ts} — \texttt{E2E-\allowbreak 02} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-07} & F-04 / BR-01 No Self-Approval & \texttt{TEST-\allowbreak 08}, \texttt{E2E-\allowbreak 03} & \texttt{server/\allowbreak tests/\allowbreak review.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 08:\allowbreak  blocks self-\allowbreak approval before the assignment check (BR-\allowbreak 01)}; \texttt{e2e/\allowbreak reviewer.\allowbreak spec.\allowbreak ts} — \texttt{E2E-\allowbreak 03} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-08} & F-04 / BR-02 Lifecycle & \texttt{TEST-\allowbreak 09} & \texttt{server/\allowbreak tests/\allowbreak review.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 09:\allowbreak  rejects a second decision with INVALID\_\allowbreak STATE\_\allowbreak TRANSITION and appends no history} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-09} & F-04 / BR-05 Assigned Only & \texttt{TEST-\allowbreak 11} & \texttt{server/\allowbreak tests/\allowbreak review.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 11:\allowbreak  rejects an unrelated reviewer with ACCESS\_\allowbreak DENIED} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-10} & F-04 Role Enforcement & \texttt{TEST-\allowbreak 10} & \texttt{server/\allowbreak tests/\allowbreak review.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 10:\allowbreak  rejects a REQUESTER calling the review endpoint with FORBIDDEN} & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-11} & F-05 / BR-06 Append-Only History & \texttt{TEST-\allowbreak 13} & \texttt{server/\allowbreak tests/\allowbreak review.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 13:\allowbreak  keeps history append-\allowbreak only and exposes no update/\allowbreak delete route} (+ manual restart check) & Pass & \texttt{2bcbf4a} \\ \hline
+\textbf{AC-12} & F-04 / BR-07 Decision Payload & \texttt{TEST-\allowbreak 12} & \texttt{server/\allowbreak tests/\allowbreak review.\allowbreak test.\allowbreak ts} — \texttt{TEST-\allowbreak 12:\allowbreak  validates the decision payload without changing the request} & Pass & \texttt{2bcbf4a} \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\textit{Additional automated checks passing on \texttt{2bcbf4a}: \texttt{server/tests/health.test.ts} (2/2: \texttt{/api/health} 200 and \texttt{/api/} 404 JSON envelope), \texttt{client/src/App.test.tsx} (1/1), \texttt{client/src/pages/Requests.test.tsx} (3/3), \texttt{client/src/pages/Reviews.test.tsx} (3/3).}\\
+
+
+\subsection{Three Demonstration Scenarios}
+
+\subsubsection{Scenario 1: Normal End-to-End Journey (UI → API → DB → Retrieval)}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Feature / AC IDs:} \texttt{F-01}, \texttt{F-02}, \texttt{F-03}, \texttt{F-04}, \texttt{F-05} (\texttt{AC-01}, \texttt{AC-03}, \texttt{AC-04}, \texttt{AC-05}, \texttt{AC-06})
+  \item \textbf{Roles:} \texttt{Oum Requester} (\texttt{REQUESTER}), \texttt{T Reviewer} (\texttt{REVIEWER})
+  \item \textbf{Preconditions:} PostgreSQL seeded with demo users; server and client running (\texttt{playwright.config.ts}).
+  \item \textbf{Steps:}
+\end{itemize}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item Requester logs in via \texttt{/login} (\texttt{POST /api/auth/login}), lands on \texttt{/requests/my}, navigates to \texttt{/requests/new}, and submits an \texttt{EQUIPMENT} request (\texttt{1800} THB).
+  \item Browser redirects to \texttt{/requests/:id}, displays \texttt{PENDING} status and \texttt{SUBMITTED} history; reloading the page confirms PostgreSQL persistence (\texttt{E2E-01}).
+  \item Requester logs out; \texttt{T Reviewer} logs in, lands on \texttt{/reviewer/pending}, opens the assigned request, selects \texttt{Approve} with comment \texttt{"Approved for project use"}, and submits (\texttt{POST /api/requests/:id/review}).
+  \item Navigate back to \texttt{/reviewer/pending} (\texttt{E2E-02}).
+\end{enumerate}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Expected \& Actual Result:} \texttt{E2E-01} (2.7s) and \texttt{E2E-02} (1.6s) passed. Status updated to \texttt{APPROVED}, \texttt{APPROVED by T Reviewer} history appended in one transaction, and the request left the pending queue.
+  \item \textbf{Evidence Screenshots:}
+  \item !Login Screen (\url{evidence/01-login.png})
+  \item !Requester Detail Pending (\url{evidence/03-requester-detail-pending.png})
+  \item !Reviewer Pending Queue (\url{evidence/04-reviewer-pending-queue.png})
+  \item !Reviewer Approved Detail \& History (\url{evidence/05-reviewer-approved-history.png})
+\end{itemize}
+\subsubsection{Scenario 2: Business-Rule \& Boundary Rejection (\texttt{BR-02}, \texttt{BR-04}, \texttt{BR-07})}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Feature / AC IDs:} \texttt{F-02}, \texttt{F-04} (\texttt{AC-02}, \texttt{AC-08}, \texttt{AC-12})
+  \item \textbf{Roles:} \texttt{REQUESTER}, \texttt{REVIEWER}
+  \item \textbf{Preconditions:} Authenticated session cookie; existing \texttt{APPROVED} request for double-decision test.
+  \item \textbf{Steps:}
+\end{itemize}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \texttt{POST /api/requests} with negative/zero amount, >2 decimal places, 2-char title, unknown category, or extra unknown keys (\texttt{TEST-02}).
+  \item \texttt{POST /api/requests/:id/review} with invalid \texttt{decision: "ESCALATE"}, lowercase \texttt{"approve"}, \texttt{REJECT} with \texttt{<3} char comment, or \texttt{>500} char comment (\texttt{TEST-12}).
+  \item \texttt{POST /api/requests/:id/review} on an already \texttt{APPROVED} request (\texttt{TEST-09}).
+\end{enumerate}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Expected \& Actual Result:} All invalid payloads returned \texttt{400 VALIDATION\_ERROR} and double-decision returned \texttt{400 INVALID\_STATE\_TRANSITION} with zero records created or modified in PostgreSQL (\texttt{TEST-02}, \texttt{TEST-09}, \texttt{TEST-12} all passed).
+  \item \textbf{Evidence Screenshot:}
+  \item !Boundary \& Validation Rejection (\url{evidence/02-boundary-validation.png})
+\end{itemize}
+\subsubsection{Scenario 3: Forbidden \& Unauthenticated Access Control (\texttt{BR-01}, \texttt{BR-03}, \texttt{BR-05})}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Feature / AC IDs:} \texttt{F-01}, \texttt{F-03}, \texttt{F-04} (\texttt{AC-AUTH-03}, \texttt{AC-AUTH-04}, \texttt{AC-04}, \texttt{AC-07}, \texttt{AC-09}, \texttt{AC-10})
+  \item \textbf{Roles:} Unauthenticated client, \texttt{REQUESTER}, \texttt{Manager Hybrid} (\texttt{REVIEWER})
+  \item \textbf{Preconditions:} Request owned by \texttt{Oum Requester} assigned to \texttt{T Reviewer}; \texttt{EQUIPMENT} request owned by \texttt{Manager Hybrid} assigned to \texttt{T Reviewer}.
+  \item \textbf{Steps \& Actual Results:}
+\end{itemize}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Unauthenticated \& Post-Logout:} Calling \texttt{/api/auth/me}, \texttt{POST /api/requests}, \texttt{/api/requests/pending}, or \texttt{/api/requests/:id} without cookie or after \texttt{POST /api/auth/logout} → \textbf{\texttt{401 UNAUTHORIZED}} (\texttt{TEST-AUTH-03}, \texttt{TEST-04}, \texttt{review.test.ts}).
+  \item \textbf{Role Enforcement:} \texttt{REQUESTER} calling \texttt{POST /api/requests/:id/review} or \texttt{GET /api/requests/pending} → \textbf{\texttt{403 FORBIDDEN}} (\texttt{TEST-AUTH-04}, \texttt{TEST-10}).
+  \item \textbf{Cross-User / Unrelated Reviewer:} Unrelated requester reading \texttt{GET /api/requests/:id} (\texttt{TEST-04}) or \texttt{Manager Hybrid} reviewing a request assigned to \texttt{T Reviewer} (\texttt{TEST-11}) → \textbf{\texttt{403 ACCESS\_DENIED}}.
+  \item \textbf{Self-Approval Guard (\texttt{BR-01}):} \texttt{Manager Hybrid} attempting to approve their own \texttt{EQUIPMENT} request (even though assigned to \texttt{T Reviewer}) → \textbf{\texttt{403 SELF\_APPROVAL\_NOT\_ALLOWED}} before assignment check (\texttt{TEST-08}, \texttt{E2E-03} passed).
+\end{enumerate}
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Evidence Screenshot:}
+  \item !Self-Approval Blocked BR-01 (\url{evidence/06-self-approval-blocked.png})
+\end{itemize}
+
+\subsection{Actual Test Excerpts (Executed on \texttt{2bcbf4a})}
+
+\subsubsection{Excerpt 1: Domain Rule \texttt{BR-01} — No Self-Approval (\texttt{server/tests/review.test.ts:226-256})}
+Result: \textbf{Passed} (\texttt{395ms} in \texttt{vitest run} on \texttt{2bcbf4a})\\
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+  it('TEST-08: blocks self-approval before the assignment check (BR-01)', async () => {
+    const cookieM = await loginCookie(REVIEWER_M_EMAIL);
+
+    // manager.hybrid owns an EQUIPMENT request, which is assigned to t.reviewer.
+    const ownRequest = await createRequest(cookieM, {
+      title: 'My Own Equipment Request',
+      category: 'EQUIPMENT',
+    });
+
+    const dbBefore = await prisma.approvalRequest.findUnique({
+      where: { id: ownRequest.id },
+      include: { histories: true },
+    });
+    expect(dbBefore?.assignedReviewerId).toBe(reviewerTId);
+    expect(dbBefore?.histories).toHaveLength(1);
+
+    const res = await request(app)
+      .post(`/api/requests/${ownRequest.id}/review`)
+      .set('Cookie', cookieM)
+      .send({ decision: 'APPROVE', comment: 'Self approval attempt' });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error.code).toBe('SELF_APPROVAL_NOT_ALLOWED');
+
+    const dbAfter = await prisma.approvalRequest.findUnique({
+      where: { id: ownRequest.id },
+      include: { histories: true },
+    });
+    expect(dbAfter?.status).toBe(RequestStatus.PENDING);
+    expect(dbAfter?.histories).toHaveLength(1);
+  });
+\end{lstlisting}
+
+\subsubsection{Excerpt 2: Access Restriction \texttt{BR-03} / \texttt{BR-05} — Unrelated Reviewer Blocked (\texttt{server/tests/review.test.ts:311-333})}
+Result: \textbf{Passed} (\texttt{749ms} in \texttt{vitest run} on \texttt{2bcbf4a})\\
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+  it('TEST-11: rejects an unrelated reviewer with ACCESS_DENIED', async () => {
+    const cookieRequester = await loginCookie(REQUESTER_EMAIL);
+    const cookieM = await loginCookie(REVIEWER_M_EMAIL);
+    const created = await createRequest(cookieRequester, {
+      title: 'Not Assigned To M',
+      category: 'EQUIPMENT',
+    });
+
+    const res = await request(app)
+      .post(`/api/requests/${created.id}/review`)
+      .set('Cookie', cookieM)
+      .send({ decision: 'APPROVE', comment: 'Unrelated reviewer attempt' });
+
+    expect(res.status).toBe(403);
+    expect(res.body.error.code).toBe('ACCESS_DENIED');
+
+    const dbRequest = await prisma.approvalRequest.findUnique({
+      where: { id: created.id },
+      include: { histories: true },
+    });
+    expect(dbRequest?.status).toBe(RequestStatus.PENDING);
+    expect(dbRequest?.histories).toHaveLength(1);
+  });
+\end{lstlisting}
+
+
+\subsection{TDD Red → Green Evidence}
+
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{1.6cm}|>{\RaggedRight}p{3.5cm}|>{\RaggedRight}p{2.5cm}|>{\RaggedRight}p{4.2cm}|>{\RaggedRight}p{4.0cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Slice / Issue} & \textbf{Contract Commit} & \textbf{Red Test Commit} & \textbf{Green Implementation Commit} & \textbf{Merge PR} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Slice / Issue} & \textbf{Contract Commit} & \textbf{Red Test Commit} & \textbf{Green Implementation Commit} & \textbf{Merge PR} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{F-01 Auth (\#3)} & \texttt{fc8f548} (2026-11-10) \texttt{Contract E0} & \texttt{66f13e0} (2026-11-10) \texttt{TEST-\allowbreak AUTH-\allowbreak 01.\allowbreak .\allowbreak 05} & \texttt{d458119} (2026-11-10) + \texttt{0faa578} (2026-11-11) & PR \#12 (\texttt{ad10d0b}) \\ \hline
+\textbf{F-02/F-03 Requester (\#4)} & \texttt{bb4251b} (2026-11-11) \texttt{Contract E1} & \texttt{d80cc44} (2026-11-11) \texttt{TEST-\allowbreak 01.\allowbreak .\allowbreak 04} & \texttt{331294f} + \texttt{37a343b} (2026-11-11) & PR \#15 (\texttt{fd0c875}) \\ \hline
+\textbf{F-04/F-05 Reviewer (\#5)} & \texttt{4d3731a} (2026-11-12) \texttt{Contract E2} & \texttt{2c74f2c} (2026-11-12) \texttt{TEST-\allowbreak 05.\allowbreak .\allowbreak 13} & \texttt{4f5b2a9} (2026-11-12) & PR \#16 (\texttt{2bcbf4a}) \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\subsection{Governance, Contribution \& Honest Disclosure}
+
+\subsubsection{Issue $\rightarrow$ Branch $\rightarrow$ PR $\rightarrow$ Reviewer $\rightarrow$ Merge Commit}
+Every change reached \texttt{sprint-1-staging} through a reviewed pull request with no author self-approval:\\
+
+
+\small
+\vspace{0.3em}
+\begin{longtable}{|>{\centering\arraybackslash}p{0.9cm}|>{\RaggedRight}p{3.4cm}|>{\RaggedRight}p{3.4cm}|>{\centering\arraybackslash}p{0.8cm}|>{\centering\arraybackslash}p{1.3cm}|>{\centering\arraybackslash}p{1.3cm}|>{\RaggedRight}p{2.8cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Issue} & \textbf{Scope} & \textbf{Branch} & \textbf{PR} & \textbf{Author} & \textbf{Reviewer} & \textbf{Merge commit} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Issue} & \textbf{Scope} & \textbf{Branch} & \textbf{PR} & \textbf{Author} & \textbf{Reviewer} & \textbf{Merge commit} \\ \hline
+\endhead
+\hline
+\endfoot
+\#8 & Monorepo scaffold, tooling, base branches & \texttt{chore/\allowbreak 8-\allowbreak repo-\allowbreak scaffold} & \#9 & Oum & T & \texttt{caa56c7} \\ \hline
+\#1 & Part A/B SRS, feature inventory, traceability & \texttt{feature/\allowbreak 1-\allowbreak baseline-\allowbreak docs} & \#11 & Oum & T & \texttt{ffcb38b} \\ \hline
+\#2 & Part C/D system SDS and three-sprint plan & \texttt{feature/\allowbreak 2-\allowbreak system-\allowbreak sds-\allowbreak sprint-\allowbreak plan} & \#10 & T & Oum & \texttt{cf5d4da} \\ \hline
+\#3 & F-01 auth foundation (schema, seed, login/logout/me) & \texttt{feature/\allowbreak 3-\allowbreak auth-\allowbreak foundation} & \#12 & T & Oum & \texttt{ad10d0b} \\ \hline
+\#13 & Lab 5 Docker image, CI quality gate, Cloud Run pipeline & \texttt{feature/\allowbreak 13-\allowbreak lab5-\allowbreak docker-\allowbreak cicd} & \#14 & T & Oum & \texttt{001cb0c} \\ \hline
+\#4 & F-02/F-03 requester slice & \texttt{feature/\allowbreak 4-\allowbreak requester-\allowbreak slice} & \#15 & Oum & T & \texttt{fd0c875} \\ \hline
+\#5 & F-04/F-05 reviewer slice & \texttt{feature/\allowbreak 5-\allowbreak reviewer-\allowbreak slice} & \#16 & T & Oum & \texttt{2bcbf4a} \\ \hline
+\#6 & Part F Sprint 1 verification and evidence package & \texttt{test/\allowbreak 6-\allowbreak sprint1-\allowbreak verification} & \#17 & Oum & T & merge of PR \#17 \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+
+\begin{itemize}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Peer Review Rule:} Zero self-approvals; every PR was reviewed and approved by the non-author teammate (\texttt{docs/reviewer.md}).
+  \item \textbf{Release:} Issue \#7 opens the release PR \texttt{sprint-1-staging -> main} and tags \texttt{v0.1.0-sprint1} after PR \#17 merges.
+\end{itemize}
+\subsubsection{Contribution Table}
+\vspace{0.3em}
+\begin{longtable}{|>{\RaggedRight}p{2.8cm}|>{\centering\arraybackslash}p{2.2cm}|>{\RaggedRight}p{5.3cm}|>{\RaggedRight}p{4.4cm}|}
+\hline
+\rowcolor{zenPale}\textbf{Member} & \textbf{Student ID} & \textbf{Primary Ownership} & \textbf{Peer Review Ownership} \\ \hline
+\endfirsthead
+\hline
+\rowcolor{zenPale}\textbf{Member} & \textbf{Student ID} & \textbf{Primary Ownership} & \textbf{Peer Review Ownership} \\ \hline
+\endhead
+\hline
+\endfoot
+\textbf{Oum} (\texttt{@ssiriwan}) & \texttt{67070501075} & Repo scaffold (\#8), Part A/B SRS \& Traceability (\#1), F-02/F-03 Requester Slice (\#4), Part F Verification (\#6) & Reviewed PR \#10, PR \#12, PR \#14, PR \#16 \\ \hline
+\textbf{T} (\texttt{@thhanabun}) & \texttt{67070501021} & Part C/D SDS \& 3-Sprint Plan (\#2), F-01 Auth Foundation (\#3), Lab 5 Docker/CI/CD (\#13), F-04/F-05 Reviewer Slice (\#5) & Reviewed PR \#9, PR \#11, PR \#15 \\ \hline
+\end{longtable}
+\vspace{0.3em}
+
+\subsubsection{AI-Use Declaration}
+AI coding assistants were used to accelerate boilerplate scaffolding, test case drafting, and documentation formatting. All architecture decisions, business-rule enforcement orders, database schemas, and test verifications were reviewed, executed locally and in CI, and peer-reviewed by both team members.\\
+
+\subsubsection{Known Limitations \& Honest Disclosure}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=2pt]
+  \item \textbf{Deferred Sprint 2 / Sprint 3 Scope:} \texttt{FR-07} (Return for Revision), \texttt{FR-08} (Multi-stage Approval), \texttt{FR-09} (Attachments), \texttt{FR-10} (Search/Filter/Reporting), and \texttt{FR-11} (Admin User/Role Management) are intentionally out of Sprint 1 scope and remain \textit{Planned} for Sprints 2–3.
+  \item \textbf{NFR-02 Load Benchmark:} Formal 50-concurrent-request p95 latency load testing is deferred to Sprint 3; Sprint 1 verified functional correctness and single-query/transactional indexing.
+  \item \textbf{Playwright E2E in CI:} \texttt{E2E-01..03} pass locally against PostgreSQL + Vite + Express (\texttt{3/3} in \texttt{11.7s}), while \texttt{.github/workflows/ci-docker.yml} currently runs the 34 Vitest unit/integration tests, TypeScript builds, and Docker container \texttt{/api/health} probe.
+  \item \textbf{Minor Sprint 1 Polish Backlog:} Contract E1 §2 mentions a \texttt{createdAt} column in \texttt{MyRequestsPage} that is not rendered in the Sprint 1 table; \texttt{requestNo} uses a UTC date prefix (\texttt{YYYYMMDD}); category-to-reviewer mapping (\texttt{D-03}) is static until Sprint 3 Admin Management (\texttt{FR-11}).
+\end{enumerate}
+\end{document}
