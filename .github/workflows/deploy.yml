@@ -20,6 +20,7 @@ env:
   SERVICE_NAME: ${{ vars.GCP_SERVICE_NAME }}
   MIGRATION_JOB: ${{ vars.GCP_MIGRATION_JOB }}
   CLOUD_SQL_INSTANCE: ${{ vars.GCP_CLOUD_SQL_INSTANCE }}
+  RUNTIME_SERVICE_ACCOUNT: ${{ vars.GCP_RUNTIME_SERVICE_ACCOUNT }}
   PUBLIC_ORIGIN: ${{ vars.GCP_PUBLIC_ORIGIN }}
   IMAGE: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/${{ vars.GCP_ARTIFACT_REPOSITORY }}/approval-system
 
@@ -86,6 +87,7 @@ jobs:
           gcloud run jobs deploy "${MIGRATION_JOB}" \
             --image "${{ needs.build-and-push.outputs.image }}@${{ needs.build-and-push.outputs.digest }}" \
             --region "${REGION}" \
+            --service-account "${RUNTIME_SERVICE_ACCOUNT}" \
             --set-cloudsql-instances "${CLOUD_SQL_INSTANCE}" \
             --set-secrets "DATABASE_URL=DATABASE_URL:latest" \
             --command "npx" \
@@ -121,6 +123,7 @@ jobs:
             --image "${{ needs.build-and-push.outputs.image }}@${{ needs.build-and-push.outputs.digest }}" \
             --region "${REGION}" \
             --platform managed \
+            --service-account "${RUNTIME_SERVICE_ACCOUNT}" \
             --allow-unauthenticated \
             --port 3000 \
             --cpu 1 \

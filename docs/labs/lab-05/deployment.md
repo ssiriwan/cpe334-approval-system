@@ -65,7 +65,8 @@ GitHub configuration:
 | `GCP_SERVICE_NAME` | Repository variable | `approval-system` |
 | `GCP_MIGRATION_JOB` | Repository variable | `approval-system-migrate` |
 | `GCP_CLOUD_SQL_INSTANCE` | Repository variable | `project:region:instance` |
-| `GCP_PUBLIC_ORIGIN` | Repository variable | `https://<cloud-run-url>` |
+| `GCP_RUNTIME_SERVICE_ACCOUNT` | Repository variable | Cloud Run runtime service account email (`approval-runtime@...`) - the service and migration job run as this account |
+| `GCP_PUBLIC_ORIGIN` | Repository variable | `https://<cloud-run-url>` (placeholder on the first deploy, real URL after Step 10) |
 | `GCP_WORKLOAD_IDENTITY_PROVIDER` | Repository secret | Workload Identity provider resource name |
 | `GCP_DEPLOY_SERVICE_ACCOUNT` | Repository secret | Deploy service account email |
 
@@ -140,8 +141,15 @@ curl http://localhost:3000/api/health
 | Cloud SQL | `approval-db` | PostgreSQL 17, smallest tier, storage auto-increase off. |
 | Secret Manager | `DATABASE_URL`, `JWT_SECRET` | Runtime secrets. |
 | Service account | `github-deploy` | Used by GitHub Actions through Workload Identity Federation. |
+| Runtime service account | `approval-runtime` | Cloud Run service and migration job identity: `cloudsql.client` + `secretmanager.secretAccessor` only. |
 
 ### 5.1 One-time setup (human-run)
+
+The step-by-step, copy-paste runbook with a done-check for every step is
+[`gcp-setup.md`](./gcp-setup.md). It covers project creation, the budget alert,
+API enablement, Cloud SQL, Secret Manager, the two service accounts, Workload
+Identity Federation, the repository variables/secrets, the first deploy, seeding,
+and teardown.
 
 These commands change billing, IAM, or databases, so a team member runs and
 reviews them. Do not let an AI agent change billing or IAM.
