@@ -7,6 +7,7 @@ coverage/
 !.env.example
 *.log
 npm-debug.log*
+!docs/labs/lab-05/evidence/*.log
 uploads/
 test-results/
 playwright-report/
