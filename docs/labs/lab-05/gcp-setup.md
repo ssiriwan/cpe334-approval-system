@@ -5,6 +5,19 @@
 > **Time:** about 20-25 minutes. Cloud SQL creation is the slow part (5-10 min).
 > **Never paste a secret, password, connection string, or key file into an agent chat.**
 
+> **STATUS (updated 20 Nov 2026): partly superseded.**
+> This runbook documents the *self-provisioned* project (own project, own Cloud SQL,
+> own Artifact Registry). The team now deploys into the **course shared project**
+> `cpe-se-course-2026` with the fixed team prefix `sd3cdaba1`, where the portal/TA
+> pre-provisions the project, Cloud SQL, Artifact Registry, Secret Manager entries,
+> service account and Cloud Run service/job. `deploy/deploy.sh` asserts those
+> resources exist and refuses to create project-level IAM, so steps 1-8 below do
+> **not** apply as written; the one part that still does is the Workload Identity
+> Federation and repository variable/secret setup that the deploy workflow needs.
+> The runbook will be rewritten for the shared project as soon as the account
+> access is granted (Issue #19). Until then it is kept as reference, not as a
+> procedure to follow.
+
 This runbook is the executable companion to `deployment.md`. Follow it top to bottom.
 Every step has a *Done check* - do not continue until it passes.
 
