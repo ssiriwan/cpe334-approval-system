@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ==============================================================================
-# TokTickIT — Idempotent Google Cloud Run Deployment Script
+# CPE 334 Approval System — Idempotent Google Cloud Run Deployment Script
 # ==============================================================================
 # Usage:
 #   ./deploy/deploy.sh [--demo]
@@ -113,6 +113,7 @@ IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${SERVICE_NAME}:$
 
 # Secret Manager secret names (values are never stored in this repo).
 SECRET_DB_URL="sd3cdaba1-database-url"
+SECRET_JWT="sd3cdaba1-jwt-secret"
 SECRET_ADMIN_PASS="sd3cdaba1-admin-password"
 SECRET_DEMO_PASS="sd3cdaba1-demo-password"
 
@@ -120,7 +121,7 @@ GENERATED_ADMIN_PASSWORD=""
 GENERATED_DEMO_PASSWORD=""
 
 echo "=================================================================="
-echo "TokTickIT Cloud Run Deployment"
+echo "CPE 334 Approval System Cloud Run Deployment"
 echo "Project : ${PROJECT_ID}"
 echo "Region  : ${REGION}"
 echo "Demo    : ${SEED_DEMO_DATA}"
@@ -130,6 +131,27 @@ echo "=================================================================="
 # ==============================================================================
 # Portal/TA pre-provisions infrastructure and public service IAM (Guide 5.3 steps 1–8, 5.4).
 # These names must exist. Never create or modify project-level IAM here.
+#
+# JWT signing key: created once and stored only in Secret Manager. It is never
+# printed and never passed through --set-env-vars, because this repository is
+# public (Lab 5: R-02 and R-12).
+# The binding below is secret-scoped (not project-level IAM): the runtime service
+# account must be able to read the value, and the secret did not exist when the
+# portal pre-provisioned access for the other sd3cdaba1-* secrets.
+if [ "$DRY_RUN" != "1" ]; then
+  if gcloud secrets describe "$SECRET_JWT" --project "$PROJECT_ID" >/dev/null 2>&1; then
+    printf '%s\n' "Reusing Secret Manager secret: ${SECRET_JWT}"
+  else
+    openssl rand -hex 32 | gcloud secrets create "$SECRET_JWT" --data-file=- --project "$PROJECT_ID"
+    printf '%s\n' "Created Secret Manager secret: ${SECRET_JWT} (value never printed)"
+  fi
+  if ! gcloud secrets add-iam-policy-binding "$SECRET_JWT" \
+      --member="serviceAccount:${SA_EMAIL}" \
+      --role="roles/secretmanager.secretAccessor" \
+      --project "$PROJECT_ID" --quiet >/dev/null 2>&1; then
+    printf '%s\n' "WARN: could not grant secretAccessor on ${SECRET_JWT} to ${SA_EMAIL}; ask the TA to grant it before the service starts." >&2
+  fi
+fi
 JOB_SECRETS="DATABASE_URL=${SECRET_DB_URL}:latest,ADMIN_PASSWORD=${SECRET_ADMIN_PASS}:latest"
 if [ "$SEED_DEMO_DATA" = "true" ]; then
   JOB_SECRETS="${JOB_SECRETS},DEMO_USER_PASSWORD=${SECRET_DEMO_PASS}:latest"
@@ -192,8 +214,8 @@ run_cmd gcloud run services update "$SERVICE_NAME" \
   --region "$REGION" \
   --service-account "$SA_EMAIL" \
   --add-cloudsql-instances "$SQL_CONN_NAME" \
-  --set-secrets "DATABASE_URL=${SECRET_DB_URL}:latest" \
-  --set-env-vars "NODE_ENV=production,TZ=Asia/Bangkok,GIT_COMMIT=${IMAGE_TAG},JWT_SECRET=sd3cdaba1_jwt_production_secret_key_minimum_32_chars" \
+  --set-secrets "DATABASE_URL=${SECRET_DB_URL}:latest,JWT_SECRET=${SECRET_JWT}:latest" \
+  --set-env-vars "NODE_ENV=production,TZ=Asia/Bangkok,GIT_COMMIT=${IMAGE_TAG}" \
   --min-instances 0 \
   --max-instances 1 \
   --memory 512Mi \
@@ -216,8 +238,7 @@ printf '%s\n' "=================================================================
 printf '%s\n' "Deployment Completed!"
 printf '%s\n' "Service URL    : ${SERVICE_URL}"
 printf '%s\n' "Health Check   : ${SERVICE_URL}/api/health"
-printf '%s\n' "Readiness Check: ${SERVICE_URL}/api/ready"
-printf '%s\n' "Admin Email    : oum.requester@cpe334.local"
+printf '%s\n' "Demo accounts  : oum.requester@cpe334.local, t.reviewer@cpe334.local, manager.hybrid@cpe334.local"
 printf '%s\n' "Admin Password : Stored in Secret Manager: ${SECRET_ADMIN_PASS} (not printed)."
 if [ "$SEED_DEMO_DATA" = "true" ]; then
   printf '%s\n' "Demo Password  : Stored in Secret Manager: ${SECRET_DEMO_PASS} (not printed)."

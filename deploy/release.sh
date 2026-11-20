@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# TokTickIT — release.sh (used by .github/workflows/deploy.yml)
+# CPE 334 Approval System — release.sh (used by .github/workflows/deploy.yml)
 # ==============================================================================
 # WHAT THIS SCRIPT DOES
 #   Update pre-provisioned resources only. Does not create SQL, IAM or secrets.
@@ -10,7 +10,7 @@
 #
 # INPUT (environment variables)
 #   PROJECT_ID, REGION, IMAGE_TAG   required (IMAGE_TAG = full 40-char commit SHA)
-#   SERVICE_NAME, MIGRATE_JOB_NAME  optional (default: toktickit, sd3cdaba1-migrate)
+#   SERVICE_NAME, MIGRATE_JOB_NAME  optional (default: sd3cdaba1, sd3cdaba1-migrate)
 #   ROLLBACK                        true | false (default false)
 #   GITHUB_ENV                      when set, SERVICE_URL / DEPLOYED_IMAGE are
 #                                   appended so later workflow steps can use them
@@ -30,7 +30,7 @@
 #
 # ⭐ CHANGE ME — groups using another tech stack must review:
 #   # CHANGE ME: default SERVICE_NAME / MIGRATE_JOB_NAME and the image path
-#   #            `sd3cdaba1/toktickit` (Artifact Registry repo / image name)
+#   #            `sd3cdaba1/sd3cdaba1` (Artifact Registry repo / image name)
 #   # CHANGE ME: how the migration is run (the Cloud Run job is created by
 #   #            deploy/deploy.sh step 10 — change the command there)
 # ==============================================================================
@@ -49,7 +49,7 @@ ROLLBACK="${ROLLBACK:-false}"
 
 # ------------------------------------------------------------------------------
 # 2. Find the image and pin it by digest
-#    CHANGE ME: `sd3cdaba1/toktickit` = <Artifact Registry repo>/<image name>.
+#    CHANGE ME: `sd3cdaba1/sd3cdaba1` = <Artifact Registry repo>/<image name>.
 # ------------------------------------------------------------------------------
 IMAGE="$REGION-docker.pkg.dev/$PROJECT_ID/sd3cdaba1/sd3cdaba1:$IMAGE_TAG"
 # Resolve to a digest so the job and service run the exact same immutable image.
