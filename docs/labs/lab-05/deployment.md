@@ -35,6 +35,9 @@ data lives in Cloud SQL.
 | `docker-compose.yml` | Local production-like stack: `db`, one-off `migrate`, `app`, and an optional `seed` profile. |
 | `.github/workflows/ci-docker.yml` | PR quality gate: migrate, seed, test, build, Docker build, container smoke test. |
 | `.github/workflows/deploy.yml` | Main deploy: image by SHA, migration job, Cloud Run deploy by digest, health verification. |
+| `deploy/deploy.sh` | One-time/idempotent provisioning + first deploy on the shared course project (`DRY_RUN=1` prints the commands). |
+| `deploy/release.sh` | Routine release called by `deploy.yml`: pin the image by digest, run the migration job, update the service. |
+| `deploy/smoke_test.py` | Post-deploy check: `/api/health`, `/`, and an optional login. |
 | `.env.example` | Every environment variable with placeholder values only. |
 
 ---
@@ -46,8 +49,10 @@ Cloud values come from GitHub repository variables and Secret Manager.
 
 | Variable | Purpose | Secret? | Local source | GCP source |
 | :--- | :--- | :---: | :--- | :--- |
-| `DATABASE_URL` | PostgreSQL connection string | **Yes** | `.env` | Secret Manager `DATABASE_URL` (version `latest`) |
-| `JWT_SECRET` | HS256 signing key, at least 32 characters | **Yes** | `.env` | Secret Manager `JWT_SECRET` (version `latest`) |
+| `DATABASE_URL` | PostgreSQL connection string | **Yes** | `.env` | Secret Manager `sd3cdaba1-database-url` (version `latest`) |
+| `JWT_SECRET` | HS256 signing key, at least 32 characters | **Yes** | `.env` | Secret Manager `sd3cdaba1-jwt-secret`, created once by `deploy/deploy.sh` and never printed |
+| `DEMO_USER_PASSWORD` | Password of the three demo accounts seeded by `prisma/seed.ts` | **Yes** | `.env` (optional; the demo default is used when unset) | Secret Manager `sd3cdaba1-demo-password`; the seed refuses the default when `NODE_ENV=production` |
+| `SEED_DEMO_DATA` | `true` seeds the demo accounts, `false` skips seeding | No | unset (treated as `true` outside production) | Cloud Run job env var set by `deploy/deploy.sh` (`false` unless run with `--demo`) |
 | `JWT_EXPIRES_IN_SECONDS` | Session lifetime, default `28800` (8h) | No | `.env` | Cloud Run env var (default used if omitted) |
 | `PORT` | Server port, `3000` | No | `.env` / image default | Cloud Run `--port 3000` |
 | `NODE_ENV` | `production` in containers | No | `.env` | Cloud Run env var |
@@ -131,6 +136,23 @@ curl http://localhost:3000/api/health
 
 ## 5. GCP Resources
 
+> **This team runs on the shared course project** `cpe-se-course-2026` (region
+> `asia-southeast1`), where the team prefix `sd3cdaba1` is fixed. `deploy/deploy.sh`
+> and `deploy/release.sh` hard-code those names and refuse to run against another
+> project or region. The table below shows the generic names from the original
+> single-team plan; column 3 of the team table maps them to what is actually used.
+
+Actual resource names on the shared project:
+
+| Resource | Actual name | Notes |
+| :--- | :--- | :--- |
+| Artifact Registry repository | `sd3cdaba1` | Holds the `sd3cdaba1` image. |
+| Cloud Run service | `sd3cdaba1` | Minimum instances `0`, maximum `1`, 512 MiB, port `3000`. |
+| Cloud Run job | `sd3cdaba1-migrate` | `prisma migrate deploy && npm run prisma:seed`. |
+| Cloud SQL | `sd3cdaba1-pg` / database `sd3cdaba1` / user `sd3cdaba1` | PostgreSQL 17. |
+| Secret Manager | `sd3cdaba1-database-url`, `sd3cdaba1-jwt-secret`, `sd3cdaba1-admin-password`, `sd3cdaba1-demo-password` | The JWT secret is created by `deploy/deploy.sh` when missing; the others are pre-provisioned. |
+| Runtime service account | `sd3cdaba1-runner@cpe-se-course-2026.iam.gserviceaccount.com` | Needs `secretAccessor` on the JWT secret. |
+
 | Resource | Suggested name | Notes |
 | :--- | :--- | :--- |
 | Project | `cpe334-sec<section>-team<NN>` | One project for Lab 5-7 and the Final Project. |
@@ -179,7 +201,11 @@ Create secrets (values are never printed or committed):
 printf '%s' 'postgresql://approval_user:<DB_PASSWORD>@localhost/approval_db?host=/cloudsql/<PROJECT_ID>:<REGION>:approval-db&schema=public' \
   | gcloud secrets create DATABASE_URL --data-file=-
 
-openssl rand -hex 32 | gcloud secrets create JWT_SECRET --data-file=-
+# On the shared course project the team-prefixed names are used, e.g.
+#   gcloud secrets create sd3cdaba1-database-url --data-file=-
+# The JWT signing key is not created by hand here: deploy/deploy.sh creates
+# sd3cdaba1-jwt-secret from `openssl rand -hex 32` when it is missing, so the
+# value never passes through a shell history or this document.
 ```
 
 Create the deploy service account and grant only the required roles:
