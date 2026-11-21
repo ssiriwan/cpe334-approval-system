@@ -5,6 +5,10 @@ summaries: they are pasted verbatim so a TA can see what the commands actually p
 
 | File | Check | What it proves |
 | :--- | :---: | :--- |
+| `c04-live.log` | C-04 | Live sign-in, create `REQ-20261121-0001`, and the three 403 rule rejections |
+| `c05-before.log` / `c05-after.log` | C-05 | Same record before and after revision replacement + redeploy |
+| `kit-doctor.log` / `kit-migrate.log` / `kit-deploy.log` | C-03/C-04 | Kit readiness, migration + seed, and deploy transcript (secret values masked) |
+| `screenshots/` | C-02/C-04/C-05/C-06 | Captioned Figures 1 and 2-6; raw captures kept alongside the composites |
 | `c03-clean-clone.log` | C-03 | A fresh clone of the public repository builds and runs with only `.env.example` copied to `.env`, on a **fresh** database volume: migration applied, container healthy, `/api/health` reporting the clone's commit, demo accounts seeded, then a login and a request created through the API to PostgreSQL and read back |
 
 ## How `c03-clean-clone.log` was produced (2026-11-15)
