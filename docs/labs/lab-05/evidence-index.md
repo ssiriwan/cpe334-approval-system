@@ -103,9 +103,9 @@ the Express API; PostgreSQL is never inside the container.
   APP_PORT=3100 POSTGRES_PORT=5435 GIT_COMMIT=$(git rev-parse HEAD) docker compose up --build -d
   curl http://localhost:3100/api/health
   ```
-- **Figure 2.** C-03 (R-01): `docker compose ps` from the clean clone - `db` healthy, `migrate`
-  exited 0, `app` running; captured in `c03-clean-clone.log`, clone commit `f35ad24`.
-- **Figure 3.** C-03 (R-02): the environment variable table in [`deployment.md`](./deployment.md);
+- **Screenshot policy for C-03:** no image is used here - the verbatim log linked above shows the
+  commands and their output, and Lab 5 Section 12 says to add a screenshot only where a link
+  cannot show the fact. The environment variable table is in [`deployment.md`](./deployment.md);
   every variable the application reads is listed and no real value is committed.
 
 ---
@@ -129,11 +129,11 @@ PostgreSQL 17, Secret Manager, runtime and deploy service accounts, Workload Ide
   -> read back from My requests -> three rule rejections, all from the backend:
   `403 FORBIDDEN` (requester calls review), `403 ACCESS_DENIED` (unrelated reviewer
   `manager.hybrid`), `403 SELF_APPROVAL_NOT_ALLOWED` (reviewer reviews own request).
-- **Figure 4.** C-04 (R-03): sign-in on the public URL
+- **Figure 2.** C-04 (R-03): sign-in on the public URL
   <https://sd3cdaba1-4d7hbszvwq-as.a.run.app>; the browser address bar shows the Cloud Run hostname.
-- **Figure 5.** C-04 (R-03): requester creates `REQ-20261121-0001` and sees it in "My requests" with
+- **Figure 3.** C-04 (R-03): requester creates `REQ-20261121-0001` and sees it in "My requests" with
   status `PENDING`; the same record is visible through `GET /api/requests/my`.
-- **Figure 6.** C-04 (R-03): a reviewer who is not assigned gets `403 ACCESS_DENIED`, and a reviewer
+- **Figure 4.** C-04 (R-03): a reviewer who is not assigned gets `403 ACCESS_DENIED`, and a reviewer
   who owns the request gets `403 SELF_APPROVAL_NOT_ALLOWED` - backend rule rejections, not hidden
   buttons.
 
@@ -144,7 +144,7 @@ PostgreSQL 17, Secret Manager, runtime and deploy service accounts, Workload Ide
   revision replaced the running instance (`sd3cdaba1-00003-h6g` -> `sd3cdaba1-00004-wpw`) and a
   redeploy was executed; `/api/health` still reported commit `263133d` and the same record was still
   present with the same `requestNo`.
-- **Figure 7.** C-05 (R-04): `REQ-20261121-0001` before and after the revision replacement and
+- **Figure 5.** C-05 (R-04): `REQ-20261121-0001` before and after the revision replacement and
   redeploy, with the public URL and `GET /api/health` commit `263133d`.
 
 ---
@@ -171,7 +171,7 @@ deployed **by digest**, then a smoke test asserts `/api/health` reports the rele
 - **Running commit:** `GET /api/health` returns `74d37cb67cbdc25c3baedefbe4a1dd518891125a`, equal
   to the release SHA merged into `main`. `kit.sh status` shows revision `sd3cdaba1-00007-h8g` with
   the digest pinned by the workflow.
-- **Figure 8.** C-06 (R-07, R-08): the deploy run summary with the image digest and the smoke-test
+- **Figure 6.** C-06 (R-07, R-08): the deploy run summary with the image digest and the smoke-test
   step, next to `GET /api/health` returning the same commit.
 
 ---

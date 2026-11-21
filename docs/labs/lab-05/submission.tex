@@ -1,0 +1,321 @@
+% =====================================================================
+%  CPE 334 - Lab 5 Submission : Cloud Deployment and CI/CD Pipeline
+%  Compile: pdfLaTeX. Upload the WHOLE docs/labs/lab-05/ folder to Overleaf
+%  (keep evidence/screenshots/ next to the evidence logs) and set this file
+%  as the main document.
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\UseRawInputEncoding
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=1.8cm]{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{xstring}
+\usepackage{url}
+\usepackage{hyperref}
+
+\definecolor{tggreen}{HTML}{006B3C}
+\definecolor{todoorange}{HTML}{B45309}
+\hypersetup{colorlinks=true, linkcolor=tggreen, urlcolor=tggreen}
+
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {-3.25ex\@plus -1ex \@minus -.2ex}%
+  {1.5ex \@plus .2ex}%
+  {\normalfont\normalsize\bfseries}}
+\makeatother
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{gray!8},
+  columns=fullflexible,
+  captionpos=b,
+}
+
+\title{\textcolor{tggreen}{\textbf{CPE 334 --- Lab 5 Submission}}\\[4pt]
+\large Workflow and Approval System: Cloud Deployment and CI/CD Pipeline}
+\author{Siriwan Yindeepot (67070501075) --- @ssiriwan \\
+Peer reviewer / second author: Thanaboon Tikaew (67070501021) --- @thhanabun}
+\date{\url{https://github.com/ssiriwan/cpe334-approval-system} ---
+\texttt{lab5-staging} released to \texttt{main} by PRs \#30 and \#34 (2026-11-21)}
+
+\begin{document}
+\maketitle
+
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+
+\newcommand{\shot}[4][auto]{%
+  \begin{figure}[htbp]\centering
+  \IfFileExists{#2}{%
+    \IfStrEq{#1}{auto}{%
+      \IfSubStr{#2}{mobile}{\includegraphics[width=0.60\textwidth]{#2}}{\includegraphics[width=0.90\textwidth]{#2}}%
+    }{%
+      \includegraphics[width=#1\textwidth]{#2}%
+    }%
+  }{%
+    \fcolorbox{todoorange}{gray!6}{\begin{minipage}{0.88\textwidth}\small
+      \textbf{\textcolor{todoorange}{TODO screenshot}} --- save as \texttt{#2} next to this .tex file\\
+      \emph{Show:} #3
+    \end{minipage}}%
+  }
+  \caption{#4}
+  \end{figure}%
+}
+
+% =====================================================================
+\section*{Answer Part 0: Team and Evidence Index}
+\label{part:0}
+% =====================================================================
+
+\subsection*{0.1 Team and public artefacts}
+\begin{longtable}{@{}L{3.2cm}L{13.0cm}@{}}
+\toprule
+\textbf{Item} & \textbf{Value} \\
+\midrule
+Topic & Theme 5 --- Workflow and Approval System (corporate expense and purchase requests) \\
+Repository & \href{https://github.com/ssiriwan/cpe334-approval-system}{github.com/ssiriwan/cpe334-approval-system} (public, R-12) \\
+Starting point & Accepted Sprint 1 release \texttt{v0.1.0-sprint1} (commit \texttt{f35ad24}) \\
+Submitted commit & \texttt{f371c232715f1185bc46b64ea28335639ae8eabf} (current \texttt{main} HEAD) \\
+Public URL & \href{https://sd3cdaba1-4d7hbszvwq-as.a.run.app}{https://sd3cdaba1-4d7hbszvwq-as.a.run.app} \\
+Serving commit & \code{f371c232715f1185bc46b64ea28335639ae8eabf} (verified by \code{GET /api/health}) \\
+\bottomrule
+\end{longtable}
+
+\subsection*{0.2 Contribution table (R-11)}
+\begin{longtable}{@{}L{1.8cm}L{3.5cm}L{2.6cm}L{8.3cm}@{}}
+\toprule
+\textbf{Member} & \textbf{Student ID} & \textbf{GitHub} & \textbf{Contribution in Lab 5} \\
+\midrule
+Oum & 67070501075 & @ssiriwan & Merge gates and rulesets (\#20); reviews of the GCP runbook and deploy scripts (\#23, \#26); clean-clone verification (\#21); release PR reviews (\#30--\#34) \\
+T & 67070501021 & @thhanabun & GCP provisioning and portal connection (\#19); Docker/CI pipeline (\#13); deploy and persistence evidence (\#22); PDF and this submission \\
+\bottomrule
+\end{longtable}
+Both members took part in requirements, testing, AI-agent supervision, implementation,
+review and deployment. Authors never approved their own PRs (R-09).
+
+\subsection*{0.3 Lab 5 Issues and Pull Requests}
+\begin{longtable}{@{}L{1.4cm}L{7.6cm}L{7.2cm}@{}}
+\toprule
+\textbf{ID} & \textbf{Issue / PR} & \textbf{What it covers} \\
+\midrule
+Issue \#13 & Docker image, CI quality gate, deploy pipeline & Container, CI, release workflow \\
+Issue \#19 & GCP project, Cloud SQL, secrets, Workload Identity & Shared project provisioning and portal connection \\
+Issue \#20 & Required check ruleset and temporary failing PR & C-01, C-02 (R-05, R-06) \\
+Issue \#21 & Clean-clone Docker build and run evidence & C-03 (R-01, R-02) \\
+Issue \#22 & Release run, persistence proof, PDF & C-04, C-05, C-06 (R-03, R-04, R-07--R-10) \\
+PR \#26 & Shared-cloud deploy scripts & Reviewed, merged; security fixes applied \\
+PR \#30 & Release \texttt{lab5-staging} $\to$ \texttt{main} & First live release, C-06 \\
+PR \#34 & Final PDF release \texttt{lab5-staging} $\to$ \texttt{main} & Submission artefacts \\
+\bottomrule
+\end{longtable}
+
+\subsection*{0.4 Navigation and evidence index}
+\begin{longtable}{@{}L{1.6cm}L{7.6cm}L{1.4cm}L{5.6cm}@{}}
+\toprule
+\textbf{Part} & \textbf{Topic} & \textbf{Page} & \textbf{Key IDs} \\
+\midrule
+Part 0 & Team and evidence index & \pageref{part:0} & R-01--R-12 \\
+Part 1 & CI and quality gate (30) & \pageref{part:1} & C-01, C-02 \\
+Part 2 & Docker and reproducible configuration (20) & \pageref{part:2} & C-03, R-01, R-02 \\
+Part 3 & GCP deployment and persistence (35) & \pageref{part:3} & C-04, C-05, R-03, R-04 \\
+Part 4 & Repeatable release pipeline (15) & \pageref{part:4} & C-06, R-07--R-10 \\
+\bottomrule
+\end{longtable}
+
+\begingroup\small
+\begin{longtable}{@{}L{1.2cm}L{7.0cm}L{3.0cm}L{5.0cm}@{}}
+\toprule
+\textbf{Part} & \textbf{Artifact / direct link} & \textbf{IDs / version} & \textbf{Result} \\
+\midrule
+1 & \href{https://github.com/ssiriwan/cpe334-approval-system/actions/runs/44777880489}{PR \#26, run 44777880489} & C-01, commit \texttt{38d7211} & 34/34 pass \\
+1 & \href{https://github.com/ssiriwan/cpe334-approval-system/pull/24}{PR \#24 (temporary)} & C-02, commit \texttt{28c45e3} & FAILURE, merge blocked \\
+2 & \path{docs/labs/lab-05/evidence/c03-clean-clone.log} & C-03, commit \texttt{f35ad24} & Fresh clone works \\
+3 & \href{https://sd3cdaba1-4d7hbszvwq-as.a.run.app}{Public URL} & C-04, commit \texttt{f371c23} & Login / create / 403 rules \\
+3 & \path{evidence/c05-before.log}, \path{evidence/c05-after.log} & C-05, rev 00004 & Record persisted \\
+4 & \href{https://github.com/ssiriwan/cpe334-approval-system/actions/runs/44879473855}{PR \#30, run 44879473855} & C-06, release \texttt{f371c23} & CI + deploy success \\
+\bottomrule
+\end{longtable}
+\endgroup
+
+% =====================================================================
+\section*{Answer Part 1: CI and Quality Gate (30 points)}
+\label{part:1}
+% =====================================================================
+
+\textbf{Workflow:}
+\href{https://github.com/ssiriwan/cpe334-approval-system/blob/main/.github/workflows/ci-docker.yml}{.github/workflows/ci-docker.yml}
+--- one job named \textbf{CI quality gate} (job id \texttt{test-and-docker}). On every PR into
+\texttt{lab5-staging}, \texttt{sprint-1-staging} and \texttt{main} it starts PostgreSQL 17 as a
+service, applies migrations, seeds the demo accounts, runs the full 34-test Vitest suite
+(API/DB integration tests for BR-01--BR-07 plus component tests), builds client and server,
+builds the Docker image, starts the container and asserts that \code{/api/health} reports the
+commit under test.
+
+\subsection*{1.1 C-01 --- a normal PR runs the build and all tests (R-05)}
+\href{https://github.com/ssiriwan/cpe334-approval-system/pull/26}{PR \#26} was reviewed by a
+teammate and merged. \href{https://github.com/ssiriwan/cpe334-approval-system/actions/runs/44777880489}{Actions run 44777880489}:
+\textbf{CI quality gate: SUCCESS} (2m10s) at commit \texttt{38d7211} --- 7 test files,
+\textbf{34 passed / 0 failed / 0 skipped}; the container health smoke test also passed.
+A second green run after adding \texttt{lab5-staging} to the triggers is
+\href{https://github.com/ssiriwan/cpe334-approval-system/actions/runs/44873769377}{44873769377}
+(PR \#28). The suite is not smoke-only: \texttt{TEST-05..13} exercise self-approval blocked
+before assignment, state transitions, unrelated-reviewer denial and decision validation
+against a real database.
+
+\subsection*{1.2 C-02 --- a failing PR cannot be merged (R-06)}
+Rulesets \textbf{lab5-protect-main} (27451785) and \textbf{lab5-protect-staging} (27451799) are
+active: pull request + one approval + required status check \textbf{CI quality gate}, force push
+and deletion blocked, no bypass actors. \href{https://github.com/ssiriwan/cpe334-approval-system/pull/24}{PR \#24}
+from the temporary branch \path{lab5/c02-failing-check} added one deliberately failing test
+(commit \texttt{28c45e3}). The check reported FAILURE and GitHub reported
+\code{mergeStateStatus = BLOCKED}. The PR was closed on 17 Nov without merging; the released
+application was never touched.
+
+\shot[0.70]{evidence/screenshots/fig1-c02.png}{GitHub PR \#24, temporary failing branch; required check CI quality gate failed at commit 28c45e3 and the merge was blocked (R-06, C-02).}{Figure 1. C-02 (R-06): failing required check blocks the merge, PR \#24, commit \texttt{28c45e3}.}
+
+% =====================================================================
+\section*{Answer Part 2: Docker and Reproducible Configuration (20 points)}
+\label{part:2}
+% =====================================================================
+
+\textbf{Artifacts:}
+\href{https://github.com/ssiriwan/cpe334-approval-system/blob/main/Dockerfile}{Dockerfile},
+\href{https://github.com/ssiriwan/cpe334-approval-system/blob/main/.dockerignore}{.dockerignore},
+\href{https://github.com/ssiriwan/cpe334-approval-system/blob/main/docker-compose.yml}{docker-compose.yml},
+\href{https://github.com/ssiriwan/cpe334-approval-system/blob/main/.env.example}{.env.example}, and
+\href{https://github.com/ssiriwan/cpe334-approval-system/blob/main/docs/labs/lab-05/deployment.md}{deployment.md}.
+The multi-stage image installs workspace dependencies, generates the Prisma client and builds
+both applications, then produces one runtime image that serves the React UI and the Express API
+on port 3000. PostgreSQL is never inside the container.
+
+\subsection*{2.1 C-03 --- fresh clone builds and runs with only .env.example (R-01, R-02)}
+From a new empty directory we cloned the public repository at commit \texttt{f35ad24}, copied only
+\path{.env.example} to \path{.env}, and started an isolated compose project so the PostgreSQL
+volume was genuinely empty. The full capture is
+\path{docs/labs/lab-05/evidence/c03-clean-clone.log}.
+
+\begin{lstlisting}
+$ git clone https://github.com/ssiriwan/cpe334-approval-system.git
+$ cd cpe334-approval-system && cp .env.example .env
+$ APP_PORT=3100 POSTGRES_PORT=5435 GIT_COMMIT=$(git rev-parse HEAD) \
+    docker compose -p lab5-c03 up --build --detach
+migrate | Applying migration `20261110084745_init_schema`
+migrate | All migrations have been successfully applied.
+$ curl http://localhost:3100/api/health
+{"status":"ok","commit":"f35ad24ede42ed5522b20a68179473bf286744f3"}
+$ docker compose -p lab5-c03 --profile seed run --rm seed
+  Seeded 3 demo accounts.
+POST /api/auth/login -> 200 ; POST /api/requests -> REQ-20261115-0001 (PENDING)
+GET /api/requests/my -> the same record read back from PostgreSQL
+\end{lstlisting}
+
+Every variable the application reads is documented in \path{.env.example} and in the
+environment table of \path{deployment.md}; no real value is committed. The JWT signing key is
+created in Secret Manager and the seed password is read from the environment, so no secret
+appears in the repository, the image, the logs or this PDF (R-02, R-12).
+
+% =====================================================================
+\section*{Answer Part 3: GCP Deployment and Persistence (35 points)}
+\label{part:3}
+% =====================================================================
+
+\begin{longtable}{@{}L{3.2cm}L{13.0cm}@{}}
+\toprule
+\textbf{Item} & \textbf{Value} \\
+\midrule
+Public URL & \href{https://sd3cdaba1-4d7hbszvwq-as.a.run.app}{https://sd3cdaba1-4d7hbszvwq-as.a.run.app} \\
+Project / region & \code{cpe-se-course-2026} / \code{asia-southeast1} (shared course project, portal-provisioned) \\
+Cloud Run & service \code{sd3cdaba1}, revision \code{sd3cdaba1-00007-h8g}, min 0 / max 1 instance \\
+Cloud SQL & \code{cpe-se-course-2026:asia-southeast1:sd3cdaba1-pg} (PostgreSQL 17) \\
+Image digest & \code{sha256:be89877ab8501505820ac70e84e3bae2e5077f9c3a40c859219a984b72ffb9f0} \\
+Health & \texttt{\{"status":"ok","commit":"f371c232715f1185bc46b64ea28335639ae8eabf"\}} \\
+\bottomrule
+\end{longtable}
+
+The same container serves the UI and API; PostgreSQL is reached over the Cloud SQL unix socket.
+No new Cloud SQL instance was created, no other team's resources were touched, and no resource
+was deleted. The portal connected GitHub Actions to the group's resources and supplied the WIF
+configuration; no key file was stored in the repository.
+
+\subsection*{3.1 C-04 --- the domain workflow works on the public URL (R-03)}
+We signed in as \code{oum.requester@cpe334.local}, created \textbf{REQ-20261121-0001}
+(EQUIPMENT, 1{,}500 THB, status PENDING, automatically assigned to \code{t.reviewer}), and read it
+back from My Requests. Three backend rule rejections were then observed on the live service: a
+requester calling the review endpoint receives \texttt{403 FORBIDDEN}; an unrelated reviewer
+(\code{manager.hybrid}) receives \texttt{403 ACCESS_DENIED}; a reviewer reviewing their own
+request receives \texttt{403 SELF\_APPROVAL\_NOT\_ALLOWED}. Raw capture:
+\path{evidence/c04-live.log}.
+
+\shot[0.80]{evidence/screenshots/fig4-login.png}{Sign-in page on the public Cloud Run URL; the address bar shows https://sd3cdaba1-4d7hbszvwq-as.a.run.app/login.}{Figure 2. C-04 (R-03): sign-in on the public URL (address bar visible), commit \texttt{f371c23}.}
+
+\shot[0.80]{evidence/screenshots/fig5-my-requests.png}{Requester's My Requests page showing REQ-20261121-0001 with status PENDING and reviewer T Reviewer.}{Figure 3. C-04 (R-03): requester creates REQ-20261121-0001 and sees it as PENDING; the same record is returned by the API, commit \texttt{f371c23}.}
+
+\shot[0.80]{evidence/screenshots/fig6-403.png}{API transcript of the three 403 rule rejections on the public URL (not a screenshot).}{Figure 4. C-04 (R-03): backend rule rejections FORBIDDEN, ACCESS\_DENIED and SELF\_APPROVAL\_NOT\_ALLOWED; transcript \path{evidence/c04-live.log}.}
+
+\subsection*{3.2 C-05 --- data survives a restart and a redeploy (R-04)}
+After creating REQ-20261121-0001, a new Cloud Run revision replaced the running instance
+(\code{sd3cdaba1-00003-h6g} $\to$ \code{sd3cdaba1-00004-wpw}) and a redeploy was executed.
+\code{GET /api/health} still reported the same commit and the record was still present with the
+same \code{requestNo}. Raw captures: \path{evidence/c05-before.log} and \path{evidence/c05-after.log}.
+
+\shot[0.80]{evidence/screenshots/fig7-persistence.png}{API transcript showing REQ-20261121-0001 before and after the revision replacement and redeploy (not a screenshot).}{Figure 5. C-05 (R-04): the record persists across revision 00003 $\to$ 00004 and a redeploy; transcripts \path{c05-before.log} and \path{c05-after.log}.}
+
+% =====================================================================
+\section*{Answer Part 4: Repeatable Release Pipeline (15 points)}
+\label{part:4}
+% =====================================================================
+
+\textbf{Workflow:}
+\href{https://github.com/ssiriwan/cpe334-approval-system/blob/main/.github/workflows/deploy.yml}{.github/workflows/deploy.yml}
+runs the CI gate first, authenticates to Google Cloud with Workload Identity Federation (no JSON
+key), builds the image tagged with the full commit SHA, runs the migration job before updating
+the service, deploys the image by digest, smoke-tests \code{/api/health}, and writes a summary to
+the run page. The portal supplied the \texttt{demo} environment variables
+(\code{GCP\_PROJECT\_ID}, \code{GCP\_REGION}, \code{WIF\_PROVIDER}, \code{WIF\_SERVICE\_ACCOUNT});
+\code{APP\_PORT=3000} and \code{MIGRATE\_COMMAND} were added so the workflow matches this app.
+The repeatable release procedure is in \path{deployment.md} Section 6.
+
+\subsection*{4.1 C-06 --- a reviewed change reaches main and is deployed (R-07 to R-10)}
+\begin{longtable}{@{}L{3.0cm}L{8.5cm}L{4.7cm}@{}}
+\toprule
+\textbf{Stage} & \textbf{Evidence} & \textbf{Result} \\
+\midrule
+Labelled changes & PRs \#27, \#28, \#29 (label \texttt{lab5}, specific teammate reviews) & Approved by non-author \\
+Release PR & \href{https://github.com/ssiriwan/cpe334-approval-system/pull/30}{PR \#30: \texttt{lab5-staging} $\to$ \texttt{main}} & Merged, CI green \\
+Deploy run & \href{https://github.com/ssiriwan/cpe334-approval-system/actions/runs/44879473855}{run 44879473855} & \texttt{test: success}; \texttt{deploy: success} \\
+Running revision & \code{sd3cdaba1-00007-h8g} & 100\% of traffic \\
+Running commit & \code{f371c232715f1185bc46b64ea28335639ae8eabf} & equals \texttt{main} HEAD \\
+\bottomrule
+\end{longtable}
+
+\shot[0.80]{evidence/screenshots/fig8-deploy-run.png}{GitHub Actions run 44879473855 for commit 74d37cb: test / CI quality gate and deploy are both successful; the live /api/health reports the release commit.}{Figure 6. C-06 (R-07, R-08): deploy run with digest and smoke test, next to \code{GET /api/health} reporting the release commit.}
+
+\subsection*{4.2 Known limitations and AI-use declaration}
+\begin{itemize}[leftmargin=*]
+\item No separate cloud staging environment, canary or load tests (not required by Lab 5 Section 4.2). Rollback is documented manually in \path{deployment.md}; no automated canary was added.
+\item The first deployment used the portal's \path{project-kit}; subsequent releases use \path{deploy.yml}. Both keep min instances 0 and max 1 to respect shared credits.
+\item The course starter-kit zip was reviewed but deliberately \textbf{not} copied over: its \path{deploy.sh} still hard-codes a production JWT secret and prints a non-existent \code{/api/ready}. The hardened versions already on \texttt{main} were kept (R-02, R-12).
+\item No real payment, e-mail, SMS or bank integration; all accounts are synthetic. The service is public, so no personal data is exposed without login.
+\item AI agents were used for planning, drafting the runbook and evidence, and for script review as supervised by both members. Every gcloud/console change to billing, IAM or databases was executed by the human member. No secret value was ever pasted into an agent chat.
+\item Screenshots are used only where a link cannot show the fact; API transcripts are explicitly labelled as transcripts, not screenshots. The service remains running until the instructor announces the end of grading.
+\end{itemize}
+
+\vspace{2em}
+\begin{center}
+\small\textcolor{tggreen}{\textbf{End of Lab 5 submission --- the public repository, Issues, PRs, workflow runs and the live service remain the source of truth.}}
+\end{center}
+
+\end{document}
