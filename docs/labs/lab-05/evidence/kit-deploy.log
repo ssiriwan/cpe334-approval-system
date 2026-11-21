@@ -1,0 +1,22 @@
+skipping the migration (--skip-migrate)
++ gcloud run services update sd3cdaba1 --image asia-southeast1-docker.pkg.dev/cpe-se-course-2026/sd3cdaba1/sd3cdaba1@sha256:627b1c14b90eb71e9b3a044a3cc1773d584ccf358b6e0383fa74d9c8feb68b04 --project cpe-se-course-2026 --region asia-southeast1 --port 3000 --cpu 1 --memory 512Mi --min-instances 0 --max-instances 1 --add-cloudsql-instances cpe-se-course-2026:asia-southeast1:sd3cdaba1-pg --update-env-vars '^@^NODE_ENV=***@TZ=***@LOG_LEVEL=***@CLIENT_ORIGIN=***@GIT_COMMIT=***' --update-secrets JWT_SECRET=sd3cdaba1-app-secret-1:latest,DEMO_USER_PASSWORD=sd3cdaba1-admin-password:latest --quiet
+bash.exe : Deploying...
+At line:2 char:1
++ & "C:\Program Files\Git\bin\bash.exe" -lc "cd /c/Users/thana/work/CPE ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Deploying...:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Creating Revision.......................done
+Routing traffic................................................................done
+Done.
+Service [sd3cdaba1] revision [sd3cdaba1-00002-527] has been deployed and is serving 100 percent of traffic.
+Service URL: https://sd3cdaba1-670075229477.asia-southeast1.run.app
++ gcloud run services update-traffic sd3cdaba1 --project cpe-se-course-2026 --region asia-southeast1 --to-latest --quiet
+Updating traffic...
+Done.
+URL: https://sd3cdaba1-4d7hbszvwq-as.a.run.app
+Traffic:
+  100% LATEST (currently sd3cdaba1-00002-527)
+deploy finished: https://sd3cdaba1-4d7hbszvwq-as.a.run.app
+check the result: ./project-kit/kit.sh status   read the log: ./project-kit/kit.sh logs

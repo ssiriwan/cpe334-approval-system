@@ -1,0 +1,31 @@
++ gcloud run jobs update sd3cdaba1-migrate --image asia-southeast1-docker.pkg.dev/cpe-se-course-2026/sd3cdaba1/sd3cdaba1@sha256:627b1c14b90eb71e9b3a044a3cc1773d584ccf358b6e0383fa74d9c8feb68b04 --project cpe-se-course-2026 --region asia-southeast1 --command sh --args '^|^-c|npx prisma migrate deploy && npm run prisma:seed' --add-cloudsql-instances cpe-se-course-2026:asia-southeast1:sd3cdaba1-pg --max-retries 0 --task-timeout 600s --update-env-vars '^@^NODE_ENV=***@TZ=***@LOG_LEVEL=***@CLIENT_ORIGIN=***@GIT_COMMIT=***' --update-secrets JWT_SECRET=sd3cdaba1-app-secret-1:latest,DEMO_USER_PASSWORD=sd3cdaba1-admin-password:latest --quiet
+bash.exe : Updating Cloud Run job [sd3cdaba1-migrate] in project [cpe-se-course-2026] region [asia-southeast1]
+At line:2 char:1
++ & "C:\Program Files\Git\bin\bash.exe" -lc "cd /c/Users/thana/work/CPE ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Updating Cloud ...sia-southeast1]:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Updating job...
+Done.
+Job [sd3cdaba1-migrate] has successfully been updated.
+
+To execute this job, use:
+gcloud run jobs execute sd3cdaba1-migrate
++ gcloud run jobs execute sd3cdaba1-migrate --project cpe-se-course-2026 --region asia-southeast1 --wait --quiet
+Creating execution...
+Provisioning resources.................................................................................................
+.......................................................................................................................
+.........done
+Starting execution.........................................................................done
+Running execution......................................................................................................
+...........done
+Done.
+Execution [sd3cdaba1-migrate-t58tp] has successfully completed.
+
+View details about this execution by running:
+gcloud run jobs executions describe sd3cdaba1-migrate-t58tp
+
+Or visit https://console.cloud.google.com/run/jobs/executions/details/asia-southeast1/sd3cdaba1-migrate-t58tp?project=6
+70075229477
+migration finished

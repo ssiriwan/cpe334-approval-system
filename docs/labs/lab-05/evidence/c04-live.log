@@ -1,0 +1,15 @@
+--- C-04: sign in on the public URL ---
+oum.requester@cpe334.local -> login OK role=REQUESTER
+--- C-04: create a request (UI/API -> DB) ---
+created REQ-20261121-0001 status=PENDING assigned=t.reviewer@cpe334.local
+--- C-04: read back from My Requests ---
+my requests count=1 first=REQ-20261121-0001
+--- C-04: rule rejection - requester calls review endpoint -> 403 FORBIDDEN ---
+requester review -> HTTP 403 {"error":{"code":"FORBIDDEN","message":"You do not have permission to perform this action."}}
+--- C-04: unrelated reviewer -> 403 ACCESS_DENIED ---
+manager.hybrid@cpe334.local -> login OK role=REVIEWER
+unrelated reviewer -> HTTP 403 {"error":{"code":"ACCESS_DENIED","message":"This request is not assigned to you."}}
+--- C-04: self-approval -> 403 SELF_APPROVAL_NOT_ALLOWED ---
+reviewer created own REQ-20261121-0002 assigned=t.reviewer@cpe334.local
+self approval -> HTTP 403 {"error":{"code":"SELF_APPROVAL_NOT_ALLOWED","message":"You cannot approve or reject your own request."}}
+RECORD_FOR_C05=REQ-20261121-0001
