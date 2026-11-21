@@ -320,10 +320,13 @@ then a second `kit.sh deploy --skip-migrate` for the persistence check. The JWT 
 key lives in the team's secret slot `sd3cdaba1-app-secret-1`; the seed password comes
 from the prepared `sd3cdaba1-admin-password` secret. No secret value is in Git.
 
-> **`deploy.yml` status (honest disclosure):** the GitHub Actions deploy workflow still
-> requires the `demo` environment and the four WIF/project variables, which a repository
-> admin must create. Until that is done, the kit-based release above is the executed
-> deploy path; the workflow is the documented repeatable path for later releases.
+> **GitHub Actions deploy (21 Nov 2026):** the course portal connected the repository to
+> GCP and supplied the four `demo` environment variables (`GCP_PROJECT_ID`, `GCP_REGION`,
+> `WIF_PROVIDER`, `WIF_SERVICE_ACCOUNT`) plus `APP_PORT=3000` and `MIGRATE_COMMAND`.
+> Release [run 44879473855](https://github.com/ssiriwan/cpe334-approval-system/actions/runs/44879473855)
+> on `main` finished with `test: success` and `deploy: success`; `/api/health` reports the
+> release SHA `74d37cb67cbdc25c3baedefbe4a1dd518891125a`. The kit-based deploy above was the
+> first deployment; subsequent releases use `deploy.yml`.
 
 ---
 
@@ -333,3 +336,4 @@ from the prepared `sd3cdaba1-admin-password` secret. No secret value is in Git.
 | :--- | :--- | :--- | :--- | :--- |
 | v1.0 | 11 Nov 2026 | Docker image/compose, CI gate, deploy pipeline, and release procedure. | T | Oum |
 | v1.1 | 21 Nov 2026 | Live Cloud Run release details (URL, digest, revision, commit), resolved C-01..C-05 evidence, and disclosure of the pending `demo` environment for `deploy.yml`. | T | Oum |
+| v1.2 | 21 Nov 2026 | Portal connected GitHub Actions; `demo` variables set; release run 44879473855 green; C-06 resolved with running commit equal to the release SHA. | T | Oum |
