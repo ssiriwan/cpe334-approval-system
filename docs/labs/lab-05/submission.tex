@@ -184,7 +184,7 @@ from the temporary branch \path{lab5/c02-failing-check} added one deliberately f
 \code{mergeStateStatus = BLOCKED}. The PR was closed on 17 Nov without merging; the released
 application was never touched.
 
-\shot[0.70]{evidence/screenshots/fig1-c02.png}{GitHub PR \#24, temporary failing branch; required check CI quality gate failed at commit 28c45e3 and the merge was blocked (R-06, C-02).}{Figure 1. C-02 (R-06): failing required check blocks the merge, PR \#24, commit \texttt{28c45e3}.}
+\shot[0.55]{evidence/screenshots/fig1-c02.png}{GitHub PR \#24, temporary failing branch; required check CI quality gate failed at commit 28c45e3 and the merge was blocked (R-06, C-02).}{C-02 (R-06): failing required check blocks the merge, PR \#24, commit \texttt{28c45e3}.}
 
 % =====================================================================
 \section*{Answer Part 2: Docker and Reproducible Configuration (20 points)}
@@ -254,16 +254,16 @@ configuration; no key file was stored in the repository.
 We signed in as \code{oum.requester@cpe334.local}, created \textbf{REQ-20261121-0001}
 (EQUIPMENT, 1{,}500 THB, status PENDING, automatically assigned to \code{t.reviewer}), and read it
 back from My Requests. Three backend rule rejections were then observed on the live service: a
-requester calling the review endpoint receives \texttt{403 FORBIDDEN}; an unrelated reviewer
-(\code{manager.hybrid}) receives \texttt{403 ACCESS_DENIED}; a reviewer reviewing their own
-request receives \texttt{403 SELF\_APPROVAL\_NOT\_ALLOWED}. Raw capture:
+requester calling the review endpoint receives \code{403 FORBIDDEN}; an unrelated reviewer
+(\code{manager.hybrid}) receives \code{403 ACCESS_DENIED}; a reviewer reviewing their own
+request receives \code{403 SELF_APPROVAL_NOT_ALLOWED}. Raw capture:
 \path{evidence/c04-live.log}.
 
-\shot[0.80]{evidence/screenshots/fig4-login.png}{Sign-in page on the public Cloud Run URL; the address bar shows https://sd3cdaba1-4d7hbszvwq-as.a.run.app/login.}{Figure 2. C-04 (R-03): sign-in on the public URL (address bar visible), commit \texttt{f371c23}.}
+\shot[0.80]{evidence/screenshots/fig4-login.png}{Sign-in page on the public Cloud Run URL; the address bar shows https://sd3cdaba1-4d7hbszvwq-as.a.run.app/login.}{C-04 (R-03): sign-in on the public URL (address bar visible), commit \texttt{f371c23}.}
 
-\shot[0.80]{evidence/screenshots/fig5-my-requests.png}{Requester's My Requests page showing REQ-20261121-0001 with status PENDING and reviewer T Reviewer.}{Figure 3. C-04 (R-03): requester creates REQ-20261121-0001 and sees it as PENDING; the same record is returned by the API, commit \texttt{f371c23}.}
+\shot[0.80]{evidence/screenshots/fig5-my-requests.png}{Requester's My Requests page showing REQ-20261121-0001 with status PENDING and reviewer T Reviewer.}{C-04 (R-03): requester creates REQ-20261121-0001 and sees it as PENDING; the same record is returned by the API, commit \texttt{f371c23}.}
 
-\shot[0.80]{evidence/screenshots/fig6-403.png}{API transcript of the three 403 rule rejections on the public URL (not a screenshot).}{Figure 4. C-04 (R-03): backend rule rejections FORBIDDEN, ACCESS\_DENIED and SELF\_APPROVAL\_NOT\_ALLOWED; transcript \path{evidence/c04-live.log}.}
+\shot[0.80]{evidence/screenshots/fig6-403.png}{API transcript of the three 403 rule rejections on the public URL (not a screenshot).}{C-04 (R-03): backend rule rejections FORBIDDEN, ACCESS\_DENIED and SELF\_APPROVAL\_NOT\_ALLOWED; transcript \code{evidence/c04-live.log}.}
 
 \subsection*{3.2 C-05 --- data survives a restart and a redeploy (R-04)}
 After creating REQ-20261121-0001, a new Cloud Run revision replaced the running instance
@@ -271,7 +271,7 @@ After creating REQ-20261121-0001, a new Cloud Run revision replaced the running 
 \code{GET /api/health} still reported the same commit and the record was still present with the
 same \code{requestNo}. Raw captures: \path{evidence/c05-before.log} and \path{evidence/c05-after.log}.
 
-\shot[0.80]{evidence/screenshots/fig7-persistence.png}{API transcript showing REQ-20261121-0001 before and after the revision replacement and redeploy (not a screenshot).}{Figure 5. C-05 (R-04): the record persists across revision 00003 $\to$ 00004 and a redeploy; transcripts \path{c05-before.log} and \path{c05-after.log}.}
+\shot[0.80]{evidence/screenshots/fig7-persistence.png}{API transcript showing REQ-20261121-0001 before and after the revision replacement and redeploy (not a screenshot).}{C-05 (R-04): the record persists across revision 00003 $\to$ 00004 and a redeploy; transcripts \code{c05-before.log} and \code{c05-after.log}.}
 
 % =====================================================================
 \section*{Answer Part 4: Repeatable Release Pipeline (15 points)}
@@ -301,7 +301,8 @@ Running commit & \code{f371c232715f1185bc46b64ea28335639ae8eabf} & equals \textt
 \bottomrule
 \end{longtable}
 
-\shot[0.80]{evidence/screenshots/fig8-deploy-run.png}{GitHub Actions run 44879473855 for commit 74d37cb: test / CI quality gate and deploy are both successful; the live /api/health reports the release commit.}{Figure 6. C-06 (R-07, R-08): deploy run with digest and smoke test, next to \code{GET /api/health} reporting the release commit.}
+\clearpage
+\shot[0.72]{evidence/screenshots/fig8-deploy-run.png}{GitHub Actions run 44879473855 for commit 74d37cb: test / CI quality gate and deploy are both successful; the live /api/health reports the release commit.}{C-06 (R-07, R-08): deploy run with digest and smoke test, next to \code{GET /api/health} reporting the release commit.}
 
 \subsection*{4.2 Known limitations and AI-use declaration}
 \begin{itemize}[leftmargin=*]
