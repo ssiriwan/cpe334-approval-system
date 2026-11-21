@@ -1,0 +1,69 @@
+=== C-03: clean clone, fresh database ===
+clone commit: f35ad24ede42ed5522b20a68179473bf286744f3
+volume: lab5-c03_db-data
+
+--- docker compose ps ---
+SERVICE   STATUS                    PORTS
+app       Up 6 seconds (healthy)    0.0.0.0:3100->3000/tcp, [::]:3100->3000/tcp
+db        Up 16 seconds (healthy)   0.0.0.0:5435->5432/tcp, [::]:5435->5432/tcp
+
+--- migrate service log ---
+migrate-1  | warn The configuration property `package.json#prisma` is deprecated and will be removed in Prisma 7. Please migrate to a Prisma config file (e.g., `prisma.config.ts`).
+migrate-1  | For more information, see: https://pris.ly/prisma-config
+migrate-1  | 
+migrate-1  | Prisma schema loaded from prisma/schema.prisma
+migrate-1  | Datasource "db": PostgreSQL database "approval_db", schema "public" at "db:5432"
+migrate-1  | 
+migrate-1  | 1 migration found in prisma/migrations
+migrate-1  | 
+migrate-1  | Applying migration `20261110084745_init_schema`
+migrate-1  | 
+migrate-1  | The following migration(s) have been applied:
+migrate-1  | 
+migrate-1  | migrations/
+migrate-1  |   ΓööΓöÇ 20261110084745_init_schema/
+migrate-1  |     ΓööΓöÇ migration.sql
+migrate-1  |       
+migrate-1  | All migrations have been successfully applied.
+
+--- GET /api/health ---
+{"status":"ok","commit":"local","timestamp":"2026-11-15T15:07:18.212Z"}
+
+--- recreate app with GIT_COMMIT set to the clone head ---
+docker :  Container lab5-c03-db-1 Running 
+At line:7 char:1
++ docker compose -p lab5-c03 up --detach --force-recreate app 2>&1 | Te ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( Container lab5-c03-db-1 Running :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ Container lab5-c03-app-1 Recreate 
+ Container lab5-c03-app-1 Recreated 
+ Container lab5-c03-db-1 Waiting 
+ Container lab5-c03-db-1 Healthy 
+ Container lab5-c03-migrate-1 Starting 
+ Container lab5-c03-migrate-1 Started 
+ Container lab5-c03-migrate-1 Waiting 
+ Container lab5-c03-migrate-1 Exited 
+ Container lab5-c03-app-1 Starting 
+ Container lab5-c03-app-1 Started 
+
+--- GET /api/health (commit must equal the clone head) ---
+{"status":"ok","commit":"f35ad24ede42ed5522b20a68179473bf286744f3","timestamp":"2026-11-15T15:07:42.288Z"}
+
+--- seed demo accounts (idempotent upsert) ---
+ Container lab5-c03-migrate-1 Waiting 
+ Container lab5-c03-migrate-1 Exited 
+ Container lab5-c03-seed-run-2c0ccd87ef63 Creating 
+ Container lab5-c03-seed-run-2c0ccd87ef63 Created 
+Γùç injected env (0) from .env // tip: Γùê secrets for agents [www.dotenvx.com]
+Seeded 3 demo accounts.
+
+--- POST /api/auth/login (demo account, DB round trip) ---
+{"data":{"user":{"id":"7d503518-da50-40d1-81fd-c27daf0d804a","email":"oum.requester@cpe334.local","name":"Oum Requester","role":"REQUESTER"}}}
+
+--- POST /api/requests (write path through API to PostgreSQL) ---
+{"data":{"request":{"id":"23a9ff9b-f3c0-4eff-9865-95f4ab187d71","requestNo":"REQ-20261115-0001","title":"Lab 5 clean-clone verification laptop","amount":"1500.00","category":"EQUIPMENT","description":"Created from the clean-clone container to prove the API writes to PostgreSQL.","status":"PENDING","requesterId":"7d503518-da50-40d1-81fd-c27daf0d804a","assignedReviewerId":"c57ed327-744a-4c89-9e8e-cc13dc98b411","createdAt":"2026-11-15T15:07:55.514Z","updatedAt":"2026-11-15T15:07:55.514Z","requester":{"id":"7d503518-da50-40d1-81fd-c27daf0d804a","email":"oum.requester@cpe334.local","name":"Oum Requester","role":"REQUESTER"},"assignedReviewer":{"id":"c57ed327-744a-4c89-9e8e-cc13dc98b411","email":"t.reviewer@cpe334.local","name":"T Reviewer","role":"REVIEWER"}}}}
+
+--- GET /api/requests/my (read back, ordered by createdAt) ---
+{"data":{"requests":[{"id":"23a9ff9b-f3c0-4eff-9865-95f4ab187d71","requestNo":"REQ-20261115-0001","title":"Lab 5 clean-clone verification laptop","amount":"1500.00","category":"EQUIPMENT","description":"Created from the clean-clone container to prove the API writes to PostgreSQL.","status":"PENDING","requesterId":"7d503518-da50-40d1-81fd-c27daf0d804a","assignedReviewerId":"c57ed327-744a-4c89-9e8e-cc13dc98b411","createdAt":"2026-11-15T15:07:55.514Z","updatedAt":"2026-11-15T15:07:55.514Z","requester":{"id":"7d503518-da50-40d1-81fd-c27daf0d804a","email":"oum.requester@cpe334.local","name":"Oum Requester","role":"REQUESTER"},"assignedReviewer":{"id":"c57ed327-744a-4c89-9e8e-cc13dc98b411","email":"t.reviewer@cpe334.local","name":"T Reviewer","role":"REVIEWER"}}]}}

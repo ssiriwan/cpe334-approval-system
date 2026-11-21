@@ -7,6 +7,13 @@ coverage/
 !.env.example
 *.log
 npm-debug.log*
+!docs/labs/lab-05/evidence/*.log
 uploads/
 test-results/
 playwright-report/
+.vite/
+# project-kit (local state and config, do not commit)
+.kit-state/
+resources.env
+app.env
+secrets.map

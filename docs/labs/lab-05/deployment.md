@@ -35,6 +35,9 @@ data lives in Cloud SQL.
 | `docker-compose.yml` | Local production-like stack: `db`, one-off `migrate`, `app`, and an optional `seed` profile. |
 | `.github/workflows/ci-docker.yml` | PR quality gate: migrate, seed, test, build, Docker build, container smoke test. |
 | `.github/workflows/deploy.yml` | Main deploy: image by SHA, migration job, Cloud Run deploy by digest, health verification. |
+| `deploy/deploy.sh` | One-time/idempotent provisioning + first deploy on the shared course project (`DRY_RUN=1` prints the commands). |
+| `deploy/release.sh` | Routine release called by `deploy.yml`: pin the image by digest, run the migration job, update the service. |
+| `deploy/smoke_test.py` | Post-deploy check: `/api/health`, `/`, and an optional login. |
 | `.env.example` | Every environment variable with placeholder values only. |
 
 ---
@@ -46,8 +49,10 @@ Cloud values come from GitHub repository variables and Secret Manager.
 
 | Variable | Purpose | Secret? | Local source | GCP source |
 | :--- | :--- | :---: | :--- | :--- |
-| `DATABASE_URL` | PostgreSQL connection string | **Yes** | `.env` | Secret Manager `DATABASE_URL` (version `latest`) |
-| `JWT_SECRET` | HS256 signing key, at least 32 characters | **Yes** | `.env` | Secret Manager `JWT_SECRET` (version `latest`) |
+| `DATABASE_URL` | PostgreSQL connection string | **Yes** | `.env` | Secret Manager `sd3cdaba1-database-url` (version `latest`) |
+| `JWT_SECRET` | HS256 signing key, at least 32 characters | **Yes** | `.env` | Secret Manager `sd3cdaba1-jwt-secret`, created once by `deploy/deploy.sh` and never printed |
+| `DEMO_USER_PASSWORD` | Password of the three demo accounts seeded by `prisma/seed.ts` | **Yes** | `.env` (optional; the demo default is used when unset) | Secret Manager `sd3cdaba1-demo-password`; the seed refuses the default when `NODE_ENV=production` |
+| `SEED_DEMO_DATA` | `true` seeds the demo accounts, `false` skips seeding | No | unset (treated as `true` outside production) | Cloud Run job env var set by `deploy/deploy.sh` (`false` unless run with `--demo`) |
 | `JWT_EXPIRES_IN_SECONDS` | Session lifetime, default `28800` (8h) | No | `.env` | Cloud Run env var (default used if omitted) |
 | `PORT` | Server port, `3000` | No | `.env` / image default | Cloud Run `--port 3000` |
 | `NODE_ENV` | `production` in containers | No | `.env` | Cloud Run env var |
@@ -65,7 +70,8 @@ GitHub configuration:
 | `GCP_SERVICE_NAME` | Repository variable | `approval-system` |
 | `GCP_MIGRATION_JOB` | Repository variable | `approval-system-migrate` |
 | `GCP_CLOUD_SQL_INSTANCE` | Repository variable | `project:region:instance` |
-| `GCP_PUBLIC_ORIGIN` | Repository variable | `https://<cloud-run-url>` |
+| `GCP_RUNTIME_SERVICE_ACCOUNT` | Repository variable | Cloud Run runtime service account email (`approval-runtime@...`) - the service and migration job run as this account |
+| `GCP_PUBLIC_ORIGIN` | Repository variable | `https://<cloud-run-url>` (placeholder on the first deploy, real URL after Step 10) |
 | `GCP_WORKLOAD_IDENTITY_PROVIDER` | Repository secret | Workload Identity provider resource name |
 | `GCP_DEPLOY_SERVICE_ACCOUNT` | Repository secret | Deploy service account email |
 
@@ -130,6 +136,23 @@ curl http://localhost:3000/api/health
 
 ## 5. GCP Resources
 
+> **This team runs on the shared course project** `cpe-se-course-2026` (region
+> `asia-southeast1`), where the team prefix `sd3cdaba1` is fixed. `deploy/deploy.sh`
+> and `deploy/release.sh` hard-code those names and refuse to run against another
+> project or region. The table below shows the generic names from the original
+> single-team plan; column 3 of the team table maps them to what is actually used.
+
+Actual resource names on the shared project:
+
+| Resource | Actual name | Notes |
+| :--- | :--- | :--- |
+| Artifact Registry repository | `sd3cdaba1` | Holds the `sd3cdaba1` image. |
+| Cloud Run service | `sd3cdaba1` | Minimum instances `0`, maximum `1`, 512 MiB, port `3000`. |
+| Cloud Run job | `sd3cdaba1-migrate` | `prisma migrate deploy && npm run prisma:seed`. |
+| Cloud SQL | `sd3cdaba1-pg` / database `sd3cdaba1` / user `sd3cdaba1` | PostgreSQL 17. |
+| Secret Manager | `sd3cdaba1-database-url`, `sd3cdaba1-jwt-secret`, `sd3cdaba1-admin-password`, `sd3cdaba1-demo-password` | The JWT secret is created by `deploy/deploy.sh` when missing; the others are pre-provisioned. |
+| Runtime service account | `sd3cdaba1-runner@cpe-se-course-2026.iam.gserviceaccount.com` | Needs `secretAccessor` on the JWT secret. |
+
 | Resource | Suggested name | Notes |
 | :--- | :--- | :--- |
 | Project | `cpe334-sec<section>-team<NN>` | One project for Lab 5-7 and the Final Project. |
@@ -140,8 +163,15 @@ curl http://localhost:3000/api/health
 | Cloud SQL | `approval-db` | PostgreSQL 17, smallest tier, storage auto-increase off. |
 | Secret Manager | `DATABASE_URL`, `JWT_SECRET` | Runtime secrets. |
 | Service account | `github-deploy` | Used by GitHub Actions through Workload Identity Federation. |
+| Runtime service account | `approval-runtime` | Cloud Run service and migration job identity: `cloudsql.client` + `secretmanager.secretAccessor` only. |
 
 ### 5.1 One-time setup (human-run)
+
+The step-by-step, copy-paste runbook with a done-check for every step is
+[`gcp-setup.md`](./gcp-setup.md). It covers project creation, the budget alert,
+API enablement, Cloud SQL, Secret Manager, the two service accounts, Workload
+Identity Federation, the repository variables/secrets, the first deploy, seeding,
+and teardown.
 
 These commands change billing, IAM, or databases, so a team member runs and
 reviews them. Do not let an AI agent change billing or IAM.
@@ -171,7 +201,11 @@ Create secrets (values are never printed or committed):
 printf '%s' 'postgresql://approval_user:<DB_PASSWORD>@localhost/approval_db?host=/cloudsql/<PROJECT_ID>:<REGION>:approval-db&schema=public' \
   | gcloud secrets create DATABASE_URL --data-file=-
 
-openssl rand -hex 32 | gcloud secrets create JWT_SECRET --data-file=-
+# On the shared course project the team-prefixed names are used, e.g.
+#   gcloud secrets create sd3cdaba1-database-url --data-file=-
+# The JWT signing key is not created by hand here: deploy/deploy.sh creates
+# sd3cdaba1-jwt-secret from `openssl rand -hex 32` when it is missing, so the
+# value never passes through a shell history or this document.
 ```
 
 Create the deploy service account and grant only the required roles:
@@ -258,15 +292,38 @@ Roll back the image first; only revert a migration when it is safe and additive.
 
 | Rubric part | Artifact / direct link | IDs / version | Verification result |
 | :--- | :--- | :--- | :--- |
-| 1. CI and quality gate | `.github/workflows/ci-docker.yml`; PR and Actions run (to be linked) | C-01, C-02 | Pending: needs a pushed PR run and the failing temporary-branch demonstration |
-| 2. Docker and reproducible configuration | `Dockerfile`, `.dockerignore`, `docker-compose.yml`, this file; local `docker compose up` output | C-03 | Local build and container smoke test pass |
-| 3. GCP deployment and persistence | Public URL (to be filled after provisioning); Cloud SQL instance | C-04, C-05 | Pending: GCP project, secrets, and persistence screenshots |
-| 4. Repeatable release pipeline | `.github/workflows/deploy.yml`; release PR, pipeline run, Cloud Run revision | C-06 | Pipeline implemented; first release run pending |
+| 1. CI and quality gate | `.github/workflows/ci-docker.yml`; [PR #26](https://github.com/ssiriwan/cpe334-approval-system/pull/26) + [run 44777880489](https://github.com/ssiriwan/cpe334-approval-system/actions/runs/44777880489); [PR #24](https://github.com/ssiriwan/cpe334-approval-system/pull/24) | C-01, C-02 | PASS: 34/34 tests, Docker smoke OK; failing PR `BLOCKED`, closed unmerged |
+| 2. Docker and reproducible configuration | `Dockerfile`, `.dockerignore`, `docker-compose.yml`, this file, [`evidence/c03-clean-clone.log`](./evidence/c03-clean-clone.log) | C-03 | PASS: fresh clone `f35ad24`, empty volume, migration + API round trip |
+| 3. GCP deployment and persistence | <https://sd3cdaba1-4d7hbszvwq-as.a.run.app>; [`c04-live.log`](./evidence/c04-live.log), [`c05-before.log`](./evidence/c05-before.log), [`c05-after.log`](./evidence/c05-after.log) | C-04, C-05 | PASS: login/create + three 403 rules; `REQ-20261121-0001` survived revision `00003` -> `00004` |
+| 4. Repeatable release pipeline | `.github/workflows/deploy.yml`; release PR #30; Cloud Run revision and `/api/health` | C-06 | Pipeline implemented and release PR opened; see the live-release note below |
 
-Known status at the time of writing: CI and Docker are implemented and verified
-locally. GCP provisioning and the live URL require the team's GCP project
-credentials and are performed by a team member; this document does not claim a
-live deployment that has not happened.
+### Live release (21 Nov 2026)
+
+The application is deployed on the **shared course project** `cpe-se-course-2026`
+(region `asia-southeast1`) using the portal-provided `project-kit`. The Cloud SQL
+instance, Artifact Registry repository, service, job, service account and secrets were
+**pre-provisioned by the course**; no new Cloud SQL instance was created, no other
+team's resources were touched, and no resource was deleted.
+
+| Item | Value |
+| :--- | :--- |
+| Public URL | <https://sd3cdaba1-4d7hbszvwq-as.a.run.app> |
+| Cloud Run service | `sd3cdaba1`, revision `sd3cdaba1-00004-wpw`, 100% traffic |
+| Image | `asia-southeast1-docker.pkg.dev/cpe-se-course-2026/sd3cdaba1/sd3cdaba1@sha256:627b1c14b90eb71e9b3a044a3cc1773d584ccf358b6e0383fa74d9c8feb68b04` (tag `git-263133d1899f`) |
+| Commit reported by `/api/health` | `263133d1899f9ea2a3a6a23bc271d73bfa6b2c89` |
+| Migration job | `sd3cdaba1-migrate-t58tp` - applied `20261110084745_init_schema`, seeded 3 demo accounts |
+| Scaling | min instances `0`, max instances `1`, 1 CPU, 512 MiB (shared credits) |
+
+Commands used: `kit.sh doctor`, `kit.sh --stack node init`, `kit.sh build`,
+`kit.sh migrate`, `kit.sh deploy --skip-migrate`, `kit.sh env set GIT_COMMIT=...`,
+then a second `kit.sh deploy --skip-migrate` for the persistence check. The JWT signing
+key lives in the team's secret slot `sd3cdaba1-app-secret-1`; the seed password comes
+from the prepared `sd3cdaba1-admin-password` secret. No secret value is in Git.
+
+> **`deploy.yml` status (honest disclosure):** the GitHub Actions deploy workflow still
+> requires the `demo` environment and the four WIF/project variables, which a repository
+> admin must create. Until that is done, the kit-based release above is the executed
+> deploy path; the workflow is the documented repeatable path for later releases.
 
 ---
 
@@ -275,3 +332,4 @@ live deployment that has not happened.
 | Version | Date | Change | Author | Reviewer |
 | :--- | :--- | :--- | :--- | :--- |
 | v1.0 | 11 Nov 2026 | Docker image/compose, CI gate, deploy pipeline, and release procedure. | T | Oum |
+| v1.1 | 21 Nov 2026 | Live Cloud Run release details (URL, digest, revision, commit), resolved C-01..C-05 evidence, and disclosure of the pending `demo` environment for `deploy.yml`. | T | Oum |

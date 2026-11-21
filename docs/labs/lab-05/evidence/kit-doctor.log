@@ -1,0 +1,11 @@
+== Checking the setup for team 'sd3cdaba1' (project cpe-se-course-2026, region asia-southeast1) ==
+  [PASS] gcloud found
+  [PASS] docker found
+  [PASS] logged in to gcloud as: thanabun9730@gmail.com  (it must be the Gmail you registered in the portal)
+  [WARN] docker is not configured for the registry -> run: gcloud auth configure-docker asia-southeast1-docker.pkg.dev (the build command does it automatically)
+  [PASS] can see Cloud Run service 'sd3cdaba1'
+  [PASS] can see Cloud Run job 'sd3cdaba1-migrate'
+  [PASS] can see Artifact Registry repo 'sd3cdaba1'
+  [PASS] found Dockerfile
+
+ready to use (1 warning(s))
