@@ -292,15 +292,38 @@ Roll back the image first; only revert a migration when it is safe and additive.
 
 | Rubric part | Artifact / direct link | IDs / version | Verification result |
 | :--- | :--- | :--- | :--- |
-| 1. CI and quality gate | `.github/workflows/ci-docker.yml`; PR and Actions run (to be linked) | C-01, C-02 | Pending: needs a pushed PR run and the failing temporary-branch demonstration |
-| 2. Docker and reproducible configuration | `Dockerfile`, `.dockerignore`, `docker-compose.yml`, this file; local `docker compose up` output | C-03 | Local build and container smoke test pass |
-| 3. GCP deployment and persistence | Public URL (to be filled after provisioning); Cloud SQL instance | C-04, C-05 | Pending: GCP project, secrets, and persistence screenshots |
-| 4. Repeatable release pipeline | `.github/workflows/deploy.yml`; release PR, pipeline run, Cloud Run revision | C-06 | Pipeline implemented; first release run pending |
+| 1. CI and quality gate | `.github/workflows/ci-docker.yml`; [PR #26](https://github.com/ssiriwan/cpe334-approval-system/pull/26) + [run 44777880489](https://github.com/ssiriwan/cpe334-approval-system/actions/runs/44777880489); [PR #24](https://github.com/ssiriwan/cpe334-approval-system/pull/24) | C-01, C-02 | PASS: 34/34 tests, Docker smoke OK; failing PR `BLOCKED`, closed unmerged |
+| 2. Docker and reproducible configuration | `Dockerfile`, `.dockerignore`, `docker-compose.yml`, this file, [`evidence/c03-clean-clone.log`](./evidence/c03-clean-clone.log) | C-03 | PASS: fresh clone `f35ad24`, empty volume, migration + API round trip |
+| 3. GCP deployment and persistence | <https://sd3cdaba1-4d7hbszvwq-as.a.run.app>; [`c04-live.log`](./evidence/c04-live.log), [`c05-before.log`](./evidence/c05-before.log), [`c05-after.log`](./evidence/c05-after.log) | C-04, C-05 | PASS: login/create + three 403 rules; `REQ-20261121-0001` survived revision `00003` -> `00004` |
+| 4. Repeatable release pipeline | `.github/workflows/deploy.yml`; release PR #30; Cloud Run revision and `/api/health` | C-06 | Pipeline implemented and release PR opened; see the live-release note below |
 
-Known status at the time of writing: CI and Docker are implemented and verified
-locally. GCP provisioning and the live URL require the team's GCP project
-credentials and are performed by a team member; this document does not claim a
-live deployment that has not happened.
+### Live release (21 Nov 2026)
+
+The application is deployed on the **shared course project** `cpe-se-course-2026`
+(region `asia-southeast1`) using the portal-provided `project-kit`. The Cloud SQL
+instance, Artifact Registry repository, service, job, service account and secrets were
+**pre-provisioned by the course**; no new Cloud SQL instance was created, no other
+team's resources were touched, and no resource was deleted.
+
+| Item | Value |
+| :--- | :--- |
+| Public URL | <https://sd3cdaba1-4d7hbszvwq-as.a.run.app> |
+| Cloud Run service | `sd3cdaba1`, revision `sd3cdaba1-00004-wpw`, 100% traffic |
+| Image | `asia-southeast1-docker.pkg.dev/cpe-se-course-2026/sd3cdaba1/sd3cdaba1@sha256:627b1c14b90eb71e9b3a044a3cc1773d584ccf358b6e0383fa74d9c8feb68b04` (tag `git-263133d1899f`) |
+| Commit reported by `/api/health` | `263133d1899f9ea2a3a6a23bc271d73bfa6b2c89` |
+| Migration job | `sd3cdaba1-migrate-t58tp` - applied `20261110084745_init_schema`, seeded 3 demo accounts |
+| Scaling | min instances `0`, max instances `1`, 1 CPU, 512 MiB (shared credits) |
+
+Commands used: `kit.sh doctor`, `kit.sh --stack node init`, `kit.sh build`,
+`kit.sh migrate`, `kit.sh deploy --skip-migrate`, `kit.sh env set GIT_COMMIT=...`,
+then a second `kit.sh deploy --skip-migrate` for the persistence check. The JWT signing
+key lives in the team's secret slot `sd3cdaba1-app-secret-1`; the seed password comes
+from the prepared `sd3cdaba1-admin-password` secret. No secret value is in Git.
+
+> **`deploy.yml` status (honest disclosure):** the GitHub Actions deploy workflow still
+> requires the `demo` environment and the four WIF/project variables, which a repository
+> admin must create. Until that is done, the kit-based release above is the executed
+> deploy path; the workflow is the documented repeatable path for later releases.
 
 ---
 
@@ -309,3 +332,4 @@ live deployment that has not happened.
 | Version | Date | Change | Author | Reviewer |
 | :--- | :--- | :--- | :--- | :--- |
 | v1.0 | 11 Nov 2026 | Docker image/compose, CI gate, deploy pipeline, and release procedure. | T | Oum |
+| v1.1 | 21 Nov 2026 | Live Cloud Run release details (URL, digest, revision, commit), resolved C-01..C-05 evidence, and disclosure of the pending `demo` environment for `deploy.yml`. | T | Oum |
