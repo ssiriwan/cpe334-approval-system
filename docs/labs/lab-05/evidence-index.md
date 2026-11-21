@@ -5,7 +5,7 @@
 > **Repository:** <https://github.com/ssiriwan/cpe334-approval-system> (public, R-12)
 > **Starting point:** Sprint 1 release `v0.1.0-sprint1` (`f35ad24`)
 > **Public URL:** <https://sd3cdaba1-4d7hbszvwq-as.a.run.app>
-> **Serving commit:** `263133d1899f9ea2a3a6a23bc271d73bfa6b2c89` (verified with `GET /api/health`)
+> **Serving commit:** `74d37cb67cbdc25c3baedefbe4a1dd518891125a` (release `main` HEAD, verified with `GET /api/health`)
 
 This file is the working copy of the submitted PDF. Each rubric part lists a direct
 link, one or two sentences of explanation, and - only where a link cannot show it -
@@ -43,7 +43,7 @@ must never be presented as done.
 | 2. Docker and reproducible configuration | [`evidence/c03-clean-clone.log`](./evidence/c03-clean-clone.log) | C-03, R-01, R-02, commit `f35ad24` | PASS - empty volume, migration applied, API round trip |
 | 3. GCP deployment and persistence | <https://sd3cdaba1-4d7hbszvwq-as.a.run.app> + [`evidence/c04-live.log`](./evidence/c04-live.log) | C-04, R-03, commit `263133d` | PASS - login, create, three 403 rules |
 | 3. GCP deployment and persistence | [`c05-before.log`](./evidence/c05-before.log) / [`c05-after.log`](./evidence/c05-after.log) | C-05, R-04, revision 00003 -> 00004 | PASS - `REQ-20261121-0001` survived redeploy |
-| 4. Repeatable release pipeline | `PENDING` (release PR + deploy run + revision) | C-06, R-07, R-08 | `PENDING` |
+| 4. Repeatable release pipeline | [PR #30](https://github.com/ssiriwan/cpe334-approval-system/pull/30) + [run 44879473855](https://github.com/ssiriwan/cpe334-approval-system/actions/runs/44879473855) | C-06, R-07, R-08, commit `74d37cb` | PASS - CI + deploy success, revision `00007-h8g`, health = release SHA |
 
 ---
 
@@ -116,7 +116,7 @@ the Express API; PostgreSQL is never inside the container.
 PostgreSQL 17, Secret Manager, runtime and deploy service accounts, Workload Identity Federation.
 
 - **Public URL:** <https://sd3cdaba1-4d7hbszvwq-as.a.run.app>
-- **Cloud Run service / revision:** `sd3cdaba1` / `sd3cdaba1-00004-wpw` (after the persistence redeploy)
+- **Cloud Run service / revision:** `sd3cdaba1` / `sd3cdaba1-00007-h8g` (current; `00004-wpw` was the persistence-check revision)
 - **Cloud SQL instance:** `cpe-se-course-2026:asia-southeast1:sd3cdaba1-pg`
 - **Image:** `asia-southeast1-docker.pkg.dev/cpe-se-course-2026/sd3cdaba1/sd3cdaba1@sha256:627b1c14b90eb71e9b3a044a3cc1773d584ccf358b6e0383fa74d9c8feb68b04` (tag `git-263133d1899f`)
 - **Connectivity:** the UI is served by the same container as the API; the API reaches PostgreSQL
@@ -160,13 +160,19 @@ deployed **by digest**, then a smoke test asserts `/api/health` reports the rele
 
 ### C-06 - a reviewed change reaches main and is deployed (R-07 to R-10)
 
-- **Feature PR:** `PENDING` (labelled `lab5`, specific teammate review)
-- **Release PR:** `PENDING` (`sprint-1-staging` -> `main`)
-- **Deploy run:** `PENDING`
-- **Running commit:** `PENDING` - `/api/health` commit equals the release SHA, and
-  `gcloud run revisions describe` shows the image tagged with that SHA
+- **Feature PRs:** [PR #27](https://github.com/ssiriwan/cpe334-approval-system/pull/27),
+  [PR #28](https://github.com/ssiriwan/cpe334-approval-system/pull/28),
+  [PR #29](https://github.com/ssiriwan/cpe334-approval-system/pull/29) - all labelled `lab5`, each
+  with a specific teammate review; the author never approved their own PR.
+- **Release PR:** [PR #30](https://github.com/ssiriwan/cpe334-approval-system/pull/30)
+  (`lab5-staging` -> `main`), reviewed and merged by the non-author, CI green before merge.
+- **Deploy run:** [44879473855](https://github.com/ssiriwan/cpe334-approval-system/actions/runs/44879473855)
+  - `test / CI quality gate: success`, `deploy: success`, commit `74d37cb67cbdc25c3baedefbe4a1dd518891125a`.
+- **Running commit:** `GET /api/health` returns `74d37cb67cbdc25c3baedefbe4a1dd518891125a`, equal
+  to the release SHA merged into `main`. `kit.sh status` shows revision `sd3cdaba1-00007-h8g` with
+  the digest pinned by the workflow.
 - **Figure 8.** C-06 (R-07, R-08): the deploy run summary with the image digest and the smoke-test
-  step, next to `GET /api/health` returning the same commit. `PENDING`.
+  step, next to `GET /api/health` returning the same commit.
 
 ---
 
