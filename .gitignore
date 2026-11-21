@@ -12,3 +12,8 @@ uploads/
 test-results/
 playwright-report/
 .vite/
+# project-kit (local state and config, do not commit)
+.kit-state/
+resources.env
+app.env
+secrets.map
