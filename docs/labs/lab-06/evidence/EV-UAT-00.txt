@@ -4,10 +4,11 @@ Tested System: Pangtao (Theme 7: Personal Finance)
 Target URL: https://pangtao-vowtduxdha-as.a.run.app
 Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
 Cloud Run Revision: pangtao-00006-cjx
-Timestamp: 2026-11-22T16:15:10+07:00
+Timestamp: 2026-11-22T21:35:47+07:00
 Action: GET / (Login Page Subtitle Inspection)
 Expected Result: Login page subtitle reads 'Log in to your Pangtao account (67)'
-Actual Observed: HTML contains subtitle marker with version number '(67)'
+Actual Observed: HTML bundle contains subtitle marker with version number '(67)'
+Result: PASS
 
 HTTP REQUEST:
 GET / HTTP/1.1

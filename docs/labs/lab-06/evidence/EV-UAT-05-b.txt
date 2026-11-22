@@ -4,18 +4,20 @@ Tested System: Pangtao (Theme 7: Personal Finance)
 Target URL: https://pangtao-vowtduxdha-as.a.run.app
 Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
 Cloud Run Revision: pangtao-00006-cjx
-Timestamp: 2026-11-22T16:20:40+07:00
-Action: GET /api/v1/transactions/00ad577a-fb05-418b-9ff1-6e001120fd23 (Row 4 Detail)
-Expected Result: HTTP 200 with full detail, split lines (Salary 30k, Interest 500), memo 'UAT salary'
-Actual Observed: HTTP 200 with matching split line breakdown in integer satang
+Timestamp: 2026-11-22T21:35:52+07:00
+Action: GET /api/v1/transactions/<id> (Detail of Row 4: Receipt 30,500 THB)
+Expected Result: HTTP 200 with complete split lines (Salary 30k THB, Interest 500 THB)
+Actual Observed: HTTP 200 with transaction object containing both split lines and memo 'UAT salary'
+Result: PASS
 
 HTTP REQUEST:
-GET /api/v1/transactions/00ad577a-fb05-418b-9ff1-6e001120fd23 HTTP/1.1
+GET /api/v1/transactions/e7cb1266-b808-43f3-a1e8-0a2098990b8e HTTP/1.1
 Host: pangtao-vowtduxdha-as.a.run.app
+Origin: https://pangtao-vowtduxdha-as.a.run.app
 
 HTTP RESPONSE:
 HTTP/1.1 200 OK
 Content-Type: application/json
 
-{"transaction":{"id":"00ad577a-fb05-418b-9ff1-6e001120fd23","kind":"RECEIPT","accountName":"Bank Account","totalAmount":3050000,"memo":"UAT salary","lines":[{"targetAccountName":"Salary","amount":3000000},{"targetAccountName":"Interest Earned","amount":50000}]}}
+{"transaction":{"id":"e7cb1266-b808-43f3-a1e8-0a2098990b8e","kind":"RECEIPT","accountId":"49d944f1-a21a-453f-92f8-87b2c672a713","accountName":"Bank Account","txnDate":"2026-11-22","totalAmount":3050000,"memo":"UAT salary","lines":[{"id":"834ba675-ec47-4bb2-becc-3c3a4b92ea9c","targetAccountId":"a0964227-7fb7-4694-9a99-39ff97b23529","targetAccountName":"Salary","amount":3000000,"note":null},{"id":"4f4172ff-a0bf-42f4-995e-a220bec23ebe","targetAccountId":"5be20332-8021-4164-8e07-9e8329e710cb","targetAccountName":"Interest Earned","amount":50000,"note":null}]}}
 ==================================================
