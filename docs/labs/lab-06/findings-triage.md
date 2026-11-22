@@ -35,11 +35,14 @@ These findings were discovered by our team while independently testing `yakginmo
 
 ## 2. Incoming Findings (Findings Received about Our Approval System)
 
-*(To be filled when partner returns their execution results on our product)*
+Source: `yakginmomo/pangtao` branch `sprint-2-staging`, `docs/labs/lab-06/partner-cases-execution.md`
+(executed 22 Nov 2026 by Chawin and Supichaya). Full report and screenshots remain in their repository.
 
 | Finding ID | Case / Ref | Summary | Severity | Classification | Reason tied to Sprint 1 contract | Disposition / Action |
 |---|---|---|:---:|:---:|---|---|
-| *(Pending)* | - | Awaiting partner UAT execution reports | - | - | - | - |
+| `F-PB-01` | `UAT-PB-03` / AC-01, BR-04 | Valid amount `1234567.89` rejected by the form as "more than 2 decimal places" | **Major** | **Accepted defect** | BR-04 allows positive amounts up to 9,999,999,999.99 with at most 2 decimals; AC-01 requires creation to succeed. Floating-point check `v*100` misclassifies large valid values. | Fixed in `fix/lab6-uat-defects` (string-based decimal validation). RED/GREEN in `evidence/E-FPB-red-green.txt`. Awaiting reviewed merge, deployment and partner retest. |
+| `F-PB-02` | `UAT-PB-04` / AC-02, AC-04, NFR-04 | 200,000-character body returns HTTP 500 `INTERNAL_ERROR` instead of a 4xx | **Minor** | **Accepted defect** | NFR-04 requires no 500/stack trace for invalid input; AC-02/AC-04 require a standard 4xx error code. Body-parser 413 fell through to the generic 500 handler. | Fixed in `fix/lab6-uat-defects` (map `entity.too.large` to `400 VALIDATION_ERROR`). RED/GREEN in `evidence/E-FPB-red-green.txt`. Awaiting reviewed merge, deployment and partner retest. |
+| `F-OUM-02-01` | Partner's first run of our handoff | Case data defect: `10000000.00` listed as invalid although BR-04 allows it | - | **Not a product defect** | Our case data was wrong; product correctly accepted the amount. | Resolved by correcting the handoff to `10000000000.00` (commit `284533d`). Partner's corrected run: 37/37 PASS. |
 
 ### Triage Rules (Handout §3.3)
 - **Critical / Major:** Blocks Sprint 1 acceptance. Must be corrected via Red/Green regression test, PR review, CI pass, deployment, and independent retest by partner.

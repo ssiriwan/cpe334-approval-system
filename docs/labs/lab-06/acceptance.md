@@ -34,7 +34,7 @@
 
 | Field | Value |
 | :--- | :--- |
-| **Decision** | **PENDING - awaiting partner's execution report** |
+| **Decision** | **PENDING - partner report received; 2 accepted defects fixed locally, awaiting deployment + independent retest** |
 | Tested release | Our `v0.1.0-sprint1`, runtime commit `f371c232715f1185bc46b64ea28335639ae8eabf`, revision `sd3cdaba1-00009-gxv` (redeploy for UAT-OUM-04; same image digest `8c1ed41d…`, no data reset) |
 | UAT Team (signatory) | Partner team ผิงโหด - to be confirmed by their report |
 | Cases supplied to them | `uat-cases-for-partner.md` (UAT-OUM-01..04) |

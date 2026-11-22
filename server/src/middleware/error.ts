@@ -38,6 +38,18 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
     return;
   }
 
+  // F-PB-02: body-parser rejects an oversized body before any route runs.
+  // Map it to the standard 4xx validation shape instead of falling through to 500.
+  if (error && typeof error === 'object' && 'type' in error && error.type === 'entity.too.large') {
+    res.status(400).json({
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Request body is too large.',
+      },
+    });
+    return;
+  }
+
   // Malformed JSON bodies are rejected by express.json() with a SyntaxError.
   if (error instanceof SyntaxError && 'body' in error) {
     res.status(400).json({
