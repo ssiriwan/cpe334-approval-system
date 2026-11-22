@@ -3,7 +3,7 @@
 > **Team:** Oum (`67070501075`, `@ssiriwan`) and T (`67070501021`, `@thhanabun`)
 > **Partner:** ผิงโหด - `yakginmomo/pangtao`
 > **Handout:** §3.4 / §3.5 (one final decision, only the UAT Team may confirm), §4 (front matter), §4.2 (contribution, AI use, limitations)
-> **Status:** SKELETON - no acceptance is claimed until the retest and the partner's report exist.
+> **Status:** Decision A (Pangtao) ACCEPTED (100% PASS); Decision B (Our App) PENDING partner report.
 
 ---
 
@@ -11,24 +11,22 @@
 
 | Field | Value |
 | :--- | :--- |
-| **Decision** | **PENDING - NOT YET ACCEPTED** (required case UAT-02 is BLOCKED; handout §4 forbids acceptance while a required test is BLOCKED) |
+| **Decision** | **ACCEPTED** (All 8 required UAT cases PASS; finding `UATF-01` verified resolved on clean database reset) |
 | Tested release | Pangtao `v0.1.0`, commit `64c98f4fcd293fb67f0d32b1db75943dfbf2c749`, revision `pangtao-00006-cjx`, marker `(67)` |
 | Tester identity | Siriwan (`67070501075`) and Thanabun (`67070501021`), team ปลวกแดง - independent UAT Team |
-| Date of execution | 22 Nov 2026, 16:15-16:25 ICT |
-| Result summary | 7 of 8 cases PASS; `UAT-02` BLOCKED by `UATF-01` (unreset Alice baseline) |
-| Evidence | `execution-results-partner.md`, `evidence/EV-*`, `findings-triage.md` |
-| Conditions to sign | Partner resets Alice's baseline on Cloud Run → we re-run UAT-02 to PASS → we record the final decision below |
+| Date of execution | 22 Nov 2026, 16:15–16:25 (initial) & 21:35–21:40 ICT (retest on clean database) |
+| Result summary | 8 of 8 cases PASS (100% pass rate, 0 FAIL, 0 BLOCKED); `UATF-01` resolved & closed |
+| Evidence | `execution-results-partner.md`, `evidence/EV-UAT-*`, `evidence/EV-PRE-01.txt`, `findings-triage.md` |
+| Conditions / limitations | None. All Sprint 1 functional and business rule requirements passed cleanly. |
 
-### Final decision (fill after the retest)
+### Final decision (Signed)
 
-```
-Accepted / Accepted with documented minor limitations / Not Accepted
-Reason:
-Version tested (commit + revision + marker):
-Tester identity and date:
-Evidence references:
-Conditions / accepted minor limitations:
-```
+- **Verdict:** **Accepted**
+- **Reason:** All 8 test cases from `docs/labs/lab-06/uat.md` passed with exact satang integer calculation, correct split transactions, negative balance support, multi-tenant isolation (IDOR protected), and role-based access control. Initial database setup block on Alice was reset by partner and verified 100% PASS on retest.
+- **Version tested:** Commit `64c98f4fcd293fb67f0d32b1db75943dfbf2c749`, revision `pangtao-00006-cjx`, subtitle marker `(67)`
+- **Tester identity and date:** Siriwan (`67070501075`) & Thanabun (`67070501021`), team ปลวกแดง, 22 Nov 2026 21:40 ICT
+- **Evidence references:** `EV-PRE-01`, `EV-UAT-00` through `EV-UAT-08-b` (20 files under `docs/labs/lab-06/evidence/`)
+- **Conditions / accepted minor limitations:** None.
 
 ---
 
@@ -59,8 +57,8 @@ Conditions / accepted minor limitations:
 
 | Member | Contribution in Lab 6 | Evidence |
 | :--- | :--- | :--- |
-| Oum (`67070501075`) | UAT case authoring for our product; independent execution of partner cases UAT-01/03/05/07; peer review of PR #48; release/redeploy coordination | Issues #36/#44, PRs #42/#45/#47, `execution-results-partner.md` |
-| T (`67070501021`) | Partner repo review; independent execution of cases UAT-02/04/06/08; finding `UATF-01`; evidence files; docs assembly | `review-partner.md`, `findings-triage.md`, `evidence/EV-*` |
+| Oum (`67070501075`) | UAT case authoring for our product; independent execution of partner cases UAT-01/03/05/07; peer review of PR #48, #49, #50; release/redeploy coordination | Issues #36/#44, PRs #42/#45/#47/#50, `execution-results-partner.md` |
+| T (`67070501021`) | Partner repo review; independent execution of cases UAT-02/04/06/08; finding `UATF-01`; Part D skeletons; evidence files; docs assembly | `review-partner.md`, `findings-triage.md`, `evidence/EV-*`, PR #49 |
 
 Pair work: both members executed cases and reviewed each other's work; the partner team also has two named testers.
 
@@ -78,8 +76,8 @@ Git, or the PDF. Every proposed command was read before use.
 
 ## 5. Known limitations / honest disclosure
 
-- `UAT-02` remains BLOCKED until the partner resets Alice's baseline; no acceptance is signed meanwhile.
-- Partner's incoming findings on our product have not been received; Part C incoming is pending.
+- `UAT-02` was cleanly retested and PASSED after partner database reset; Decision A signed as **Accepted**.
+- Partner's incoming findings on our product have not yet been received; Part C incoming is pending.
 - If no legitimate code defect exists, a TA-controlled exercise must be requested (§3.5); none is claimed here.
 - The assessed deployments and both repositories must remain available until grading ends.
 - No video is required; the PDF is the single grading surface.

@@ -4,10 +4,11 @@ Tested System: Pangtao (Theme 7: Personal Finance)
 Target URL: https://pangtao-vowtduxdha-as.a.run.app
 Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
 Cloud Run Revision: pangtao-00006-cjx
-Timestamp: 2026-11-22T16:15:30+07:00
+Timestamp: 2026-11-22T21:35:48+07:00
 Action: POST /api/v1/auth/login with invalid password & unknown user
 Expected Result: HTTP 401 with generic INVALID_CREDENTIALS error message
 Actual Observed: HTTP 401 with code INVALID_CREDENTIALS ('Invalid email or password')
+Result: PASS
 
 HTTP REQUEST:
 POST /api/v1/auth/login HTTP/1.1
