@@ -35,11 +35,11 @@
 | Role | Tag / baseline | Commit | Deployed revision | Notes |
 | :--- | :--- | :--- | :--- | :--- |
 | Our product (Product Team) | `v0.1.0-sprint1` | `f371c23…` | `sd3cdaba1-00007-h8g` (TBC) | Live at <https://sd3cdaba1-4d7hbszvwq-as.a.run.app> |
-| Partner product (UAT target) | `v0.1.0` | `bec5575…` | **TO BE CONFIRMED** | `main` HEAD at review `64c98f4…`; live at <https://pangtao-vowtduxdha-as.a.run.app> |
+| Partner product (UAT target) | `v0.1.0` (baseline `bec5575…`) | `64c98f4fcd293fb67f0d32b1db75943dfbf2c749` | commit on `main`, confirmed by the partner as the deployed version | `GET /api/v1/health` returns `{"status":"ok"}` but does not expose a commit; live at <https://pangtao-vowtduxdha-as.a.run.app> |
 
 ## Honest status
 
 - Completed: partner repo review and the five authored cases (#36).
-- Pending: private credentials and deployed revision from the partner; if they do not arrive, login cases
+- Pending: private credentials from the partner; the deployed version is the commit on their `main` (`64c98f4…`). If credentials do not arrive, login cases
   are `BLOCKED` with the notification evidence, not silently passed.
-- No finding, acceptance decision or correction is claimed in this index until it is actually executed.
+- Unauthenticated probes on the partner Cloud URL were executed on 22 Nov 2026 (see `execution-results-partner.md`); the credential-dependent steps are still BLOCKED. No acceptance decision or correction is claimed until actually executed.
