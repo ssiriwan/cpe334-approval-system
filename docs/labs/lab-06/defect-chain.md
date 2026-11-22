@@ -14,7 +14,7 @@ the TA on an isolated branch and record it here **separately** from the healthy 
 
 | Role | Baseline (tested) | Defective commit(s) | Test change commit | Corrected `main` release | Deployed revision | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Our product (we are Product Team) | `v0.1.0-sprint1` / runtime `f371c23…` | *(none recorded yet)* | - | - | `sd3cdaba1-00009-gxv` (redeploys do not change the code) | Redeploy for partner's UAT-OUM-04: same image digest `8c1ed41d…`, no data reset |
+| Our product (we are Product Team) | `v0.1.0-sprint1` / runtime `f371c23…` | current code at `f371c23` (F-PB-01, F-PB-02) | RED commit `97a01a6`; GREEN commit on branch `fix/lab6-uat-defects` | pending reviewed merge to `main` | still `sd3cdaba1-00009-gxv` until the fix is deployed | Partner UAT found 2 accepted defects; fixes are RED->GREEN locally, not yet deployed |
 | Partner product (we are UAT Team) | `v0.1.0` / commit `64c98f4…` / `pangtao-00006-cjx` | `UATF-01` is an environment-setup finding, **not** a code defect | - | - | - | Awaiting partner reset + UAT-02 retest |
 
 Merge commits only integrate reviewed changes; the application code reviewed here is unchanged.
@@ -23,7 +23,36 @@ Merge commits only integrate reviewed changes; the application code reviewed her
 
 ## 2. Accepted defect chain (one subsection per Issue)
 
-> Template - fill once a real accepted defect exists.
+### Issue `F-PB-01` - valid 2-decimal amount rejected (Major)
+
+| Field | Value |
+| :--- | :--- |
+| Reported by | Chawin (partner UAT Team), 22 Nov 2026 16:32, via `partner-cases-execution.md` |
+| Case / requirement | `UAT-PB-03` · AC-01, BR-04 |
+| Severity / impact | Major - legitimate amounts from ~1,000,000 with 2 decimals are refused; requester told valid input is wrong |
+| Classification | Accepted defect (not an enhancement) |
+| **RED** test | `server/tests/requests.test.ts` → `F-PB-01 (AC-01, BR-04): a valid 2-decimal amount 1234567.89 is accepted`; `client/src/pages/Requests.test.tsx` → `F-PB-01: accepts 1234567.89 and sends it as a decimal string` |
+| RED command / output | `npx vitest run --config vitest.config.ts` → 3 failed / 34 passed (both F-PB-01 tests failing); see `evidence/E-FPB-red-green.txt` |
+| Root cause | Client and server used floating-point multiplication (`v*100`); `1234567.89*100 = 123456788.99999999` |
+| Fix | Validate a decimal **string** with `^\d+(\.\d{1,2})?$`; client sends `amount` as a string; server accepts string or number and converts after validation |
+| **GREEN** command / output | `npx vitest run --config vitest.config.ts` → **37 passed / 0 failed / 0 skipped**; `npm run build` passed |
+| PR / review / CI | branch `fix/lab6-uat-defects`; PR to `lab5-staging` with `lab6` label, **awaiting Oum approval** (author does not self-merge) |
+| Deployment / retest | Pending: merge → deploy → partner retest of `UAT-PB-03` |
+
+### Issue `F-PB-02` - oversized body returns 500 (Minor)
+
+| Field | Value |
+| :--- | :--- |
+| Reported by | Chawin (partner UAT Team), 22 Nov 2026 17:31 |
+| Case / requirement | `UAT-PB-04` · AC-02, AC-04, NFR-04 |
+| Severity / impact | Minor - not reachable from the UI; no data changed or exposed, but an unauthenticated client receives an unexpected 500 |
+| Classification | Accepted defect |
+| **RED** test | `server/tests/requests.test.ts` → `F-PB-02 (AC-02, NFR-04): an oversized body returns a 4xx error, never 500` |
+| RED output | 500 `INTERNAL_ERROR` → RED (see `evidence/E-FPB-red-green.txt`) |
+| Root cause | `express.json()` throws `entity.too.large` before routing; the error handler only mapped `SyntaxError`/`ZodError`/`AppError` |
+| Fix | Map `entity.too.large` to `400 VALIDATION_ERROR` with the standard error shape |
+| **GREEN** output | 37/37 tests pass; build passes |
+| PR / deployment / retest | Same PR as F-PB-01; partner retest of `UAT-PB-04` pending |
 
 ### Issue `#___` - short title
 

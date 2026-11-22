@@ -29,10 +29,13 @@ export function NewRequestPage() {
     if (trimmedTitle.length < 3 || trimmedTitle.length > 150) {
       errors.title = 'Title must be between 3 and 150 characters.';
     }
-    if (!amount || Number.isNaN(numAmount) || numAmount <= 0 || numAmount > 9999999999.99) {
+    const trimmedAmount = amount.trim();
+    if (!trimmedAmount) {
       errors.amount = 'Amount must be greater than 0 and up to 9,999,999,999.99.';
-    } else if (Math.abs(numAmount * 100 - Math.round(numAmount * 100)) >= 1e-8) {
+    } else if (!/^\d+(\.\d{1,2})?$/.test(trimmedAmount)) {
       errors.amount = 'Amount must have at most 2 decimal places.';
+    } else if (numAmount <= 0 || numAmount > 9999999999.99) {
+      errors.amount = 'Amount must be greater than 0 and up to 9,999,999,999.99.';
     }
     if (trimmedDesc.length < 1 || trimmedDesc.length > 1000) {
       errors.description = 'Description is required (max 1,000 characters).';
@@ -53,7 +56,7 @@ export function NewRequestPage() {
         method: 'POST',
         body: JSON.stringify({
           title: title.trim(),
-          amount: Number(amount),
+          amount: amount.trim(),
           category,
           description: description.trim(),
         }),
