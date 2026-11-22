@@ -37,8 +37,8 @@ Personal Finance paragraph in §3.1 is guidance for the team whose own product i
 | `execution-results-partner.md` | Our independent execution results covering partner's 8 UAT cases with actual results, checkpoints, and evidence IDs | B | Complete (`EV-UAT-00` to `08`) |
 | `partner-cases-execution.md` | Partner-authored cases executed on our product (to be filled) | B / D | Pending |
 | `findings-triage.md` | Outgoing reports (`UATF-01`) + incoming findings table | C | In progress |
-| `defect-chain.md` | RED/GREEN, review, CI, release, retest | D | Pending |
-| `acceptance.md` | Final independent decision, contributions, AI use, limitations | D | Pending |
+| `defect-chain.md` | RED/GREEN, review, CI, release, retest | D | Skeleton (ready for a real or controlled defect) |
+| `acceptance.md` | Both independent decisions, contributions, AI use, limitations | D | Skeleton - both decisions PENDING |
 | `evidence/` | Text logs and captures with `EV-UAT-00..08`, `EV-PRE-01`, and `EV-OUM-*` IDs | A-D | Complete for Part B (19 evidence files committed) |
 | `handoff-message.md` | Ready-to-send message with the two requests (run ours; send us yours) | A/B | Complete |
 
@@ -55,3 +55,4 @@ Personal Finance paragraph in §3.1 is guidance for the team whose own product i
 - Independent execution was carried out on 22 Nov 2026, 16:15–16:25 Bangkok time by Siriwan (`67070501075`) and Thanabun (`67070501021`).
 - Results: **7 cases PASS** (UAT-01, 03, 04, 05, 06, 07, 08). **1 case BLOCKED** (UAT-02) because the partner deployment contained unreset baseline data on Alice (`UATF-01`), preventing clean opening balance creation, though its underlying validation, conflict (409) and boundary logic were confirmed.
 - Final Acceptance Decision: **PENDING / NOT YET ACCEPTED** per Lab 6 §4 while UAT-02 is BLOCKED; database reset and retest requested from partner.
+- Our Cloud Run was redeployed for the partner's UAT-OUM-04: revision `sd3cdaba1-00008-2pg` → `sd3cdaba1-00009-gxv`, same image digest, health commit unchanged, no data reset (Issue #38 comment).
