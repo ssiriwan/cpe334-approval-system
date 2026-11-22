@@ -9,9 +9,8 @@
 
 | Who authors | Whose app | Who executes | Document | Handout part |
 | :--- | :--- | :--- | :--- | :--- |
-| **We** (Product Team) | **Our** Approval System | **Partner** | [`uat-cases-our-product.md`](./uat-cases-our-product.md) | **A - our handoff** |
+| **We** (Product Team) | **Our** Approval System | **Partner** | [`uat-cases-for-partner.md`](./uat-cases-for-partner.md) | **A - our handoff** |
 | **Partner** (Product Team) | Pangtao | **We** | partner's cases (to be supplied) | **B - our execution** |
-| We (supplementary design) | Pangtao | We | [`uat-cases-for-partner.md`](./uat-cases-for-partner.md) | supports B, **not** a Part A substitute |
 
 The handout says: "Give another team an executable UAT plan for **your** delivered Sprint 1 product"
 (§1) and "Prepare Sprint 1 UAT cases and safe test accounts for **your application**" (§2). The
@@ -33,9 +32,8 @@ Personal Finance paragraph in §3.1 is guidance for the team whose own product i
 
 | File | Content | Part |
 | :--- | :--- | :--- |
-| `uat-cases-our-product.md` | Our five authored cases `UAT-OUM-01..05`-style (01..04) for our app, with full fields and handoff | A |
+| `uat-cases-for-partner.md` | Our authored cases `UAT-OUM-01..04` for our app, with full fields and handoff (partner executes them) | A |
 | `review-partner.md` | Source-level review of the partner repo, scope, CI/CD and version | A/B support |
-| `uat-cases-for-partner.md` | Supplementary independent UAT design for pangtao (`UAT-PT-01..05`) | B support only |
 | `execution-results-partner.md` | Our independent execution results with actual results and evidence IDs | B |
 | `partner-cases-execution.md` | Partner-authored cases executed on our product (to be filled) | B / D |
 | `findings-triage.md` | Outgoing reports + incoming findings table (to be filled) | C |
