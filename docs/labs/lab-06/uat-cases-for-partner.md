@@ -19,10 +19,10 @@ evidence (`docs/labs/lab-06/execution-results-partner.md`).
 | Application | Pangtao - Personal Money and Expense Logging System (Theme 7) |
 | Repository | <https://github.com/yakginmomo/pangtao> (public) |
 | Public URL | <https://pangtao-vowtduxdha-as.a.run.app> |
-| Health check | `GET /api/v1/health` → `{"status":"ok"}` |
+| Health check | `GET /api/v1/health` → `{"status":"ok"}` (no commit in the body) |
 | Release tag | `v0.1.0` (commit `bec5575c3ce434b4b1eac0899e734e513e672d9f`) |
 | Partner `main` HEAD at review time | `64c98f4fcd293fb67f0d32b1db75943dfbf2c749` |
-| Deployed revision / running commit | **TO BE CONFIRMED** by the Product Team from the deploy run summary or the startup log line `🚀 Pangtao server running on port 8080 [production] commit <sha>` |
+| Deployed revision / running commit | Commit on partner `main`: `64c98f4fcd293fb67f0d32b1db75943dfbf2c749` (confirmed by the partner as the deployed version). The health handler does not expose a commit, so the version is identified by the `main` commit plus the public URL. |
 | Accepted-for-test scope | **Sprint 1 only**: auth, admin users, accounts/balances, opening balance, payment, receipt, transaction history, income/expense summary. Sprint 2 and 3 features are explicitly out of scope. |
 | Date of handoff | 22 Nov 2026 |
 
@@ -211,7 +211,7 @@ The user appears in the list with role `USER` and active status after step 1; af
 
 ```
 Case ID | Tester (name/team) | Date/time | Tested version (tag + commit/revision) | Inputs | ACTUAL result (do NOT copy expected) | PASS / FAIL / BLOCKED | Evidence IDs
-UAT-PT-01 | Oum (Oum&T) | 2026-11-22 .. | v0.1.0 / <confirm> | 10000.00 / 250.00 | <what was actually observed> | ... | E-PT-01a,b,c
+UAT-PT-01 | Oum (Oum&T) | 2026-11-22 .. | v0.1.0 / 64c98f4 | 10000.00 / 250.00 | <what was actually observed> | ... | E-PT-01a,b,c
 ```
 
 A FAIL must additionally produce a defect report with: Issue ID, product owner/team, reporter, tested version, linked case + requirement, preconditions/data, reproduction steps, expected, actual, severity explained by user impact, and evidence.

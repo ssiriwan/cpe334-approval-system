@@ -14,7 +14,7 @@ billing/IAM/database change was made.
 | Repository | Public, default branch `main` |
 | `main` HEAD at review | `64c98f4fcd293fb67f0d32b1db75943dfbf2c749` |
 | Release tag `v0.1.0` | `bec5575c3ce434b4b1eac0899e734e513e672d9f` |
-| Deployed revision | **Not confirmed** - see open issues #27/#28 and the note below |
+| Deployed revision | Commit on `main`: `64c98f4fcd293fb67f0d32b1db75943dfbf2c749` (partner-confirmed). Issues #27/#28 remain open in their repo, so the runtime evidence is still their responsibility. |
 | Public URL | <https://pangtao-vowtduxdha-as.a.run.app> |
 | Health | `GET /api/v1/health` returned `{"status":"ok"}` at review time |
 | Repo created / last push | 2026-11-07 / 2026-11-17 |
@@ -22,7 +22,7 @@ billing/IAM/database change was made.
 **Important:** the health handler does not report a commit. The exact deployed version must come from the
 deploy run summary (`Commit image tag` / `Digest`), the image label `org.opencontainers.image.revision`,
 the startup log `🚀 Pangtao server running ... commit <sha>`, or `gcloud run services describe pangtao`.
-Until then the version column in our results stays `TO BE CONFIRMED`.
+The partner confirmed that the commit on `main` is the deployed version; we record `64c98f4…` with that source of truth.
 
 ## 2. Stack and security model (source review)
 
@@ -64,7 +64,6 @@ and the `LOG_LEVEL` variable (reserved, not read by code).
 
 ## 5. Questions / handoff requests to the Product Team
 
-1. What is the exact deployed revision and commit for the Cloud URL? (Tag `v0.1.0` is the documented baseline.)
 2. Please supply the three demo passwords privately; we will not put them in Git or the PDF.
 3. Please confirm Sprint 1 scope only is under test, and notify us before any redeploy.
 4. Please perform the agreed redeploy at the end so `UAT-PT-04` can be executed (before/after evidence).
