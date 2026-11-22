@@ -2,7 +2,7 @@
 
 > **Team:** ปลวกแดง — Siriwan (`67070501075`, `@ssiriwan`) and Thanabun (`67070501021`, `@thhanabun`)
 > **Partner:** ผิงโหด — Chawin Chinpraditsuk (`67070501012`) and Supichaya (`67070501087`), repo `yakginmomo/pangtao`
-> **Covers:** Lab 6 §3.3 (Part C, 20 points)
+> **Covers:** Lab 6 §3.3 (Part C outgoing findings complete; incoming findings pending partner UAT execution on our app)
 
 ---
 
@@ -12,7 +12,7 @@ These findings were discovered by our team while independently testing `yakginmo
 
 | Issue ID | Case & Step | Title | Severity | Impact | Evidence ID | Status & Disposition |
 |---|---|---|:---:|---|:---:|---|
-| **`UATF-01`** | `UAT-02` step 3 | Alice user account contains unreset opening balances from 2026-11-18, blocking clean opening balance creation | **Minor / Operational** | Does not affect accounting math or access security, but unreset database violates starting state preconditions (§4.1) and prevents executing the happy-path opening balance creation on Alice (though verified on Bob in UAT-06). | `EV-UAT-02-a`, `EV-UAT-06-a` | Reported to partner team via agreed channel. Awaiting partner triage. |
+| **`UATF-01`** | `UAT-02` step 3 | Alice user account contains unreset opening balances from 2026-11-18, blocking clean opening balance creation | **Minor / Operational** | Does not affect accounting math or access security, but unreset database violates starting state preconditions (§4.1) and prevents executing the happy-path opening balance creation on Alice (though verified on Bob in UAT-06). | `EV-UAT-02-a`, `EV-UAT-06-a` | Reported to partner team; database reset & retest requested. Acceptance decision remains **PENDING** per §4. |
 
 ### Details for `UATF-01`
 - **Reporter:** Thanabun Tikaew & Siriwan (team ปลวกแดง)
@@ -25,7 +25,7 @@ These findings were discovered by our team while independently testing `yakginmo
   4. Attempt to execute UAT-02 Step 3 to set opening balance of 50,000.00 ฿ on Bank Account.
 - **Expected:** Setting opening balance succeeds (HTTP 201).
 - **Actual:** Opening balance button absent. POST returns HTTP 409 `OPENING_BALANCE_EXISTS` ("This account already has an opening balance").
-- **Classification:** Accepted Defect / Test Environment Operational Finding.
+- **Classification / Current Disposition:** Test Environment Operational Finding / Retest Requested. Partner has been asked to reset Alice's baseline on Cloud Run so UAT-02 can be cleanly retested to PASS. Final acceptance decision remains PENDING until retested or explicitly documented.
 
 ---
 

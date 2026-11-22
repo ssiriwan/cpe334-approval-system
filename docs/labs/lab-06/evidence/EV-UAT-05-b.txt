@@ -1,0 +1,21 @@
+EVIDENCE RECORD: EV-UAT-05-b
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T16:20:40+07:00
+Action: GET /api/v1/transactions/00ad577a-fb05-418b-9ff1-6e001120fd23 (Row 4 Detail)
+Expected Result: HTTP 200 with full detail, split lines (Salary 30k, Interest 500), memo 'UAT salary'
+Actual Observed: HTTP 200 with matching split line breakdown in integer satang
+
+HTTP REQUEST:
+GET /api/v1/transactions/00ad577a-fb05-418b-9ff1-6e001120fd23 HTTP/1.1
+Host: pangtao-vowtduxdha-as.a.run.app
+
+HTTP RESPONSE:
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{"transaction":{"id":"00ad577a-fb05-418b-9ff1-6e001120fd23","kind":"RECEIPT","accountName":"Bank Account","totalAmount":3050000,"memo":"UAT salary","lines":[{"targetAccountName":"Salary","amount":3000000},{"targetAccountName":"Interest Earned","amount":50000}]}}
+==================================================

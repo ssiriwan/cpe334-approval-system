@@ -39,7 +39,7 @@ Personal Finance paragraph in §3.1 is guidance for the team whose own product i
 | `findings-triage.md` | Outgoing reports (`UATF-01`) + incoming findings table | C | In progress |
 | `defect-chain.md` | RED/GREEN, review, CI, release, retest | D | Pending |
 | `acceptance.md` | Final independent decision, contributions, AI use, limitations | D | Pending |
-| `evidence/` | Screenshots and logs with `EV-UAT-*` / `E-OUM-*` IDs | A-D | Complete for Part B |
+| `evidence/` | Text logs and captures with `EV-UAT-00..08`, `EV-PRE-01`, and `EV-OUM-*` IDs | A-D | Complete for Part B (19 evidence files committed) |
 | `handoff-message.md` | Ready-to-send message with the two requests (run ours; send us yours) | A/B | Complete |
 
 ## Version table
@@ -47,10 +47,11 @@ Personal Finance paragraph in §3.1 is guidance for the team whose own product i
 | Role | Tag / baseline | Commit | Deployed revision | Notes |
 | :--- | :--- | :--- | :--- | :--- |
 | Our product (Product Team) | `v0.1.0-sprint1` | runtime `f371c23…` | `sd3cdaba1-00008-2pg` | Confirmed live at <https://sd3cdaba1-4d7hbszvwq-as.a.run.app> |
-| Partner product (UAT target) | `v0.1.0` (baseline `bec5575…`) | `64c98f4fcd293fb67f0d32b1db75943dfbf2c749` (PR #40) | `pangtao-00006-cjx` (image digest `sha256:0c479894...`) | Subtitle marker "(67)"; confirmed live at <https://pangtao-vowtduxdha-as.a.run.app> |
+| Partner product (UAT target) | `v0.1.0` (baseline `bec5575…`) | `64c98f4fcd293fb67f0d32b1db75943dfbf2c749` (PR #40) | `pangtao-00006-cjx` (image digest `sha256:0c479894...`) | Subtitle marker "(67)"; `/api/v1/health` omits commit so corroborated via (67) marker + commit + revision; confirmed live at <https://pangtao-vowtduxdha-as.a.run.app> |
 
 ## Execution summary (Part B)
 
 - Partner's authored UAT plan `uat.md` (8 cases) and private seed credentials were received.
 - Independent execution was carried out on 22 Nov 2026, 16:15–16:25 Bangkok time by Siriwan (`67070501075`) and Thanabun (`67070501021`).
 - Results: **7 cases PASS** (UAT-01, 03, 04, 05, 06, 07, 08). **1 case BLOCKED** (UAT-02) because the partner deployment contained unreset baseline data on Alice (`UATF-01`), preventing clean opening balance creation, though its underlying validation, conflict (409) and boundary logic were confirmed.
+- Final Acceptance Decision: **PENDING / NOT YET ACCEPTED** per Lab 6 §4 while UAT-02 is BLOCKED; database reset and retest requested from partner.

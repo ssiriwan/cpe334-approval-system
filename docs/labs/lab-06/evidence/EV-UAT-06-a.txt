@@ -1,0 +1,23 @@
+EVIDENCE RECORD: EV-UAT-06-a
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T16:22:10+07:00
+Action: POST /api/v1/accounts/<bob-wallet-id>/opening-balance with amount 0
+Expected Result: HTTP 201 Created, 0 opening balance permitted per AC-04.3
+Actual Observed: HTTP 201 Created with transaction ID 33c4a565-ce5a-453b-88a6-4f90030949dc
+
+HTTP REQUEST:
+POST /api/v1/accounts/6a964b24-4eb8-4959-8f22-81ad7a4f3da6/opening-balance HTTP/1.1
+Content-Type: application/json
+
+{"amount":0,"date":"2026-11-01"}
+
+HTTP RESPONSE:
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{"transaction":{"id":"33c4a565-ce5a-453b-88a6-4f90030949dc","kind":"OPENING_BALANCE","totalAmount":0,"txnDate":"2026-11-01"}}
+==================================================

@@ -1,0 +1,22 @@
+EVIDENCE RECORD: EV-UAT-06-b
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T16:22:30+07:00
+Action: GET /api/v1/transactions/0bd009c2-3034-4f96-89fe-619c576db107 as Alice (cross-tenant probe of Bob's receipt)
+Expected Result: HTTP 404 NOT_FOUND (IDOR prevented; existence not disclosed per D-03)
+Actual Observed: HTTP 404 NOT_FOUND ('Transaction not found')
+
+HTTP REQUEST:
+GET /api/v1/transactions/0bd009c2-3034-4f96-89fe-619c576db107 HTTP/1.1
+Host: pangtao-vowtduxdha-as.a.run.app
+Cookie: sid=<alice-session>
+
+HTTP RESPONSE:
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{"error":{"code":"NOT_FOUND","message":"Transaction not found"}}
+==================================================

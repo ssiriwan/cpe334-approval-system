@@ -1,0 +1,23 @@
+EVIDENCE RECORD: EV-UAT-03-b
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T16:18:15+07:00
+Action: POST /api/v1/transactions (Payment 2,250.50 THB from Wallet)
+Expected Result: HTTP 201 Created; Wallet balance goes negative with Negative balance label
+Actual Observed: HTTP 201 Created; transaction ID 48f26f7d-546e-4e88-a78c-f4dec2509580; Wallet balance negative (-2,123.50 THB)
+
+HTTP REQUEST:
+POST /api/v1/transactions HTTP/1.1
+Content-Type: application/json
+
+{"kind":"PAYMENT","accountId":"72fe4b7c-b798-4421-a4b5-fd7a99d6ec8c","txnDate":"2026-11-22","totalAmount":225050,"memo":"UAT dinner and groceries","lines":[{"targetAccountId":"334add74-8c79-498d-9977-6f505317cd1a","amount":45050},{"targetAccountId":"17cd06bc-87fc-4440-99f9-79429167e1f6","amount":180000}]}
+
+HTTP RESPONSE:
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{"transaction":{"id":"48f26f7d-546e-4e88-a78c-f4dec2509580","kind":"PAYMENT","totalAmount":225050,"txnDate":"2026-11-22"}}
+==================================================

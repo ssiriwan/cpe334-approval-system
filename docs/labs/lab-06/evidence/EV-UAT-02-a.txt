@@ -1,0 +1,23 @@
+EVIDENCE RECORD: EV-UAT-02-a
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T16:17:15+07:00
+Action: POST /api/v1/accounts/<bank-id>/opening-balance on Bank Account (duplicate opening balance attempt)
+Expected Result: HTTP 409 OPENING_BALANCE_EXISTS because account already has opening balance
+Actual Observed: HTTP 409 with code OPENING_BALANCE_EXISTS ('This account already has an opening balance')
+
+HTTP REQUEST:
+POST /api/v1/accounts/49d944f1-a21a-453f-92f8-87b2c672a713/opening-balance HTTP/1.1
+Content-Type: application/json
+
+{"amount":5000000,"date":"2026-11-01"}
+
+HTTP RESPONSE:
+HTTP/1.1 409 Conflict
+Content-Type: application/json
+
+{"error":{"code":"OPENING_BALANCE_EXISTS","message":"This account already has an opening balance"}}
+==================================================
