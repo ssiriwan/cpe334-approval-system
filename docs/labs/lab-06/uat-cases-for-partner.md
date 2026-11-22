@@ -3,7 +3,13 @@
 > **Author team:** Oum (`67070501075`, `@ssiriwan`) and T (`67070501021`, `@thhanabun`)
 > **Partner / Product Team:** `yakginmomo/pangtao` - <https://github.com/yakginmomo/pangtao>
 > **Covers:** Lab 6 handout sections 3.1 (Part A) and 3.2 (Part B)
-> **Label:** `lab6` (Issue #36)
+> **Label:** `lab6` (Issue #36 / corrected by #44)
+
+> **IMPORTANT - role correction:** these cases were authored by **us** for the partner's app. Under
+> handout §1/§2/§3.2 the Product Team authors cases for **its own** app, so these are **supplementary
+> independent UAT design** supporting Part B. They are **not** our Part A handoff. Our actual Part A
+> cases for our own app are in [`uat-cases-our-product.md`](./uat-cases-our-product.md). For Part B we
+> must execute the cases **supplied by the partner**; these are a fallback/test design only.
 
 These cases were written **by our team as the UAT Team** for the partner's delivered Sprint 1 product.
 They give another team a deterministic, executable UAT plan. The partner may run them as a handoff

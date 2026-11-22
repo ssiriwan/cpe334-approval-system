@@ -4,7 +4,10 @@
 > **Product Team / partner:** `yakginmomo/pangtao`
 > **Date/time of this session:** 2026-11-22 06:07 UTC
 > **Handout:** Lab 6 §3.2 (Part B, 25 points)
-> **Cases source:** [`uat-cases-for-partner.md`](./uat-cases-for-partner.md)
+> **Cases source:** the partner's authored cases for pangtao have **not yet been supplied**; the rows
+> below currently use our supplementary design [`uat-cases-for-partner.md`](./uat-cases-for-partner.md).
+> Handout §3.2 requires executing the **Product Team's** cases, so when the partner sends theirs, the
+> results must be re-recorded against those cases and this limitation disclosed in the PDF.
 
 ## 1. Tested version
 
