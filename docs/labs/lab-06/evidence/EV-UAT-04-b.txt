@@ -1,0 +1,23 @@
+EVIDENCE RECORD: EV-UAT-04-b
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T16:19:25+07:00
+Action: POST /api/v1/transactions with future date (2026-11-25)
+Expected Result: HTTP 400 FUTURE_DATE_NOT_ALLOWED; rejected without state mutation
+Actual Observed: HTTP 400 FUTURE_DATE_NOT_ALLOWED ('Date cannot be later than today in Bangkok time')
+
+HTTP REQUEST:
+POST /api/v1/transactions HTTP/1.1
+Content-Type: application/json
+
+{"kind":"PAYMENT","accountId":"72fe4b7c-b798-4421-a4b5-fd7a99d6ec8c","txnDate":"2026-11-25","totalAmount":50000,"lines":[{"targetAccountId":"334add74-8c79-498d-9977-6f505317cd1a","amount":50000}]}
+
+HTTP RESPONSE:
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{"error":{"code":"FUTURE_DATE_NOT_ALLOWED","message":"Date cannot be later than today in Bangkok time","details":[{"field":"txnDate","issue":"date must not be later than today in Bangkok time"}]}}
+==================================================

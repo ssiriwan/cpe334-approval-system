@@ -1,0 +1,23 @@
+EVIDENCE RECORD: EV-UAT-02-b
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T16:17:30+07:00
+Action: POST /api/v1/accounts/<bank-id>/opening-balance with negative amount
+Expected Result: HTTP 400 VALIDATION_ERROR rejecting negative satang amount
+Actual Observed: HTTP 400 with issue 'amount must be at least 0 satang'
+
+HTTP REQUEST:
+POST /api/v1/accounts/49d944f1-a21a-453f-92f8-87b2c672a713/opening-balance HTTP/1.1
+Content-Type: application/json
+
+{"amount":-100,"date":"2026-11-01"}
+
+HTTP RESPONSE:
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{"error":{"code":"VALIDATION_ERROR","message":"Invalid input payload","details":[{"field":"amount","issue":"amount must be at least 0 satang"}]}}
+==================================================
