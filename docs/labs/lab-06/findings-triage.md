@@ -2,7 +2,7 @@
 
 > **Team:** ปลวกแดง — Siriwan (`67070501075`, `@ssiriwan`) and Thanabun (`67070501021`, `@thhanabun`)
 > **Partner:** ผิงโหด — Chawin Chinpraditsuk (`67070501012`) and Supichaya (`67070501087`), repo `yakginmomo/pangtao`
-> **Covers:** Lab 6 §3.3 (Part C outgoing findings complete; incoming findings pending partner UAT execution on our app)
+> **Covers:** Lab 6 §3.3 (Part C outgoing findings resolved & closed; incoming findings pending partner UAT execution on our app)
 
 ---
 
@@ -12,20 +12,24 @@ These findings were discovered by our team while independently testing `yakginmo
 
 | Issue ID | Case & Step | Title | Severity | Impact | Evidence ID | Status & Disposition |
 |---|---|---|:---:|---|:---:|---|
-| **`UATF-01`** | `UAT-02` step 3 | Alice user account contains unreset opening balances from 2026-11-18, blocking clean opening balance creation | **Minor / Operational** | Does not affect accounting math or access security, but unreset database violates starting state preconditions (§4.1) and prevents executing the happy-path opening balance creation on Alice (though verified on Bob in UAT-06). | `EV-UAT-02-a`, `EV-UAT-06-a` | Reported to partner team; database reset & retest requested. Acceptance decision remains **PENDING** per §4. |
+| **`UATF-01`** | `UAT-02` step 3 | Alice user account contains unreset opening balances from 2026-11-18, blocking clean opening balance creation | **Minor / Operational** | Violated starting state preconditions (§4.1), initially blocking UAT-02 happy-path on Alice. | `EV-UAT-02-a`, `EV-UAT-02-c` | **CLOSED / RESOLVED ON RETEST**: Partner reset Cloud Run database. Full retest at 21:35 Bangkok time passed cleanly (`EV-UAT-02-a` HTTP 201). Acceptance decision: **ACCEPTED**. |
 
 ### Details for `UATF-01`
 - **Reporter:** Thanabun Tikaew & Siriwan (team ปลวกแดง)
 - **Tested Version:** Subtitle "(67)", commit `64c98f4fcd293fb67f0d32b1db75943dfbf2c749`, revision `pangtao-00006-cjx`
 - **Preconditions:** Logged in as `alice@example.test`. Expected 0 transactions per §4.1.
-- **Reproduction Steps:**
-  1. Log in as `alice@example.test`.
-  2. Inspect `/` (Dashboard) or `GET /api/v1/accounts`.
-  3. Observe Bank Account (`1,000.67 ฿`), Wallet (`127.00 ฿`), and Credit Card (`20.00 ฿`) already have opening balances.
-  4. Attempt to execute UAT-02 Step 3 to set opening balance of 50,000.00 ฿ on Bank Account.
-- **Expected:** Setting opening balance succeeds (HTTP 201).
-- **Actual:** Opening balance button absent. POST returns HTTP 409 `OPENING_BALANCE_EXISTS` ("This account already has an opening balance").
-- **Classification / Current Disposition:** Test Environment Operational Finding / Retest Requested. Partner has been asked to reset Alice's baseline on Cloud Run so UAT-02 can be cleanly retested to PASS. Final acceptance decision remains PENDING until retested or explicitly documented.
+- **Initial Discovery (16:17 Bangkok time):**
+  - Alice had non-zero baseline data from 2026-11-18. POST to set opening balance returned HTTP 409 `OPENING_BALANCE_EXISTS`.
+- **Resolution & Retest Verification (21:35 Bangkok time):**
+  - Partner team executed database reset on Cloud Run deployment.
+  - Retest verified all accounts start with clean `0.00 ฿` (`openingBalance: null`).
+  - Successfully set Bank Account opening balance to 50,000.00 ฿ (HTTP 201).
+  - Successfully set Wallet opening balance to 2,000.00 ฿ (HTTP 201).
+  - Successfully set Credit Card opening balance to 3,500.00 ฿ (HTTP 201).
+  - Duplicate opening balance attempt correctly returned HTTP 409 `OPENING_BALANCE_EXISTS`.
+  - Negative amount returned HTTP 400 `VALIDATION_ERROR`.
+  - Future date returned HTTP 400 `FUTURE_DATE_NOT_ALLOWED`.
+- **Final Classification:** **Resolved & Verified (PASS on Retest)**.
 
 ---
 

@@ -39,7 +39,7 @@ Personal Finance paragraph in §3.1 is guidance for the team whose own product i
 | `findings-triage.md` | Outgoing reports (`UATF-01`) + incoming findings table | C | In progress |
 | `defect-chain.md` | RED/GREEN, review, CI, release, retest | D | Pending |
 | `acceptance.md` | Final independent decision, contributions, AI use, limitations | D | Pending |
-| `evidence/` | Text logs and captures with `EV-UAT-00..08`, `EV-PRE-01`, and `EV-OUM-*` IDs | A-D | Complete for Part B (19 evidence files committed) |
+| `evidence/` | Text logs and captures with `EV-UAT-00..08`, `EV-PRE-01`, and `EV-OUM-*` IDs | A-D | Complete for Part B (20 evidence files committed) |
 | `handoff-message.md` | Ready-to-send message with the two requests (run ours; send us yours) | A/B | Complete |
 
 ## Version table
@@ -52,6 +52,7 @@ Personal Finance paragraph in §3.1 is guidance for the team whose own product i
 ## Execution summary (Part B)
 
 - Partner's authored UAT plan `uat.md` (8 cases) and private seed credentials were received.
-- Independent execution was carried out on 22 Nov 2026, 16:15–16:25 Bangkok time by Siriwan (`67070501075`) and Thanabun (`67070501021`).
-- Results: **7 cases PASS** (UAT-01, 03, 04, 05, 06, 07, 08). **1 case BLOCKED** (UAT-02) because the partner deployment contained unreset baseline data on Alice (`UATF-01`), preventing clean opening balance creation, though its underlying validation, conflict (409) and boundary logic were confirmed.
-- Final Acceptance Decision: **PENDING / NOT YET ACCEPTED** per Lab 6 §4 while UAT-02 is BLOCKED; database reset and retest requested from partner.
+- Independent execution was carried out on 22 Nov 2026 by Siriwan (`67070501075`) and Thanabun (`67070501021`).
+- Initial execution (16:15–16:25): **7 cases PASS**, **1 case BLOCKED** (`UAT-02` on unreset DB, reported as `UATF-01`).
+- Retest execution (21:35–21:40) after partner reset Cloud Run database: **All 8 cases PASS** (100% pass rate, 0 FAIL, 0 BLOCKED).
+- Final Acceptance Decision: **ACCEPTED (Sprint 1 Complete)**. All functional and business rule requirements verified on live Cloud Run.
