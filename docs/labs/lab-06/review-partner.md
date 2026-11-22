@@ -4,7 +4,7 @@
 > Partner: <https://github.com/yakginmomo/pangtao>
 
 This review establishes **what version we are testing** and what the Sprint 1 contract says, before
-executing `uat-cases-for-partner.md`. It is a source-level and documentation review only; no
+supporting the UAT of pangtao. It is a source-level and documentation review only; no
 billing/IAM/database change was made.
 
 ## 1. Identity and versions

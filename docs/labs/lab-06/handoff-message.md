@@ -16,7 +16,7 @@ for your Pangtao release.
 Cases (with IDs, requirement references, purpose, role, preconditions, synthetic inputs, numbered
 actions, specific expected results and evidence IDs):
 
-**https://github.com/ssiriwan/cpe334-approval-system/blob/docs/36-correct-part-a/docs/labs/lab-06/uat-cases-our-product.md**
+**https://github.com/ssiriwan/cpe334-approval-system/blob/docs/44-rename-uat-cases/docs/labs/lab-06/uat-cases-for-partner.md**
 
 - Public URL: <https://sd3cdaba1-4d7hbszvwq-as.a.run.app>
 - Baseline: tag `v0.1.0-sprint1`; runtime commit `f371c232715f1185bc46b64ea28335639ae8eabf` (confirmed
