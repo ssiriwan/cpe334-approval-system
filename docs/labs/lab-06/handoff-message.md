@@ -1,44 +1,46 @@
 # Lab 6 handoff message - send to the Pangtao team (copy/paste)
 
-Channel: private message / agreed handoff with the partner. Do **not** include passwords here.
+Channel: private message / agreed handoff with the partner. Do **not** include any password here.
 
 ---
 
-Subject: Lab 6 UAT cases for Pangtao (from team Oum & T)
+Subject: Lab 6 - UAT handoff (our cases for you to run + request for yours)
 
 Hi Pangtao team,
 
-For Lab 6 we are the UAT Team for your Sprint 1 release and you are the Product Team for our app.
-We reviewed `yakginmomo/pangtao` and authored five executable UAT cases for your product:
+For Lab 6 we exchange roles. We are the **Product Team** for our Approval System and the **UAT Team**
+for your Pangtao release.
 
-**https://github.com/ssiriwan/cpe334-approval-system/blob/docs/36-lab6-uat-cases/docs/labs/lab-06/uat-cases-for-partner.md**
+## 1. Please run our Sprint 1 UAT cases on our Cloud release
 
-They cover normal journey with explicit money movement, allocation/boundary rejection, cross-user
-and ADMIN access denial, persistence after restart/redeploy, and admin user lifecycle. Each case has
-an ID, requirement reference, purpose, role, preconditions, synthetic inputs, numbered actions and
-specific expected results, plus evidence IDs.
+Cases (with IDs, requirement references, purpose, role, preconditions, synthetic inputs, numbered
+actions, specific expected results and evidence IDs):
 
-Details:
-- Tested scope: **Sprint 1 only** (auth, admin users, accounts/balances, opening balance, payment,
-  receipt, history, summary). Tag `v0.1.0`, commit `bec5575…`; your `main` HEAD at our review was
-  `64c98f4…`.
-- Public URL: https://pangtao-vowtduxdha-as.a.run.app
-- Cases are sequential: run `UAT-PT-01` first, then `02`, `03`, `05`; run `04` **last**, after the
-  redeploy we agreed.
+**https://github.com/ssiriwan/cpe334-approval-system/blob/docs/36-correct-part-a/docs/labs/lab-06/uat-cases-our-product.md**
 
-Could you please:
-1. Confirm the **exact deployed revision / running commit** (we could not read a commit from
-   `/api/v1/health` and your issues #27/#28 are still open).
-2. Send the three demo passwords **privately** (Alice, Bob, Admin). Do not post them in an issue,
-   chat transcript, or PDF. If we do not receive them, our login cases must be recorded as BLOCKED
-   and we will notify the TA as the handout requires.
-3. Run these cases as your own self-check and return any findings in the defect-report format
-   (Issue ID, version, linked case, steps, expected, actual, severity with user impact, evidence).
-4. Notify us before any redeploy, and perform the agreed redeploy at the end so `UAT-PT-04` can be
-   executed with before/after evidence.
+- Public URL: <https://sd3cdaba1-4d7hbszvwq-as.a.run.app>
+- Baseline: tag `v0.1.0-sprint1`; runtime commit `f371c232715f1185bc46b64ea28335639ae8eabf` (confirmed
+  by `GET /api/health`); `main` HEAD `eeeda0c…` is a docs-only `[skip ci]` merge, so no new deployment.
+- Scope: **Sprint 1 only** - auth, request creation, My Requests/data isolation, assigned review and
+  decision, self-approval/state guards, append-only history. Sprint 2/3 features are out of scope.
+- Accounts (labels only; passwords sent privately): `oum.requester@cpe334.local` (REQUESTER),
+  `t.reviewer@cpe334.local` (REVIEWER, primary), `manager.hybrid@cpe334.local` (REVIEWER, for access tests).
+- Sequence: run `UAT-OUM-01` first, then `02` and `03`; run `04` **last**, after our agreed redeploy.
+  Sprint 1 has no delete endpoint, so please return the list of `requestNo` values you created.
 
-In return, we will send you our own Sprint 1 handoff and cases for our app so your team can act as
-the independent UAT Team for us.
+Please record case ID, tester name, date/time, tested version, inputs, **actual** result (not copied
+from expected), PASS/FAIL/BLOCKED and evidence IDs, and return any FAIL as a defect report with
+version, steps, expected/actual, severity by user impact and evidence.
+
+## 2. Please send us your Sprint 1 UAT cases
+
+As our UAT Team, we need the cases **you authored for your own product** so we can execute them on
+your Cloud release (handout §3.2: "Execute the other Product Team's prepared Sprint 1 cases").
+Please send them with the tested release/tag, deployed revision, account labels and credentials
+privately, and notify us before any redeploy. We already recorded the availability and
+unauthenticated-401 checks; the credential-dependent cases stay BLOCKED until we receive them.
+
+If anything is unclear, please tell us before testing so expected behaviour is unambiguous.
 
 Thanks,
 Oum & T (67070501075 / 67070501021)
