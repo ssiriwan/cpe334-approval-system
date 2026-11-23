@@ -34,8 +34,8 @@
 
 | Field | Value |
 | :--- | :--- |
-| **Decision** | **PENDING - partner report received; 2 accepted defects fixed locally, awaiting deployment + independent retest** |
-| Tested release | Our `v0.1.0-sprint1`, runtime commit `f371c232715f1185bc46b64ea28335639ae8eabf`, revision `sd3cdaba1-00009-gxv` (redeploy for UAT-OUM-04; same image digest `8c1ed41d…`, no data reset) |
+| **Decision** | **PENDING - 2 accepted defects fixed, deployed and smoke-tested; awaiting the partner's independent retest** |
+| Tested release | Original partner run: `v0.1.0-sprint1` / commit `f371c23…` / revision `sd3cdaba1-00009-gxv`. Corrected release (F-PB-01/F-PB-02): commit `90e9fac…`, revision `sd3cdaba1-00010-lxj`, image `sha256:77c3445e…`, deployed 23 Nov 03:59 UTC. |
 | UAT Team (signatory) | Partner team ผิงโหด - to be confirmed by their report |
 | Cases supplied to them | `uat-cases-for-partner.md` (UAT-OUM-01..04) |
 | Our obligations | Triage every incoming finding in `findings-triage.md`; correct release-blocking defects with RED/GREEN (`defect-chain.md`); redeploy; request independent retest |

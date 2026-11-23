@@ -14,7 +14,7 @@ the TA on an isolated branch and record it here **separately** from the healthy 
 
 | Role | Baseline (tested) | Defective commit(s) | Test change commit | Corrected `main` release | Deployed revision | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| Our product (we are Product Team) | `v0.1.0-sprint1` / runtime `f371c23…` | current code at `f371c23` (F-PB-01, F-PB-02) | RED commit `97a01a6`; GREEN commit on branch `fix/lab6-uat-defects` | pending reviewed merge to `main` | still `sd3cdaba1-00009-gxv` until the fix is deployed | Partner UAT found 2 accepted defects; fixes are RED->GREEN locally, not yet deployed |
+| Our product (we are Product Team) | `v0.1.0-sprint1` / runtime `f371c23…` | code at `f371c23` (F-PB-01, F-PB-02) | RED `97a01a6`; GREEN merged via PR #51 (`90e9fac…`) | fix merged to `lab5-staging` as `90e9fac…` (release PR to `main` pending) | `sd3cdaba1-00010-lxj`, image `sha256:77c3445e…`, health commit `90e9fac…` | Deployed 23 Nov 03:59 UTC; live smoke PASS for both fixes; partner retest pending |
 | Partner product (we are UAT Team) | `v0.1.0` / commit `64c98f4…` / `pangtao-00006-cjx` | `UATF-01` is an environment-setup finding, **not** a code defect | - | - | - | Awaiting partner reset + UAT-02 retest |
 
 Merge commits only integrate reviewed changes; the application code reviewed here is unchanged.
@@ -36,8 +36,8 @@ Merge commits only integrate reviewed changes; the application code reviewed her
 | Root cause | Client and server used floating-point multiplication (`v*100`); `1234567.89*100 = 123456788.99999999` |
 | Fix | Validate a decimal **string** with `^\d+(\.\d{1,2})?$`; client sends `amount` as a string; server accepts string or number and converts after validation |
 | **GREEN** command / output | `npx vitest run --config vitest.config.ts` → **37 passed / 0 failed / 0 skipped**; `npm run build` passed |
-| PR / review / CI | branch `fix/lab6-uat-defects`; PR to `lab5-staging` with `lab6` label, **awaiting Oum approval** (author does not self-merge) |
-| Deployment / retest | Pending: merge → deploy → partner retest of `UAT-PB-03` |
+| PR / review / CI | PR #51 (`lab6`), reviewed and merged by Oum; CI green |
+| Deployment / retest | Deployed 23 Nov 03:59 UTC, revision `sd3cdaba1-00010-lxj`, health `90e9fac…`; live smoke `201 REQ-20261123-0001` with amount 1234567.89. Partner retest of `UAT-PB-03` pending |
 
 ### Issue `F-PB-02` - oversized body returns 500 (Minor)
 
@@ -52,7 +52,7 @@ Merge commits only integrate reviewed changes; the application code reviewed her
 | Root cause | `express.json()` throws `entity.too.large` before routing; the error handler only mapped `SyntaxError`/`ZodError`/`AppError` |
 | Fix | Map `entity.too.large` to `400 VALIDATION_ERROR` with the standard error shape |
 | **GREEN** output | 37/37 tests pass; build passes |
-| PR / deployment / retest | Same PR as F-PB-01; partner retest of `UAT-PB-04` pending |
+| PR / deployment / retest | Same PR #51; deployed revision `sd3cdaba1-00010-lxj`; live smoke returned 400 `VALIDATION_ERROR` for the 200k body; partner retest of `UAT-PB-04` pending |
 
 ### Issue `#___` - short title
 
