@@ -3,7 +3,7 @@
 > **Team:** Oum (`67070501075`, `@ssiriwan`) and T (`67070501021`, `@thhanabun`)
 > **Roles (handout §2):** Product Team for **our** app (partner tests us) and UAT Team for **the partner's** app (we test them).
 > **Partner:** `yakginmomo/pangtao` - <https://github.com/yakginmomo/pangtao>
-> **Submission:** `lab6_sec1_ปลวกแดง.pdf` (Parts A-D, LEB2, 22 Nov 2026 23:59)
+> **Submission:** `lab6_sec1_ปลวกแดง.pdf` (Parts A-D, LEB2, **29 Nov 2026 23:59** - deadline extended by the instructor)
 
 ## Role map - which cases belong to which part
 
