@@ -34,22 +34,22 @@
 
 | Field | Value |
 | :--- | :--- |
-| **Decision** | **PENDING - 2 accepted defects fixed, deployed and smoke-tested; awaiting the partner's independent retest** |
+| **Decision** | **ACCEPTED WITH DOCUMENTED MINOR LIMITATIONS** (signed by the independent UAT Team after retest on 23 Nov 2026) |
 | Tested release | Original partner run: `v0.1.0-sprint1` / commit `f371c23…` / revision `sd3cdaba1-00009-gxv`. Corrected release (F-PB-01/F-PB-02): commit `90e9fac…`, revision `sd3cdaba1-00010-lxj`, image `sha256:77c3445e…`, deployed 23 Nov 03:59 UTC. |
 | UAT Team (signatory) | Partner team ผิงโหด - to be confirmed by their report |
 | Cases supplied to them | `uat-cases-for-partner.md` (UAT-OUM-01..04) |
 | Our obligations | Triage every incoming finding in `findings-triage.md`; correct release-blocking defects with RED/GREEN (`defect-chain.md`); redeploy; request independent retest |
 
-### Final decision (fill when the partner reports)
+### Final decision (Signed by the UAT Team)
 
-```
-Accepted / Accepted with documented minor limitations / Not Accepted
-Reason:
-Version tested (commit + revision):
-UAT Team signatory (name/team) and date:
-Evidence references:
-Conditions / accepted minor limitations:
-```
+- **Verdict:** **Accepted with documented minor limitations**
+- **Reason:** Both accepted defects were independently re-tested on the corrected release. `UAT-PB-03` passed 6/6 API + UI checks; `UAT-PB-04` no longer returns 500. The original 37/37 PASS on our handoff cases and the persistence re-check still hold.
+- **Version tested:** commit `90e9facdaeb4ef8555c82aa6962bb3fb4f2baf9f`, Cloud Run revision `sd3cdaba1-00010-lxj`, image `sha256:77c3445e…`; verified via `GET /api/health` by the UAT Team before testing.
+- **UAT Team signatory / date:** Chawin and Supichaya, team ผิงโหด (`yakginmomo/pangtao`), 23 Nov 2026 15:37–16:05 UTC (22:37–23:05 ICT).
+- **Evidence references:** partner report `docs/labs/lab-06/partner-cases-execution.md` §2.1 and `evidence/retest-2026-11-23T15-37-48-332Z/`, `retest-2026-11-23T15-38-34-814Z-ui/`, `retest-2026-11-23T16-05-45-950Z-ui-pb04/`, `uat-2026-11-23T15-42Z-post-fix/` (all in the partner's public repository, branch `sprint-2-staging`).
+- **Conditions / accepted minor limitations:** (1) an oversized body without a session returns `400 VALIDATION_ERROR` before the `401` listed in AC-04 because the JSON body limit runs before authentication - standard error shape and no 500 are preserved; (2) `AC-AUTH-05` (bcrypt cost, JWT expiry) is covered by our automated `TEST-AUTH-05`, not by UAT; (3) a requester opening *another requester's* request was not executed in UAT (ownership is enforced and covered by automated API tests). No critical or major defect remains.
+
+**Only the UAT Team may confirm acceptance.** We record their verdict here; we do not sign on their behalf.
 
 ---
 

@@ -55,5 +55,6 @@ Personal Finance paragraph in §3.1 is guidance for the team whose own product i
 - Independent execution was carried out on 22 Nov 2026 by Siriwan (`67070501075`) and Thanabun (`67070501021`).
 - Initial execution (16:15–16:25): **7 cases PASS**, **1 case BLOCKED** (`UAT-02` on unreset DB, reported as `UATF-01`).
 - Retest execution (21:35–21:40) after partner reset Cloud Run database: **All 8 cases PASS** (100% pass rate, 0 FAIL, 0 BLOCKED).
-- Final Acceptance Decision: **ACCEPTED (Sprint 1 Complete)**. All functional and business rule requirements verified on live Cloud Run.
+- Final Acceptance Decision (ours as UAT Team for Pangtao): **ACCEPTED** after their DB reset and 8/8 retest.
+- Decision B (partner as UAT Team for our app): **ACCEPTED WITH DOCUMENTED MINOR LIMITATIONS**, signed 23 Nov 2026 after independent retest of the two accepted defects on commit `90e9fac…` / revision `sd3cdaba1-00010-lxj`. Minor limitations: 2b check order and UAT gaps disclosed in `acceptance.md`.
 - Our Cloud Run was redeployed for the partner's UAT-OUM-04: revision `sd3cdaba1-00008-2pg` → `sd3cdaba1-00009-gxv`, same image digest, health commit unchanged, no data reset (Issue #38 comment).
