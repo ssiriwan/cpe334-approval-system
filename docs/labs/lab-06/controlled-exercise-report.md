@@ -58,8 +58,28 @@ receipt into a credit card, fractional satang, max+1 satang, and an invalid cale
 
 ---
 
-## 3. Handoff
+## 3. Follow-up confirmation (same exercise build, later probe)
 
-This report is sent to the Developer Team through the agreed handoff channel. Per the exercise
-instructions, we will wait for their fix (step 3) and then independently re-test the corrected build
-(step 4) before recording the final controlled-exercise result. No acceptance decision is claimed here.
+A second independent probe was run on the **same** exercise URL (no corrected revision had been
+provided). The defect is reproducible:
+
+| Action | Response | Expected |
+| :--- | :--- | :--- |
+| `totalAmount = 10000`, one line `6000` | `201`, transaction `dd5685c2-0be7-44e2-9c30-4ae5fe792dff` | `400 INVALID_ALLOCATION_SUM` |
+| `totalAmount = 50000`, one line `30000` | `201`, transaction `99117ca3-b091-4ff4-b5c1-e1b37995558b` | `400 INVALID_ALLOCATION_SUM` |
+| `totalAmount = 10000`, one line `10000` (control) | `201` (correct) | `201` |
+
+Balances continued to diverge, confirming the missing allocation is deducted from the source without
+being credited anywhere. Evidence: `evidence/controlled-exercise-confirm.log` and
+`evidence/exercise-step4.log` (the latter is stored in the working evidence folder; the finding
+evidence ID remains `E-EX-CONFIRM`).
+
+At the time of this report no corrected build/revision had been supplied by the Developer Team, so
+this remains an **open Major finding** on commit `345c320` / revision `pangtao-00010-ges`.
+
+## 4. Handoff
+
+This report is the latest UAT report for the controlled exercise and is sent to the Developer Team
+through the agreed handoff channel. Per the exercise instructions, we did not open their repository,
+PRs or CI runs before reporting. When a corrected build is supplied we will independently re-test
+(step 4) and record the final controlled-exercise result. No acceptance decision is claimed here.
