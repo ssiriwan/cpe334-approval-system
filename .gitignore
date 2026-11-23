@@ -8,6 +8,7 @@ coverage/
 *.log
 npm-debug.log*
 !docs/labs/lab-05/evidence/*.log
+!docs/labs/lab-06/evidence/*.log
 uploads/
 test-results/
 playwright-report/
