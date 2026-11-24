@@ -1,0 +1,277 @@
+% =====================================================================
+%  CPE 334 - Lab 6 Submission : Independent UAT and Defect Management
+%  Compile: pdfLaTeX (MiKTeX). Exactly 4 pages.
+% =====================================================================
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\UseRawInputEncoding
+\usepackage[T1]{fontenc}
+\usepackage[a4paper,margin=1.3cm,top=1.1cm,bottom=1.2cm]{geometry}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{parskip}
+\usepackage{amssymb}
+\usepackage{array}
+\usepackage{url}
+\usepackage{hyperref}
+
+\definecolor{tggreen}{HTML}{006B3C}
+\definecolor{tgdark}{HTML}{1A365D}
+\definecolor{codebg}{HTML}{F8FAFC}
+\hypersetup{colorlinks=true, linkcolor=tggreen, urlcolor=tggreen}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{codebg},
+  columns=fullflexible,
+  captionpos=b,
+}
+
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+
+\title{\vspace{-0.9cm}\textcolor{tggreen}{\textbf{\large CPE 334 --- Lab 6 Submission: Independent UAT and Defect Management}}\\[2pt]
+\normalsize Theme 5: Workflow and Approval System \quad$\vert$\quad Team Pluak Daeng (Section 1)}
+\author{\small\textbf{Authors:} Siriwan Yindeepot (67070501075, @ssiriwan) \ \& \ Thanaboon Tikaew (67070501021, @thhanabun)\\[1pt]
+\small\textbf{Partner UAT Team:} Chawin \& Supichaya, Team Phing Hod (\href{https://github.com/yakginmomo/pangtao}{yakginmomo/pangtao}, Theme 7 Personal Finance)}
+\date{\vspace{-0.45cm}\small\url{https://github.com/ssiriwan/cpe334-approval-system} \quad$\vert$\quad 24 November 2026}
+
+\begin{document}
+\maketitle
+\vspace{-0.55cm}
+
+% =====================================================================
+\section*{Part 0: Project Metadata and Evidence Index}
+\label{part:0}
+% =====================================================================
+\vspace{-0.3cm}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{@{}L{2.8cm}L{15.0cm}@{}}
+\toprule
+\textbf{Attribute} & \textbf{Deployment / Repository Value} \\
+\midrule
+Our Product & Theme 5 Workflow \& Approval System --- \url{https://sd3cdaba1-4d7hbszvwq-as.a.run.app} \\
+Serving Revisions & Baseline: \code{sd3cdaba1-00009-gxv} (\code{f371c23}) $\to$ Corrected: \code{sd3cdaba1-00010-lxj} (\code{90e9fac}) \\
+Partner Product & Theme 7 Personal Finance (Pangtao) --- \url{https://pangtao-vowtduxdha-as.a.run.app} \\
+Partner Version & Release: \code{v0.1.0} (commit \code{64c98f4}, revision \code{pangtao-00006-cjx}, UI marker `(67)') \\
+Partner Exercise & Controlled Defect Build --- \url{https://exercise---pangtao-vowtduxdha-as.a.run.app/} (revision \code{pangtao-00010-ges}) \\
+Final Decisions & Decision A (for Pangtao): \textbf{ACCEPTED} \quad$\vert$\quad Decision B (for our app): \textbf{ACCEPTED WITH LIMITATIONS} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{-0.4cm}
+
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{@{}C{1.2cm}L{7.5cm}C{1.8cm}L{7.3cm}@{}}
+\toprule
+\textbf{Part} & \textbf{Topic / Milestone} & \textbf{Page} & \textbf{Primary Evidence Identifiers} \\
+\midrule
+\textbf{Part A} & UAT Preparation and Handoff (20 pts) & Page 1 & Cases \code{UAT-OUM-01..04}, commit \code{284533d}, handoff package \\
+\textbf{Part B} & Independent Execution on Partner App (25 pts) & Page 2 & Logs \code{EV-UAT-00..08}, \code{EV-PRE-01}, 100\% pass post-reset \\
+\textbf{Part C} & Defect Reporting and Triage (20 pts) & Page 3 & Reports \code{UATF-01}, \code{F-PB-01}, \code{F-PB-02}, \code{F-OUM-02-01} \\
+\textbf{Part D} & Resolution, Retest, Exercise, Decisions (35 pts) & Page 4 & Log \code{E-FPB-red-green.txt}, Defect \code{CE-F-01}, Decisions A \& B \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% =====================================================================
+\vspace{-0.4cm}
+\section*{Part A: UAT Preparation and Handoff (20 points)}
+\label{part:a}
+% =====================================================================
+\vspace{-0.3cm}
+\textbf{Two-Way Role Alignment (Handout \S1--\S2):} As the \textbf{Product Team}, we authored 4 executable UAT cases for our Approval System and handed them to the partner. Conversely, as the \textbf{UAT Team}, we executed the partner's 8 test cases on their deployed application.
+
+\vspace{-0.25cm}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{@{}L{3.0cm}L{3.5cm}L{3.5cm}L{7.8cm}@{}}
+\toprule
+\textbf{Role} & \textbf{Target Application} & \textbf{Executing Team} & \textbf{Authoritative Specification Document} \\
+\midrule
+Product Team (Us) & Approval System & Partner (Team Phing Hod) & \path{docs/labs/lab-06/uat-cases-for-partner.md} \\
+UAT Team (Us) & Pangtao (Personal Finance) & Our Team (Pluak Daeng) & Partner's \path{uat.md} (\texttt{chore/lab6-uat-doc}, PR \#41) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{-0.25cm}
+\textbf{Our Authored Test Cases (Approval System Sprint 1):}
+\begin{enumerate}[leftmargin=*,itemsep=0.5pt,topsep=0.5pt,parsep=0pt]
+  \item \textbf{\code{UAT-OUM-01} (Normal Journey):} Requester creates a valid request ($123,456.78$ THB, category \code{EQUIPMENT}, attachments, urgency \code{STANDARD}); auto-assigned to reviewer; reviewer logs in, reviews, and APPROVES with comment; requester verifies transition to \code{APPROVED} with decision history. Covers \textbf{FR-01..06, AC-01/03/05/06}.
+  \item \textbf{\code{UAT-OUM-02} (Rule \& Boundary Checks):} Form and API input validation: negative amount, amount exceeding 9.99B, $>2$ decimal places, missing justification, title $>150$ chars, empty comment on REJECT (fails with 400 \code{VALIDATION_ERROR}), and secondary decision rejection on finalized requests (400 \code{INVALID_STATUS_TRANSITION}). Covers \textbf{BR-02/04/07, AC-02/08/12}.
+  \item \textbf{\code{UAT-OUM-03} (Forbidden \& Security Checks):} Enforces backend access control: unauthenticated access fails (401 \code{AUTH_REQUIRED}), requester attempting to review/approve fails (403 \code{ACCESS_DENIED}), unassigned reviewer fails (403 \code{ACCESS_DENIED}), self-approval blocked (403 \code{SELF_APPROVAL_NOT_ALLOWED}), and cross-requester detail view blocked (403 \code{ACCESS_DENIED}). Covers \textbf{FR-04/06, BR-01/03/05, AC-04/07/09/10}.
+  \item \textbf{\code{UAT-OUM-04} (State \& Persistence across Deployment):} Submits test record \code{REQ-UAT-PERSIST}; cloud service is redeployed via Cloud Run revision switch (\code{sd3cdaba1-00008-2pg} $\to$ \code{00009-gxv}); verifies data and audit trail persist unchanged without data loss or reset; verifies zero delete/update endpoints exist. Covers \textbf{BR-06, NFR-03, AC-04b/11}.
+\end{enumerate}
+
+\textbf{Handoff Integrity and Package Delivery:}
+The handoff package sent to the partner included our baseline release tag \code{v0.1.0-sprint1}, runtime commit \code{f371c23}, live Cloud Run URL, synthetic test credentials (communicated securely over private DM, zero credentials in Git/docs), step-by-step sequencing (01 $\to$ 02/03 $\to$ 04 post-redeploy), and execution recording templates. Following partner feedback, case data was corrected from $10,000,000.00$ to $10,000,000,000.00$ in commit \code{284533d} to accurately test boundary condition BR-04.
+
+\clearpage
+% =====================================================================
+\section*{Part B: Independent Execution on Partner App (25 points)}
+\label{part:b}
+% =====================================================================
+\vspace{-0.3cm}
+\textbf{Target System:} Pangtao (Theme 7: Personal Finance), public URL: \url{https://pangtao-vowtduxdha-as.a.run.app}, revision \code{pangtao-00006-cjx}, commit \code{64c98f4}, verified via UI marker `(67)'.
+
+\vspace{-0.25cm}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{@{}C{1.4cm}L{2.8cm}L{5.4cm}C{1.6cm}C{1.6cm}L{4.2cm}@{}}
+\toprule
+\textbf{Case ID} & \textbf{Category / Focus} & \textbf{Key Checkpoints \& Expected Outcome} & \textbf{Initial Run} & \textbf{Retest Run} & \textbf{Evidence Logs} \\
+\midrule
+\code{UAT-01} & Normal Journey & Sign-up, login, create account, balance 1,000 & PASS & PASS & \path{EV-UAT-01-a/b.txt} \\
+\code{UAT-02} & Category CRUD & Add Custom Category \code{Investments} & BLOCKED & PASS & \path{EV-UAT-02-a/b/c.txt} \\
+\code{UAT-03} & Transaction Log & Income 5,000, Expense 1,200, Balance 4,800 & PASS & PASS & \path{EV-UAT-03-a/b/c.txt} \\
+\code{UAT-04} & Rule Rejection & Future date, negative amount, empty name & PASS & PASS & \path{EV-UAT-04-a/b.txt} \\
+\code{UAT-05} & Cross-User Isolation & User B cannot see or mutate User A's records & PASS & PASS & \path{EV-UAT-05-a/b.txt} \\
+\code{UAT-06} & Session \& Security & Token invalidation on logout; 401 on expired & PASS & PASS & \path{EV-UAT-06-a/b.txt} \\
+\code{UAT-07} & State Persistence & Records survive Cloud Run container restart & PASS & PASS & \path{EV-UAT-07-a/b.txt} \\
+\code{UAT-08} & Report \& Summary & Monthly aggregated breakdown matches math & PASS & PASS & \path{EV-UAT-08-a/b.txt} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{-0.35cm}
+
+\textbf{Execution Timeline and Database Reset Findings:}
+\begin{itemize}[leftmargin=*,itemsep=1.5pt,topsep=1pt]
+  \item \textbf{Initial Run (22 Nov 2026, 16:15--16:25 ICT):} Siriwan and Thanaboon executed all 8 test cases independently against the partner's production Cloud Run. Seven cases passed cleanly (87.5\%). Case \code{UAT-02} was \textbf{BLOCKED} because the database contained stale seed data from prior development, triggering a unique-constraint conflict on category names. This was formally documented as defect \textbf{\code{UATF-01}}.
+  \item \textbf{Retest Run (22 Nov 2026, 21:35--21:40 ICT):} The partner team executed an un-seeded database reset on Cloud Run. We re-ran the full test suite from clean state: all 8 cases achieved \textbf{100\% PASS} (0 Failures, 0 Blocked). 20 raw evidence log captures were recorded and committed under \path{docs/labs/lab-06/evidence/}.
+\end{itemize}
+
+\vspace{-0.1cm}
+\textbf{Exploratory Testing Beyond Supplied Cases:}
+We probed additional boundary conditions outside the partner's scripted cases:
+\begin{enumerate}[leftmargin=*,itemsep=1.5pt,topsep=1pt]
+  \item \textbf{Financial Decimal Boundaries:} Attempted $0.001$ THB fractional transactions $\to$ correctly rejected (2 decimal places enforced).
+  \item \textbf{Extreme Integers:} Attempted transactions of $10^{14}$ satang $\to$ correctly rejected at input validation layer.
+  \item \textbf{Cookie \& CSRF Probing:} Inspected session cookies on \url{pangtao-vowtduxdha-as.a.run.app} $\to$ \code{HttpOnly}, \code{SameSite=Lax}, and \code{Secure} flags correctly present; cross-origin request forging was successfully blocked.
+  \item \textbf{Summary Range Validations:} Probed queries with invalid calendar date spans ($2026-02-31$) $\to$ API returned standard 400 validation error without unhandled internal crashes.
+\end{enumerate}
+
+\clearpage
+% =====================================================================
+\section*{Part C: Defect Reporting and Triage (20 points)}
+\label{part:c}
+% =====================================================================
+\vspace{-0.3cm}
+\textbf{Severity Classification Scheme (Handout \S3.3):}
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=1pt]
+  \item \textbf{Critical:} System crash, unhandled 500 error, security vulnerability, data loss, or cross-tenant data leakage.
+  \item \textbf{Major:} Primary acceptance criterion (AC) or core business rule (BR) fails; workflow cannot complete.
+  \item \textbf{Minor:} Cosmetic flaw, edge-case operational deviation, or input error returning unexpected 4xx code without user harm.
+\end{itemize}
+
+\vspace{-0.25cm}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{@{}L{1.8cm}C{1.5cm}L{3.0cm}C{1.4cm}C{2.0cm}L{7.2cm}@{}}
+\toprule
+\textbf{Finding ID} & \textbf{Direction} & \textbf{Target / Ref} & \textbf{Severity} & \textbf{Classification} & \textbf{Disposition \& Resolution Action} \\
+\midrule
+\code{UATF-01} & Outgoing & Pangtao \code{UAT-02} & Major & Environmental Defect & Category duplicate conflict due to dirty DB. Partner performed Cloud Run DB reset. Retested: \textbf{CLOSED (PASS)}. \\
+\midrule
+\code{F-PB-01} & Incoming & Approval \code{UAT-PB-03} & Major & Accepted Defect & Valid amount $1,234,567.89$ rejected as $>2$ decimals due to floating-point truncation. Fixed via string-based decimal regex in PR \#51. Retested: \textbf{CLOSED (PASS)}. \\
+\midrule
+\code{F-PB-02} & Incoming & Approval \code{UAT-PB-04} & Minor & Accepted Defect & 200,000-char request body crashed Express body-parser with HTTP 500 instead of 4xx. Mapped \code{entity.too.large} to 400 \code{VALIDATION_ERROR} in PR \#51. Retested: \textbf{CLOSED (PASS)}. \\
+\midrule
+\code{F-OUM-02-01} & Outgoing & Approval Handoff & --- & Spec / Data Flaw & Handoff specified $10^7$ as invalid amount, but BR-04 allows up to $10^{10}-0.01$. Corrected handoff to $10^{10}$ in commit \code{284533d}. Partner retested 37/37: \textbf{CLOSED}. \\
+\bottomrule
+\end{tabular}
+\end{center}
+\vspace{-0.35cm}
+
+\textbf{Detailed Finding Breakdown \& Technical Root Cause:}
+\begin{enumerate}[leftmargin=*,itemsep=2pt,topsep=1pt]
+  \item \textbf{\code{F-PB-01} (Floating-Point Decimal Validation Failure):}
+  \begin{itemize}[leftmargin=*,itemsep=1pt]
+    \item \emph{Symptom:} In partner's test \code{UAT-PB-03}, submitting amount \code{1234567.89} returned 400 \code{"amount must have at most 2 decimal places"}.
+    \item \emph{Root Cause:} Legacy validation used JavaScript floating-point arithmetic: \code{Math.round(val * 100) / 100 !== val}. Due to IEEE 754 precision errors, $1234567.89 \times 100 = 123456788.99999999$, producing false positive validation failures on large valid figures.
+    \item \emph{Resolution:} Rewrote amount validation to perform string-based decimal splitting: \code{val.toString().split('.')[1]?.length <= 2}.
+  \end{itemize}
+  \item \textbf{\code{F-PB-02} (Oversized Body Unhandled Exception):}
+  \begin{itemize}[leftmargin=*,itemsep=1pt]
+    \item \emph{Symptom:} In partner's exploratory stress test \code{UAT-PB-04}, sending an oversized 200 KB JSON body caused the server to return HTTP 500 \code{INTERNAL_ERROR} instead of a clean 4xx client rejection.
+    \item \emph{Root Cause:} Express default \code{body-parser} threw error code \code{entity.too.large} (HTTP 413), which was unhandled by custom routing and fell through to the generic catch-all 500 internal error handler.
+    \item \emph{Resolution:} Installed dedicated middleware intercepting \code{entity.too.large} and mapping it to a standard contract error: HTTP 400 with code \code{VALIDATION_ERROR}.
+  \end{itemize}
+\end{enumerate}
+
+\clearpage
+% =====================================================================
+\section*{Part D: Resolution, Independent Retest, and Decisions (35 points)}
+\label{part:d}
+% =====================================================================
+\vspace{-0.3cm}
+\textbf{D1. TDD RED $\to$ GREEN Defect Resolution (Handout \S3.4):}
+We followed strict Test-Driven Development (TDD) to remediate incoming defects \code{F-PB-01} and \code{F-PB-02}:
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=1pt]
+  \item \textbf{RED Phase (Commit \code{97a01a6}):} Added 3 automated integration tests reproducing the defects. Test execution failed with 3 failures and 34 passes: (1) $1,234,567.89$ rejected by decimal validator, (2) UI currency formatting failure, (3) 200,000-char body returning 500.
+  \item \textbf{GREEN Phase (Commit \code{854aa67} $\to$ Merged PR \#51, commit \code{90e9fac}):} Implemented string-based decimal parsing and global body-parser error handling. All 37 automated tests passed (100\% GREEN). Evidence preserved in \path{docs/labs/lab-06/evidence/E-FPB-red-green.txt}.
+\end{itemize}
+
+\vspace{-0.25cm}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{@{}L{2.8cm}L{3.2cm}L{3.8cm}L{4.2cm}L{3.5cm}@{}}
+\toprule
+\textbf{Target System} & \textbf{Baseline Release} & \textbf{Defective Commit} & \textbf{Corrected Release Commit} & \textbf{Deployed Cloud Run Revision} \\
+\midrule
+Approval System (Us) & \code{v0.1.0-sprint1} (\code{f371c23}) & \code{f371c23} & PR \#51 $\to$ \code{90e9fac} & \code{sd3cdaba1-00010-lxj} \\
+Pangtao (Partner) & \code{v0.1.0} (\code{64c98f4}) & Stale DB state (\code{UATF-01}) & Clean DB Reset (no code diff) & \code{pangtao-00006-cjx} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{-0.35cm}
+\textbf{D2. Controlled Defect Exercise (Handout \S3.5):}
+We probed the partner's deliberate defect injection build at \url{https://exercise---pangtao-vowtduxdha-as.a.run.app/} (revision \code{pangtao-00010-ges}) using black-box exploratory testing without prior knowledge of the injected bug:
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=1pt]
+  \item \textbf{Identified Defect (\code{CE-F-01}):} Transaction item allocation mismatch allowed. Creating a transaction with total amount $100.00$ THB ($10,000$ satang) and item allocations totaling only $60.00$ THB ($6,000$ satang) returned \textbf{HTTP 201 Created} instead of expected \textbf{400 \code{INVALID_ALLOCATION_SUM}}.
+  \item \textbf{Impact:} The system created the transaction while losing $4,000$ satang of financial ledger allocations. Raw probe logs captured in \path{docs/labs/lab-06/evidence/controlled-exercise-confirm.log}.
+\end{itemize}
+
+\vspace{-0.25cm}
+\textbf{D3. Independent Acceptance Decisions:}
+\begin{center}
+\footnotesize
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{@{}L{2.2cm}L{3.2cm}L{3.8cm}L{3.2cm}L{5.4cm}@{}}
+\toprule
+\textbf{Decision} & \textbf{Signatory} & \textbf{Evaluated System} & \textbf{Verdict} & \textbf{Evidence \& Date} \\
+\midrule
+\textbf{Decision A} & Siriwan \& Thanaboon & Pangtao (\code{pangtao-00006-cjx}) & \textbf{ACCEPTED} & 8/8 PASS post DB-reset (22 Nov 2026) \\
+\textbf{Decision B} & Chawin \& Supichaya & Approval System (\code{00010-lxj}) & \textbf{ACCEPTED WITH LIMITATIONS} & Retest PASS on \code{UAT-PB-03/04} (23 Nov 2026) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{-0.25cm}
+\textbf{Documented Minor Limitations (Decision B):} (1) Oversized body without session returns 400 before 401 because JSON payload parsing precedes auth filter (safe fail-fast, zero data exposed); (2) AC-AUTH-05 verified via automated integration suite rather than manual UAT; (3) Cross-requester view isolation verified via unit/integration tests rather than manual UAT.
+
+\vspace{-0.1cm}
+\textbf{D4. Contribution Table \& AI-Use Declaration:}
+\begin{itemize}[leftmargin=*,itemsep=1pt,topsep=1pt]
+  \item \textbf{Siriwan (@ssiriwan):} Part A UAT authoring (\code{UAT-OUM-01/02}), execution of Pangtao cases (\code{UAT-01/03/05/07}), PR \#48 review, deployment coordination, peer review of PR \#51 and PR \#53.
+  \item \textbf{Thanaboon (@thhanabun):} Partner repo audit, execution of Pangtao cases (\code{UAT-02/04/06/08}), \code{UATF-01} report, TDD RED/GREEN implementation for \code{F-PB-01/02}, controlled exercise probe \code{CE-F-01}, LaTeX assembly.
+  \item \textbf{AI-Use Disclosure:} AI coding agents assisted with test case expansion, log formatting, and LaTeX styling under constant human verification. Zero real passwords, JWT secrets, or cloud tokens were pasted into chat prompts or committed to Git.
+\end{itemize}
+
+\end{document}
