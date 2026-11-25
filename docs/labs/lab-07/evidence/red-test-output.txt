@@ -1,6 +1,6 @@
 [EV-L7-RED-01] RED Automated Test Failure Evidence
 Command: npx vitest run server/tests/requests.test.ts
-Tested Commit: 1ecda5b (on branch feature/58-cr04-dynamic-reviewer)
+Tested Commit: 2b56a7b (RED commit - new tests added on pre-change base 1ecda5b, implementation not yet present)
 Timestamp: 2026-11-26T02:09:26+07:00
 
 Output:
@@ -52,3 +52,19 @@ Received: "25ffec0f-2c83-4c86-9490-1f94d1c64be1"
  Test Files  1 failed (1)
       Tests  3 failed | 11 passed (14)
    Duration  11.33s
+
+----------------------------------------------------------------------
+RED vs preserved guards (honest split)
+----------------------------------------------------------------------
+RED failures caused by the MISSING new behavior (valid red evidence):
+- TEST-01b: amount 5000.01 -> expected manager.hybrid, got t.reviewer
+- TEST-01c: 07:59 ICT -> expected manager.hybrid, got t.reviewer
+- TEST-01d: 18:00 ICT -> expected manager.hybrid, got t.reviewer
+
+Tests that ALREADY PASSED on the pre-change code (preserved-behavior
+guards, NOT red evidence):
+- TEST-01a: amount 5000.00 in-hours stays category-mapped (old rule already correct)
+- TEST-01e: client-supplied assignedReviewerId rejected (strict schema already present)
+- TEST-01f: hybrid requester's large request does not self-assign (old fallback already present)
+
+Totals on RED commit 2b56a7b: 3 failed | 11 passed | 0 skipped (14 tests).
