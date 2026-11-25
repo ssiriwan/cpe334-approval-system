@@ -3,9 +3,9 @@ name: CI and Docker
 on:
   workflow_call:
   pull_request:
-    branches: [lab7-staging, lab5-staging, sprint-1-staging, main]
+    branches: [lab5-staging, sprint-1-staging, main]
   push:
-    branches: [lab7-staging, lab5-staging, sprint-1-staging, main]
+    branches: [lab5-staging, sprint-1-staging, main]
 
 permissions:
   contents: read
