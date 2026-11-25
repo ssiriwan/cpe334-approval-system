@@ -1,0 +1,23 @@
+EVIDENCE RECORD: EV-UAT-08-b
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T21:35:54+07:00
+Action: GET /api/v1/accounts using Bob's session immediately after Admin disabled Bob
+Expected Result: HTTP 401 UNAUTHENTICATED; active session revoked immediately on disable (BR-13)
+Actual Observed: HTTP 401 UNAUTHENTICATED ('Authentication required'); session revoked
+Result: PASS
+
+HTTP REQUEST:
+GET /api/v1/accounts HTTP/1.1
+Host: pangtao-vowtduxdha-as.a.run.app
+Origin: https://pangtao-vowtduxdha-as.a.run.app
+
+HTTP RESPONSE:
+HTTP/1.1 401 Unauthorized
+Content-Type: application/json
+
+{"error":{"code":"UNAUTHENTICATED","message":"Authentication required"}}
+==================================================

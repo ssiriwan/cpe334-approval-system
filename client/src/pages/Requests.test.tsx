@@ -118,3 +118,35 @@ describe('Requester UI pages', () => {
     expect(screen.getByText('PENDING')).toBeInTheDocument();
   });
 });
+
+// Lab 6 UAT regression F-PB-01: the form must send a string amount so that
+// large 2-decimal values are not rejected by floating-point arithmetic.
+describe('Lab 6 UAT client regression', () => {
+  it('F-PB-01: accepts 1234567.89 and sends it as a decimal string', async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ data: { request: { id: 'x' } } }), {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    );
+    vi.spyOn(globalThis, 'fetch').mockImplementation(fetchMock);
+
+    render(
+      <MemoryRouter initialEntries={['/requests/new']}>
+        <Routes>
+          <Route path="/requests/new" element={<NewRequestPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await user.type(screen.getByLabelText(/Request Title/i), 'UAT-Fin-01');
+    await user.type(screen.getByLabelText(/Amount/i), '1234567.89');
+    await user.type(screen.getByLabelText(/Description/i), 'Test Amount value.');
+    await user.click(screen.getByRole('button', { name: /Submit Request/i }));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(JSON.parse(String(init.body)).amount).toBe('1234567.89');
+  });
+});

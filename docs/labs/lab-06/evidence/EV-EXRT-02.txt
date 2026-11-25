@@ -1,0 +1,12 @@
+EVIDENCE RECORD: EV-EXRT-02
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Corrected commit: 41bb484 (release merge of fix adc801b / PR #47)
+Cloud Run revision: TBC from partner deployment tooling (health endpoint does not expose a commit)
+Timestamp: 2026-11-25T18:17:50+07:00
+Action: POST /api/v1/transactions total=50000 satang, one line 30000 (under-allocation)
+Expected Result: HTTP 400 INVALID_ALLOCATION_SUM; no rows saved
+Actual Observed: HTTP 400 {"error":{"code":"INVALID_ALLOCATION_SUM","message":"Allocation lines must add up to the total amount","details":[{"field":"lines","issue":"line amounts must sum exactly to totalAmount"}]}}
+Result: PASS
+==================================================

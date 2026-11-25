@@ -1,0 +1,25 @@
+EVIDENCE RECORD: EV-UAT-04-a
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T21:35:51+07:00
+Action: POST /api/v1/transactions with line allocation mismatch (Total 500, lines 300)
+Expected Result: HTTP 400 INVALID_ALLOCATION_SUM
+Actual Observed: HTTP 400 with code INVALID_ALLOCATION_SUM ('Allocation lines must add up to the total amount')
+Result: PASS
+
+HTTP REQUEST:
+POST /api/v1/transactions HTTP/1.1
+Content-Type: application/json
+Origin: https://pangtao-vowtduxdha-as.a.run.app
+
+{"kind":"PAYMENT","accountId":"72fe4b7c-b798-4421-a4b5-fd7a99d6ec8c","txnDate":"2026-11-22","totalAmount":50000,"lines":[{"targetAccountId":"334add74-8c79-498d-9977-6f505317cd1a","amount":30000}]}
+
+HTTP RESPONSE:
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{"error":{"code":"INVALID_ALLOCATION_SUM","message":"Allocation lines must add up to the total amount"}}
+==================================================

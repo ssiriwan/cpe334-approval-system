@@ -1,0 +1,36 @@
+EVIDENCE: RED -> GREEN for partner UAT findings F-PB-01 and F-PB-02
+====================================================================
+Commands (run from repository root):
+  RED:  npx vitest run --config vitest.config.ts
+  GREEN: npx vitest run --config vitest.config.ts
+  Build: npm run build
+Tested source: branch fix/lab6-uat-defects (RED commit 97a01a6, GREEN commit next)
+
+RED summary (defective implementation):
+  Test Files: 2 failed | 5 passed (7)
+  Tests:      3 failed | 34 passed (37)
+  Failing: F-PB-01 (server + client), F-PB-02 (server)
+--------------------------------------------------------------------
+(not found: Failed Tests 3)
+--------------------------------------------------------------------
+GREEN summary (after fix):
+  Test Files: 7 passed (7)
+  Tests:      37 passed (37), 0 failed, 0 skipped
+  Build:      npm run build passed (client + server tsc)
+--------------------------------------------------------------------
+
+
+--------------------------------------------------------------------
+POST-DEPLOY LIVE SMOKE (23 Nov 2026, 03:59 UTC)
+--------------------------------------------------------------------
+Deployed commit : 90e9facdaeb4ef8555c82aa6962bb3fb4f2baf9f (GET /api/health)
+Cloud Run rev   : sd3cdaba1-00010-lxj
+Image digest    : sha256:77c3445e62d5067ff0f1e332895380462b2b06ab4ec6c226c0ba2be329c71129
+
+F-PB-01 live: POST /api/requests with amount 1234567.89 -> HTTP 201,
+              requestNo REQ-20261123-0001, amount "1234567.89", status PENDING.
+              (Previously rejected by the form with "at most 2 decimal places".)
+F-PB-02 live: POST /api/requests with a 200,000-character description -> HTTP 400,
+              {"error":{"code":"VALIDATION_ERROR","message":"Request body is too large."}}
+              (Previously HTTP 500 INTERNAL_ERROR.)
+No password, token or cookie value appears in this evidence file.

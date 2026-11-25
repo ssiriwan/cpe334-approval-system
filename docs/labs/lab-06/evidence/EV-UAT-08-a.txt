@@ -1,0 +1,25 @@
+EVIDENCE RECORD: EV-UAT-08-a
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T21:35:54+07:00
+Action: PATCH /api/v1/admin/users/<admin-id> with isActive: false (Admin self-disable)
+Expected Result: HTTP 409 CANNOT_DISABLE_SELF; Admin cannot disable their own account (BR-03)
+Actual Observed: HTTP 409 CANNOT_DISABLE_SELF ('You cannot disable your own account')
+Result: PASS
+
+HTTP REQUEST:
+PATCH /api/v1/admin/users/3a2b108a-7db5-4f91-8b10-21802cc3cb7d HTTP/1.1
+Content-Type: application/json
+Origin: https://pangtao-vowtduxdha-as.a.run.app
+
+{"isActive":false}
+
+HTTP RESPONSE:
+HTTP/1.1 409 Conflict
+Content-Type: application/json
+
+{"error":{"code":"CANNOT_DISABLE_SELF","message":"You cannot disable your own account"}}
+==================================================

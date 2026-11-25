@@ -1,0 +1,23 @@
+EVIDENCE RECORD: EV-UAT-05-a
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T21:35:52+07:00
+Action: GET /api/v1/summary/income-expense with invalid date range (from > to)
+Expected Result: HTTP 400 VALIDATION_ERROR rejecting invalid range
+Actual Observed: HTTP 400 with issue 'from must not be later than to'
+Result: PASS
+
+HTTP REQUEST:
+GET /api/v1/summary/income-expense?preset=CUSTOM&from=2026-11-25&to=2026-11-20 HTTP/1.1
+Host: pangtao-vowtduxdha-as.a.run.app
+Origin: https://pangtao-vowtduxdha-as.a.run.app
+
+HTTP RESPONSE:
+HTTP/1.1 400 Bad Request
+Content-Type: application/json
+
+{"error":{"code":"VALIDATION_ERROR","message":"from must not be later than to"}}
+==================================================

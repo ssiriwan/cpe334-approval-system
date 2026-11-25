@@ -1,0 +1,12 @@
+EVIDENCE RECORD: EV-EXRT-07
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Corrected commit: 41bb484 (release merge of fix adc801b / PR #47)
+Cloud Run revision: TBC from partner deployment tooling (health endpoint does not expose a commit)
+Timestamp: 2026-11-25T18:17:50+07:00
+Action: POST /api/v1/transactions with source as target
+Expected Result: HTTP 400 INVALID_TARGET_ACCOUNT
+Actual Observed: HTTP 400 {"error":{"code":"INVALID_TARGET_ACCOUNT","message":"A line targets an account this payment cannot use","details":[{"field":"lines.0.targetAccountId","issue":"target account must differ from the source account"}]}}
+Result: PASS
+==================================================

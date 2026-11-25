@@ -332,3 +332,42 @@ describe('GET /api/requests/my and GET /api/requests/:id', () => {
     expect(missing.body.error.code).toBe('NOT_FOUND');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Lab 6 independent UAT regressions (findings F-PB-01 and F-PB-02).
+// These tests are written first against the defective implementation (RED).
+// ---------------------------------------------------------------------------
+describe('Lab 6 UAT defect regression', () => {
+  it('F-PB-01 (AC-01, BR-04): a valid 2-decimal amount 1234567.89 is accepted', async () => {
+    const cookie = await loginCookie(USER_A_EMAIL);
+    const res = await request(app)
+      .post('/api/requests')
+      .set('Cookie', cookie)
+      .send({
+        title: 'UAT-Fin-01',
+        amount: 1234567.89,
+        category: 'EQUIPMENT',
+        description: 'Test Amount value.',
+      });
+    expect(res.status).toBe(201);
+    expect(res.body.data.request.status).toBe('PENDING');
+    expect(res.body.data.request.amount).toBe('1234567.89');
+    createdRequestIds.push(res.body.data.request.id);
+  });
+
+  it('F-PB-02 (AC-02, NFR-04): an oversized body returns a 4xx error, never 500', async () => {
+    const res = await request(app)
+      .post('/api/requests')
+      .set('Content-Type', 'application/json')
+      .send({
+        title: 'UAT big body',
+        amount: 10,
+        category: 'EQUIPMENT',
+        description: 'x'.repeat(200000),
+      });
+    expect(res.status).toBeGreaterThanOrEqual(400);
+    expect(res.status).toBeLessThan(500);
+    expect(res.body.error.code).toBeDefined();
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});

@@ -1,0 +1,25 @@
+EVIDENCE RECORD: EV-UAT-03-c
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T21:35:51+07:00
+Action: POST /api/v1/transactions (Card Repayment 4,000 THB from Bank Account)
+Expected Result: HTTP 201 Created; Bank drops by 4,000.00, Card debt drops to 700.00; Expenses remain unchanged (BR-09)
+Actual Observed: HTTP 201 Created; transaction ID 2eb86c54-f119-40c5-8bf4-34585f573131; Expenses unchanged at 3,450.50 THB
+Result: PASS
+
+HTTP REQUEST:
+POST /api/v1/transactions HTTP/1.1
+Content-Type: application/json
+Origin: https://pangtao-vowtduxdha-as.a.run.app
+
+{"kind":"PAYMENT","accountId":"49d944f1-a21a-453f-92f8-87b2c672a713","txnDate":"2026-11-22","totalAmount":400000,"memo":"UAT card repayment","lines":[{"targetAccountId":"a0c7a656-4e7f-4754-add6-fca4fb0ae144","amount":400000}]}
+
+HTTP RESPONSE:
+HTTP/1.1 201 Created
+Content-Type: application/json
+
+{"transaction":{"id":"2eb86c54-f119-40c5-8bf4-34585f573131","kind":"PAYMENT","totalAmount":400000,"txnDate":"2026-11-22"}}
+==================================================

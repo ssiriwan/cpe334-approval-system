@@ -1,0 +1,22 @@
+EVIDENCE RECORD: EV-PRE-01
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T21:35:47+07:00
+Action: GET /api/v1/health
+Expected Result: HTTP 200 with status ok
+Actual Observed: HTTP 200 {'status': 'ok'}
+Result: PASS
+
+HTTP REQUEST:
+GET /api/v1/health HTTP/1.1
+Host: pangtao-vowtduxdha-as.a.run.app
+
+HTTP RESPONSE:
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+
+{"status":"ok"}
+==================================================

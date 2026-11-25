@@ -1,0 +1,24 @@
+EVIDENCE RECORD: EV-UAT-07-a
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Tested Commit: 64c98f4fcd293fb67f0d32b1db75943dfbf2c749
+Cloud Run Revision: pangtao-00006-cjx
+Timestamp: 2026-11-22T21:35:54+07:00
+Action: GET /api/v1/accounts authenticated as ADMIN
+Expected Result: HTTP 403 FORBIDDEN; Admin denied financial access (BR-02)
+Actual Observed: HTTP 403 with code FORBIDDEN ('You do not have permission to access this resource')
+Result: PASS
+
+HTTP REQUEST:
+GET /api/v1/accounts HTTP/1.1
+Host: pangtao-vowtduxdha-as.a.run.app
+Cookie: sid=<admin-session>
+Origin: https://pangtao-vowtduxdha-as.a.run.app
+
+HTTP RESPONSE:
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+
+{"error":{"code":"FORBIDDEN","message":"You do not have permission to access this resource"}}
+==================================================

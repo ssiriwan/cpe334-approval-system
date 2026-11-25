@@ -1,0 +1,12 @@
+EVIDENCE RECORD: EV-EXRT-10
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Corrected commit: 41bb484 (release merge of fix adc801b / PR #47)
+Cloud Run revision: TBC from partner deployment tooling (health endpoint does not expose a commit)
+Timestamp: 2026-11-25T18:17:50+07:00
+Action: Admin GET /api/v1/accounts
+Expected Result: HTTP 403 FORBIDDEN
+Actual Observed: HTTP 403 {"error":{"code":"FORBIDDEN","message":"You do not have permission to access this resource"}}
+Result: PASS
+==================================================
