@@ -54,6 +54,6 @@ Existing `TEST-01` (small EQUIPMENT amount) is retained unchanged; it is now a r
 
 | Reviewer | Date | Specific check / finding | Status |
 | :--- | :--- | :--- | :--- |
-| Oum (`@ssiriwan`) | **PENDING** | Confirm the amount boundary, ICT time window, fallback order, "no migration" rationale and that no old AC/TEST is weakened | **NOT YET REVIEWED** |
+| Oum (`@ssiriwan`) | **NOT AVAILABLE before implementation** | The updated Lab 7 instruction removed instructor/TA approval; no separate pre-implementation teammate contract review took place. PR #63 contains both the contract-backed code and its peer review by @thhanabun. | **DISCLOSED SEQUENCE DEVIATION - see limitations** |
 
-> This table is deliberately empty of a fake approval. PR for this contract revision requests @ssiriwan's review; implementation issue #58 must not begin until the teammate review is recorded. Instructor/TA approval is **not available** under the updated Lab 7 instruction and is recorded as such in `change-request.md` §5 - no approver or date is invented.
+> Honest record: we do not invent a reviewer or date. The revised contract was committed in PR #61 and the implementation followed in PR #63; the peer review of PR #63 by @thhanabun checked the implemented behavior against this contract, but it occurred **after** the code commit. This deviation from handout §3.1 is disclosed in `README.md` and must be stated in Part D limitations of the PDF. Instructor/TA approval is **not available** under the updated lab and is recorded as such in `change-request.md` §5.
