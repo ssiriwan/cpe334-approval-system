@@ -1,0 +1,13 @@
+SNAPSHOT before: Bank=-116006789 Dining=123699839
+CE-F-01 under-allocation (10000/6000): CE-RT-01 | HTTP 400 | {"error":{"code":"INVALID_ALLOCATION_SUM","message":"Allocation lines must add up to the total amount","details":[{"field":"lines","issue":"line amounts must sum exactly to totalAmount"}]}}
+CE-F-01 under-allocation (50000/30000): CE-RT-02 | HTTP 400 | {"error":{"code":"INVALID_ALLOCATION_SUM","message":"Allocation lines must add up to the total amount","details":[{"field":"lines","issue":"line amounts must sum exactly to totalAmount"}]}}
+over-allocation (10000/12000): CE-RT-03 | HTTP 400 | {"error":{"code":"INVALID_ALLOCATION_SUM","message":"Allocation lines must add up to the total amount","details":[{"field":"lines","issue":"line amounts must sum exactly to totalAmount"}]}}
+valid control (10000/10000): CE-RT-04 | HTTP 201 | {"transaction":{"id":"193b7ab1-e79a-4937-8092-76d3337727b5","kind":"PAYMENT","accountId":"49d944f1-a21a-453f-92f8-87b2c672a713","txnDate":"2026-11-22","totalAmount":10000,"memo":"valid control","lines":[{"id":"abc982d1-9
+regression total-zero: CE-RT-05 | HTTP 400 | {"error":{"code":"VALIDATION_ERROR","message":"Invalid input payload","details":[{"field":"totalAmount","issue":"amount must be greater than 0"},{"field":"lines.0.amount","issue":"amount must be greater than 0"}]}}
+regression future-date: CE-RT-06 | HTTP 400 | {"error":{"code":"FUTURE_DATE_NOT_ALLOWED","message":"Date cannot be later than today in Bangkok time","details":[{"field":"txnDate","issue":"date must not be later than today in Bangkok time"}]}}
+regression source-as-target: CE-RT-07 | HTTP 400 | {"error":{"code":"INVALID_TARGET_ACCOUNT","message":"A line targets an account this payment cannot use","details":[{"field":"lines.0.targetAccountId","issue":"target account must differ from the source account"}]}}
+regression card-receipt: CE-RT-08 | HTTP 400 | {"error":{"code":"INVALID_SOURCE_ACCOUNT","message":"A receipt must be received into a Cash account","details":[{"field":"accountId","issue":"source account type must be CASH"}]}}
+tenant isolation bob->alice txn: CE-RT-09 | HTTP 404 | {"error":{"code":"NOT_FOUND","message":"Transaction not found"}}
+admin financial denial: CE-RT-10 | HTTP 403 | {"error":{"code":"FORBIDDEN","message":"You do not have permission to access this resource"}}
+health: CE-RT-00 | HTTP 200 | {"status":"ok"}
+SNAPSHOT after: Bank=-116016789 Dining=123709839

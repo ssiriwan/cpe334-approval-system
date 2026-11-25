@@ -1,0 +1,12 @@
+EVIDENCE RECORD: EV-EXRT-00
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Corrected commit: 41bb484 (release merge of fix adc801b / PR #47)
+Cloud Run revision: TBC from partner deployment tooling (health endpoint does not expose a commit)
+Timestamp: 2026-11-25T18:17:50+07:00
+Action: GET /api/v1/health
+Expected Result: HTTP 200 {"status":"ok"}
+Actual Observed: HTTP 200 {"status":"ok"}
+Result: PASS
+==================================================

@@ -1,0 +1,12 @@
+EVIDENCE RECORD: EV-EXRT-04
+==================================================
+Tested System: Pangtao (Theme 7: Personal Finance)
+Target URL: https://pangtao-vowtduxdha-as.a.run.app
+Corrected commit: 41bb484 (release merge of fix adc801b / PR #47)
+Cloud Run revision: TBC from partner deployment tooling (health endpoint does not expose a commit)
+Timestamp: 2026-11-25T18:17:50+07:00
+Action: POST /api/v1/transactions total=10000 satang, one line 10000 (control)
+Expected Result: HTTP 201 Created; balances change by exactly 10000 satang
+Actual Observed: HTTP 201 {"transaction":{"id":"193b7ab1-e79a-4937-8092-76d3337727b5","kind":"PAYMENT","accountId":"49d944f1-a21a-453f-92f8-87b2c672a713","txnDate":"2026-11-22","totalAmount":10000,"memo":"valid control","lines":[{"id":"abc982d1-9
+Result: PASS
+==================================================
