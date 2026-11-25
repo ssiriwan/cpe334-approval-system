@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 import bcrypt from 'bcryptjs';
 import { HistoryAction, PrismaClient, RequestStatus, Role } from '@prisma/client';
@@ -98,6 +98,17 @@ afterAll(async () => {
     });
   }
   await prisma.$disconnect();
+});
+
+// Fix system time to standard business hours (10:00 ICT) so requests
+// with amount <= 5000 THB map to standard category reviewers.
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-11-26T10:00:00+07:00'));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('GET /api/requests/pending', () => {

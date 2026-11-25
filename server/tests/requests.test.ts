@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 import bcrypt from 'bcryptjs';
 import { HistoryAction, PrismaClient, RequestStatus, Role } from '@prisma/client';
@@ -93,8 +93,20 @@ afterAll(async () => {
   await prisma.$disconnect();
 });
 
+// Standard business hours (10:00 ICT) baseline for request tests.
+// Individual time-boundary tests override with their specific timestamps.
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-11-26T10:00:00+07:00'));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe('POST /api/requests', () => {
   it('TEST-01: creates a PENDING request with requestNo, assigned reviewer, and SUBMITTED history', async () => {
+    // Note (Lab 7 CR-04): amount adjusted to 4500.50 (<= 5000.00 THB) to serve as regression guard for normal category mapping
     const cookieA = await loginCookie(USER_A_EMAIL);
 
     const res = await request(app)
@@ -102,7 +114,7 @@ describe('POST /api/requests', () => {
       .set('Cookie', cookieA)
       .send({
         title: '  MacBook Pro M4 for Dev  ',
-        amount: 45000.5,
+        amount: 4500.5,
         category: 'EQUIPMENT',
         description: 'Laptop upgrade for Sprint 1 development',
       });
@@ -112,7 +124,7 @@ describe('POST /api/requests', () => {
     createdRequestIds.push(created.id);
 
     expect(created.title).toBe('MacBook Pro M4 for Dev');
-    expect(created.amount).toBe('45000.50');
+    expect(created.amount).toBe('4500.50');
     expect(created.category).toBe('EQUIPMENT');
     expect(created.status).toBe(RequestStatus.PENDING);
     expect(created.requesterId).toBe(userAId);
@@ -379,7 +391,7 @@ describe('Lab 6 UAT defect regression', () => {
 // ---------------------------------------------------------------------------
 describe('Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1)', () => {
   it('TEST-01a: amount = 5000.00 at 10:00 ICT (EQUIPMENT) stays category-mapped to t.reviewer', async () => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-11-26T10:00:00+07:00'));
     try {
       const cookieA = await loginCookie(USER_A_EMAIL);
@@ -402,7 +414,7 @@ describe('Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1)', () => {
   });
 
   it('TEST-01b: amount = 5000.01 at 10:00 ICT (EQUIPMENT) escalates to manager.hybrid', async () => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-11-26T10:00:00+07:00'));
     try {
       const cookieA = await loginCookie(USER_A_EMAIL);
@@ -426,7 +438,7 @@ describe('Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1)', () => {
 
   it('TEST-01c: morning time boundary (07:59 ICT out-of-hours -> manager.hybrid; 08:00 ICT in-hours -> t.reviewer)', async () => {
     // 07:59 ICT: out-of-hours -> escalates to manager.hybrid
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-11-26T07:59:00+07:00'));
     try {
       const cookieA = await loginCookie(USER_A_EMAIL);
@@ -447,7 +459,7 @@ describe('Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1)', () => {
     }
 
     // 08:00 ICT: in-hours -> t.reviewer
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-11-26T08:00:00+07:00'));
     try {
       const cookieA = await loginCookie(USER_A_EMAIL);
@@ -470,7 +482,7 @@ describe('Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1)', () => {
 
   it('TEST-01d: evening time boundary (17:59 ICT in-hours -> t.reviewer; 18:00 ICT out-of-hours -> manager.hybrid)', async () => {
     // 17:59 ICT: in-hours -> t.reviewer
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-11-26T17:59:00+07:00'));
     try {
       const cookieA = await loginCookie(USER_A_EMAIL);
@@ -491,7 +503,7 @@ describe('Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1)', () => {
     }
 
     // 18:00 ICT: out-of-hours -> manager.hybrid
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-11-26T18:00:00+07:00'));
     try {
       const cookieA = await loginCookie(USER_A_EMAIL);
@@ -535,7 +547,7 @@ describe('Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1)', () => {
   });
 
   it('TEST-01f: manager.hybrid submits large request (> 5000) -> falls back to t.reviewer, never self-assigns (BR-01)', async () => {
-    vi.useFakeTimers();
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-11-26T10:00:00+07:00'));
     try {
       const cookieM = await loginCookie(REVIEWER_M_EMAIL);
