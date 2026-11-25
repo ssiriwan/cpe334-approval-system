@@ -52,4 +52,4 @@ The supplied option 1 text referenced `Priority` / `requestedPriority` in `tokti
 
 ## Honest status
 
-No implementation code exists yet. Handout §3.1 requires instructor/TA approval **before** implementation; the approval field in `change-request.md` is intentionally `PENDING` until an approver and date are supplied. We do not claim Part A complete before that record and the teammate contract review are committed.
+No implementation code exists yet. The updated Lab 7 instruction no longer supplies instructor/TA approval, so `change-request.md` records **NOT AVAILABLE** instead of inventing an approver/date. The teammate contract review in `contract-revision.md` §4 is still required before implementation; Part A is not claimed complete until that review is committed.

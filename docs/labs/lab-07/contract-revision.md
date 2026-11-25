@@ -56,4 +56,4 @@ Existing `TEST-01` (small EQUIPMENT amount) is retained unchanged; it is now a r
 | :--- | :--- | :--- | :--- |
 | Oum (`@ssiriwan`) | **PENDING** | Confirm the amount boundary, ICT time window, fallback order, "no migration" rationale and that no old AC/TEST is weakened | **NOT YET REVIEWED** |
 
-> This table is deliberately empty of a fake approval. PR for this contract revision will request @ssiriwan's review; implementation issue #58 must not begin until the review and the instructor/TA approval in `change-request.md` §5 are recorded.
+> This table is deliberately empty of a fake approval. PR for this contract revision requests @ssiriwan's review; implementation issue #58 must not begin until the teammate review is recorded. Instructor/TA approval is **not available** under the updated Lab 7 instruction and is recorded as such in `change-request.md` §5 - no approver or date is invented.

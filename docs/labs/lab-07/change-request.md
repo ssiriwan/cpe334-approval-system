@@ -63,9 +63,9 @@
 
 | Field | Value |
 | :--- | :--- |
-| Instructor/TA approver | **PENDING - approval must be obtained before implementation** |
-| Approval date | **PENDING** |
-| Approval evidence | **PENDING** - record channel (issue comment / email / meeting note) and date here |
-| Teammate contract review | **PENDING** - see `contract-revision.md` §4; must precede the code commit |
+| Instructor/TA approver | **NOT AVAILABLE** - the updated Lab 7 instruction no longer provides TA/instructor approval for this change |
+| Approval date | **N/A** - no approval channel was supplied |
+| Approval evidence | Recorded honestly: team decision documented in Issue #57 and this file; **no approver/date is invented** |
+| Teammate contract review | **PENDING** - see `contract-revision.md` §4; Oum must review the revised contract before the code commit |
 
-> Honesty note: handout §3.1 requires recorded approval before implementation. This file deliberately does not claim approval. Implementation work in #58 must not start until this table is filled and the reviewed contract is committed.
+> Honesty note: the original handout copy asked for a recorded instructor/TA approval, but the user reports that the updated Lab 7 instruction removed it. We therefore record **NOT AVAILABLE** rather than fabricating an approver or date. The teammate contract review remains in force because handout §3.1 still requires a reviewed contract before implementation; #58 must not start code until that review is committed.
