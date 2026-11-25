@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 import bcrypt from 'bcryptjs';
 import { HistoryAction, PrismaClient, RequestStatus, Role } from '@prisma/client';
@@ -369,5 +369,194 @@ describe('Lab 6 UAT defect regression', () => {
     expect(res.status).toBeLessThan(500);
     expect(res.body.error.code).toBeDefined();
     expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Lab 7 - CR-04 Dynamic Reviewer Assignment (BR-05 v1.1)
+// Automated tests for new amount/time boundary and validation behaviors.
+// Written against pre-change implementation (RED).
+// ---------------------------------------------------------------------------
+describe('Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1)', () => {
+  it('TEST-01a: amount = 5000.00 at 10:00 ICT (EQUIPMENT) stays category-mapped to t.reviewer', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-26T10:00:00+07:00'));
+    try {
+      const cookieA = await loginCookie(USER_A_EMAIL);
+      const res = await request(app)
+        .post('/api/requests')
+        .set('Cookie', cookieA)
+        .send({
+          title: 'Equipment at amount threshold 5000',
+          amount: 5000.00,
+          category: 'EQUIPMENT',
+          description: 'Amount exactly at 5000.00 boundary in-hours',
+        });
+      expect(res.status).toBe(201);
+      const created = res.body.data.request;
+      createdRequestIds.push(created.id);
+      expect(created.assignedReviewerId).toBe(reviewerTId);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('TEST-01b: amount = 5000.01 at 10:00 ICT (EQUIPMENT) escalates to manager.hybrid', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-26T10:00:00+07:00'));
+    try {
+      const cookieA = await loginCookie(USER_A_EMAIL);
+      const res = await request(app)
+        .post('/api/requests')
+        .set('Cookie', cookieA)
+        .send({
+          title: 'Equipment above threshold 5000.01',
+          amount: 5000.01,
+          category: 'EQUIPMENT',
+          description: 'Amount exactly at 5000.01 boundary in-hours',
+        });
+      expect(res.status).toBe(201);
+      const created = res.body.data.request;
+      createdRequestIds.push(created.id);
+      expect(created.assignedReviewerId).toBe(reviewerMId);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('TEST-01c: morning time boundary (07:59 ICT out-of-hours -> manager.hybrid; 08:00 ICT in-hours -> t.reviewer)', async () => {
+    // 07:59 ICT: out-of-hours -> escalates to manager.hybrid
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-26T07:59:00+07:00'));
+    try {
+      const cookieA = await loginCookie(USER_A_EMAIL);
+      const res1 = await request(app)
+        .post('/api/requests')
+        .set('Cookie', cookieA)
+        .send({
+          title: 'Morning out-of-hours 07:59',
+          amount: 100.00,
+          category: 'EQUIPMENT',
+          description: 'Submitted at 07:59 ICT',
+        });
+      expect(res1.status).toBe(201);
+      createdRequestIds.push(res1.body.data.request.id);
+      expect(res1.body.data.request.assignedReviewerId).toBe(reviewerMId);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    // 08:00 ICT: in-hours -> t.reviewer
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-26T08:00:00+07:00'));
+    try {
+      const cookieA = await loginCookie(USER_A_EMAIL);
+      const res2 = await request(app)
+        .post('/api/requests')
+        .set('Cookie', cookieA)
+        .send({
+          title: 'Morning in-hours 08:00',
+          amount: 100.00,
+          category: 'EQUIPMENT',
+          description: 'Submitted at 08:00 ICT',
+        });
+      expect(res2.status).toBe(201);
+      createdRequestIds.push(res2.body.data.request.id);
+      expect(res2.body.data.request.assignedReviewerId).toBe(reviewerTId);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('TEST-01d: evening time boundary (17:59 ICT in-hours -> t.reviewer; 18:00 ICT out-of-hours -> manager.hybrid)', async () => {
+    // 17:59 ICT: in-hours -> t.reviewer
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-26T17:59:00+07:00'));
+    try {
+      const cookieA = await loginCookie(USER_A_EMAIL);
+      const res1 = await request(app)
+        .post('/api/requests')
+        .set('Cookie', cookieA)
+        .send({
+          title: 'Evening in-hours 17:59',
+          amount: 100.00,
+          category: 'EQUIPMENT',
+          description: 'Submitted at 17:59 ICT',
+        });
+      expect(res1.status).toBe(201);
+      createdRequestIds.push(res1.body.data.request.id);
+      expect(res1.body.data.request.assignedReviewerId).toBe(reviewerTId);
+    } finally {
+      vi.useRealTimers();
+    }
+
+    // 18:00 ICT: out-of-hours -> manager.hybrid
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-26T18:00:00+07:00'));
+    try {
+      const cookieA = await loginCookie(USER_A_EMAIL);
+      const res2 = await request(app)
+        .post('/api/requests')
+        .set('Cookie', cookieA)
+        .send({
+          title: 'Evening out-of-hours 18:00',
+          amount: 100.00,
+          category: 'EQUIPMENT',
+          description: 'Submitted at 18:00 ICT',
+        });
+      expect(res2.status).toBe(201);
+      createdRequestIds.push(res2.body.data.request.id);
+      expect(res2.body.data.request.assignedReviewerId).toBe(reviewerMId);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('TEST-01e: rejects client-supplied assignedReviewerId with 400 VALIDATION_ERROR', async () => {
+    const cookieA = await loginCookie(USER_A_EMAIL);
+    const beforeCount = await prisma.approvalRequest.count();
+
+    const res = await request(app)
+      .post('/api/requests')
+      .set('Cookie', cookieA)
+      .send({
+        title: 'Tampered Assignment Field',
+        amount: 500,
+        category: 'EQUIPMENT',
+        description: 'Trying to inject assignedReviewerId',
+        assignedReviewerId: reviewerMId,
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+
+    const afterCount = await prisma.approvalRequest.count();
+    expect(afterCount).toBe(beforeCount);
+  });
+
+  it('TEST-01f: manager.hybrid submits large request (> 5000) -> falls back to t.reviewer, never self-assigns (BR-01)', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-26T10:00:00+07:00'));
+    try {
+      const cookieM = await loginCookie(REVIEWER_M_EMAIL);
+      const res = await request(app)
+        .post('/api/requests')
+        .set('Cookie', cookieM)
+        .send({
+          title: 'Manager High-Value Equipment',
+          amount: 6000.00,
+          category: 'EQUIPMENT',
+          description: 'Amount > 5000 would escalate to manager.hybrid, but manager is requester',
+        });
+      expect(res.status).toBe(201);
+      const created = res.body.data.request;
+      createdRequestIds.push(created.id);
+      expect(created.requesterId).toBe(reviewerMId);
+      // Must not self-assign to manager.hybrid; must fall back to t.reviewer
+      expect(created.assignedReviewerId).toBe(reviewerTId);
+      expect(created.assignedReviewerId).not.toBe(reviewerMId);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

@@ -1,0 +1,54 @@
+[EV-L7-RED-01] RED Automated Test Failure Evidence
+Command: npx vitest run server/tests/requests.test.ts
+Tested Commit: 1ecda5b (on branch feature/58-cr04-dynamic-reviewer)
+Timestamp: 2026-11-26T02:09:26+07:00
+
+Output:
+ RUN  v2.1.9 C:/Users/HP/Desktop/Uni code/CPE334/cpe334-approval-system
+
+ ❯ |@approval-system/server| tests/requests.test.ts (14 tests | 3 failed) 8505ms
+   ✓ POST /api/requests > TEST-01: creates a PENDING request with requestNo, assigned reviewer, and SUBMITTED history 554ms
+   ✓ POST /api/requests > assigns alternate reviewer when a REVIEWER submits in their primary category (BR-05) 605ms
+   ✓ POST /api/requests > TEST-02: rejects invalid payloads and boundary violations without persisting records 620ms
+   ✓ GET /api/requests/my and GET /api/requests/:id > TEST-03: returns only the authenticated user requests ordered newest first 855ms
+   ✓ GET /api/requests/my and GET /api/requests/:id > TEST-04: enforces data isolation on GET /api/requests/:id (401 unauth, 403 cross-user/unrelated reviewer, 200 owner/assigned) 1541ms
+   ✓ Lab 6 UAT defect regression > F-PB-01 (AC-01, BR-04): a valid 2-decimal amount 1234567.89 is accepted 737ms
+   ✓ Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01a: amount = 5000.00 at 10:00 ICT (EQUIPMENT) stays category-mapped to t.reviewer 409ms
+   × Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01b: amount = 5000.01 at 10:00 ICT (EQUIPMENT) escalates to manager.hybrid 371ms
+     → expected '25ffec0f-2c83-4c86-9490-1f94d1c64be1' to be '60172756-6599-4fe6-ae87-56d417fdf428' // Object.is equality
+   × Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01c: morning time boundary (07:59 ICT out-of-hours -> manager.hybrid; 08:00 ICT in-hours -> t.reviewer) 532ms
+     → expected '25ffec0f-2c83-4c86-9490-1f94d1c64be1' to be '60172756-6599-4fe6-ae87-56d417fdf428' // Object.is equality
+   × Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01d: evening time boundary (17:59 ICT in-hours -> t.reviewer; 18:00 ICT out-of-hours -> manager.hybrid) 858ms
+     → expected '25ffec0f-2c83-4c86-9490-1f94d1c64be1' to be '60172756-6599-4fe6-ae87-56d417fdf428' // Object.is equality
+   ✓ Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01e: rejects client-supplied assignedReviewerId with 400 VALIDATION_ERROR 388ms
+   ✓ Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01f: manager.hybrid submits large request (> 5000) -> falls back to t.reviewer, never self-assigns (BR-01) 397ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL |@approval-system/server|  tests/requests.test.ts > Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01b: amount = 5000.01 at 10:00 ICT (EQUIPMENT) escalates to manager.hybrid
+AssertionError: expected '25ffec0f-2c83-4c86-9490-1f94d1c64be1' to be '60172756-6599-4fe6-ae87-56d417fdf428' // Object.is equality
+
+Expected: "60172756-6599-4fe6-ae87-56d417fdf428"
+Received: "25ffec0f-2c83-4c86-9490-1f94d1c64be1"
+
+ ❯ tests/requests.test.ts:421:42
+
+ FAIL |@approval-system/server|  tests/requests.test.ts > Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01c: morning time boundary (07:59 ICT out-of-hours -> manager.hybrid; 08:00 ICT in-hours -> t.reviewer)
+AssertionError: expected '25ffec0f-2c83-4c86-9490-1f94d1c64be1' to be '60172756-6599-4fe6-ae87-56d417fdf428' // Object.is equality
+
+Expected: "60172756-6599-4fe6-ae87-56d417fdf428"
+Received: "25ffec0f-2c83-4c86-9490-1f94d1c64be1"
+
+ ❯ tests/requests.test.ts:444:57
+
+ FAIL |@approval-system/server|  tests/requests.test.ts > Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01d: evening time boundary (17:59 ICT in-hours -> t.reviewer; 18:00 ICT out-of-hours -> manager.hybrid)
+AssertionError: expected '25ffec0f-2c83-4c86-9490-1f94d1c64be1' to be '60172756-6599-4fe6-ae87-56d417fdf428' // Object.is equality
+
+Expected: "60172756-6599-4fe6-ae87-56d417fdf428"
+Received: "25ffec0f-2c83-4c86-9490-1f94d1c64be1"
+
+ ❯ tests/requests.test.ts:509:57
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 11 passed (14)
+   Duration  11.33s
