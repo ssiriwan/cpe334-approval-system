@@ -52,25 +52,53 @@ function serializeRequest<
 }
 
 /**
- * Resolve deterministic reviewer based on category (BR-05 / SDS §4.4).
- * If the requester is the primary mapped reviewer, assign the alternate reviewer.
+ * Get hour in Asia/Bangkok (UTC+7) timezone.
  */
-async function resolveAssignedReviewerId(
+function getBangkokHour(date: Date): number {
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Bangkok',
+    hour: 'numeric',
+    hour12: false,
+  });
+  return Number.parseInt(formatter.format(date), 10);
+}
+
+/**
+ * Resolve deterministic reviewer based on category, amount, and submission time (BR-05 v1.1).
+ * Normal requests (amount <= 5000.00 THB and within 08:00-17:59 Asia/Bangkok) use category mapping.
+ * Escalated requests (amount > 5000.00 THB or out-of-hours) escalate to manager.hybrid.
+ * If the selected reviewer is the requester, fall back to alternate reviewer (BR-01).
+ */
+export async function resolveAssignedReviewerId(
   tx: Prisma.TransactionClient,
   category: RequestCategory,
-  requesterId: string
+  requesterId: string,
+  amount: number,
+  now: Date = new Date()
 ): Promise<string> {
-  const primaryEmail = CATEGORY_PRIMARY_REVIEWER[category];
-  const fallbackEmail = CATEGORY_FALLBACK_REVIEWER[category];
+  const ESCALATED_REVIEWER_EMAIL = 'manager.hybrid@cpe334.local';
+  const bangkokHour = getBangkokHour(now);
+  const isOutOfHours = bangkokHour < 8 || bangkokHour >= 18;
+  const isHighAmount = amount > 5000;
+  const isEscalated = isHighAmount || isOutOfHours;
 
-  const primary = await tx.user.findUnique({
-    where: { email: primaryEmail },
+  const candidateEmail = isEscalated
+    ? ESCALATED_REVIEWER_EMAIL
+    : CATEGORY_PRIMARY_REVIEWER[category];
+
+  const candidate = await tx.user.findUnique({
+    where: { email: candidateEmail },
     select: { id: true, role: true },
   });
 
-  if (primary && primary.role === Role.REVIEWER && primary.id !== requesterId) {
-    return primary.id;
+  if (candidate && candidate.role === Role.REVIEWER && candidate.id !== requesterId) {
+    return candidate.id;
   }
+
+  // Fallback when candidate is requester or not eligible
+  const fallbackEmail = candidateEmail === ESCALATED_REVIEWER_EMAIL
+    ? 't.reviewer@cpe334.local'
+    : CATEGORY_FALLBACK_REVIEWER[category];
 
   const fallback = await tx.user.findUnique({
     where: { email: fallbackEmail },
@@ -126,7 +154,8 @@ export async function createRequest(requesterId: string, input: CreateRequestInp
         const assignedReviewerId = await resolveAssignedReviewerId(
           tx,
           input.category,
-          requesterId
+          requesterId,
+          input.amount
         );
         const requestNo = await generateNextRequestNo(tx);
 

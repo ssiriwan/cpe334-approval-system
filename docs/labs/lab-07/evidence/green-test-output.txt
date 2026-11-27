@@ -1,0 +1,44 @@
+[EV-L7-GREEN-01] GREEN Automated Test & Full Regression Output
+Command: npm test (vitest run --config vitest.config.ts)
+Tested Commit: feature/58-cr04-dynamic-reviewer
+Timestamp: 2026-11-26T02:22:23+07:00
+
+Output:
+ RUN  v2.1.9 C:/Users/HP/Desktop/Uni code/CPE334/cpe334-approval-system
+
+ ✓ |@approval-system/server| tests/requests.test.ts (14 tests) 8306ms
+   ✓ POST /api/requests > TEST-01: creates a PENDING request with requestNo, assigned reviewer, and SUBMITTED history 396ms
+   ✓ GET /api/requests/my and GET /api/requests/:id > TEST-03: returns only the authenticated user requests ordered newest first 546ms
+   ✓ GET /api/requests/my and GET /api/requests/:id > TEST-04: enforces data isolation on GET /api/requests/:id (401 unauth, 403 cross-user/unrelated reviewer, 200 owner/assigned) 1874ms
+   ✓ Lab 6 UAT defect regression > F-PB-01 (AC-01, BR-04): a valid 2-decimal amount 1234567.89 is accepted 573ms
+   ✓ Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01a: amount = 5000.00 at 10:00 ICT (EQUIPMENT) stays category-mapped to t.reviewer 515ms
+   ✓ Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01b: amount = 5000.01 at 10:00 ICT (EQUIPMENT) escalates to manager.hybrid 685ms
+   ✓ Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01c: morning time boundary (07:59 ICT out-of-hours -> manager.hybrid; 08:00 ICT in-hours -> t.reviewer) 1076ms
+   ✓ Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01d: evening time boundary (17:59 ICT in-hours -> t.reviewer; 18:00 ICT out-of-hours -> manager.hybrid) 932ms
+   ✓ Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01e: rejects client-supplied assignedReviewerId with 400 VALIDATION_ERROR 415ms
+   ✓ Lab 7 CR-04 Dynamic Reviewer Assignment (BR-05 v1.1) > TEST-01f: manager.hybrid submits large request (> 5000) -> falls back to t.reviewer, never self-assigns (BR-01) 410ms
+
+ ✓ |@approval-system/server| tests/review.test.ts (11 tests) 8666ms
+   ✓ GET /api/requests/pending > TEST-05: returns only PENDING requests assigned to the current reviewer 899ms
+   ✓ POST /api/requests/:id/review > TEST-06: approves an assigned request and appends APPROVED history in the same transaction 514ms
+   ✓ POST /api/requests/:id/review > TEST-07: rejects an assigned request with a trimmed comment and appends REJECTED history 756ms
+   ✓ POST /api/requests/:id/review > TEST-08: blocks self-approval before the assignment check (BR-01) 488ms
+   ✓ POST /api/requests/:id/review > TEST-09: rejects a second decision with INVALID_STATE_TRANSITION and appends no history 1085ms
+   ✓ POST /api/requests/:id/review > TEST-10: rejects a REQUESTER calling the review endpoint with FORBIDDEN 451ms
+   ✓ POST /api/requests/:id/review > TEST-11: rejects an unrelated reviewer with ACCESS_DENIED 990ms
+   ✓ POST /api/requests/:id/review > TEST-12: validates the decision payload without changing the request 1239ms
+   ✓ POST /api/requests/:id/review > TEST-13: keeps history append-only and exposes no update/delete route 1268ms
+   ✓ POST /api/requests/:id/review > returns 401 without a session and 404 for an unknown request 443ms
+
+ ✓ |@approval-system/server| tests/auth.test.ts (8 tests) 2002ms
+   ✓ POST /api/auth/login > TEST-AUTH-01: logs in with valid credentials and sets an httpOnly cookie 342ms
+   ✓ role guard middleware > TEST-AUTH-04: allows REVIEWER and rejects REQUESTER on a reviewer-only route 531ms
+
+ ✓ |@approval-system/server| tests/health.test.ts (2 tests) 42ms
+ ✓ |@approval-system/client| src/pages/Reviews.test.tsx (3 tests) 878ms
+ ✓ |@approval-system/client| src/pages/Requests.test.tsx (4 tests) 2125ms
+ ✓ |@approval-system/client| src/App.test.tsx (1 test) 415ms
+
+ Test Files  7 passed (7)
+      Tests  43 passed (43)
+   Duration  49.16s
