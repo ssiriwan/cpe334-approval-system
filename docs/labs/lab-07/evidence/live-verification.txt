@@ -1,0 +1,33 @@
+[EV-L7-DEPLOY-01] Post-Deployment Live Verification on Google Cloud Run
+Public URL: https://sd3cdaba1-4d7hbszvwq-as.a.run.app
+Health Check (/api/health): {"status":"ok","commit":"a5b963650bcbdd3178609c551634638e927a08f7","timestamp":"2026-11-27T07:05:38.605Z"}
+Deployed Cloud Run Revision: sd3cdaba1-00012-skm
+Tested Release Commit: a5b963650bcbdd3178609c551634638e927a08f7 (PR #64 merged into main)
+Tester: Siriwan Yindeepot (@ssiriwan)
+Date: 27 November 2026
+
+=== Test 1: Changed Behavior Verification (High Amount Escalation) ===
+Action: Log in as oum.requester@cpe334.local and submit request with amount > 5000.00 THB.
+Request ID: REQ-20261127-0001
+Title: High Amount Escalation Test
+Amount: 6,000.00 THB
+Category: EQUIPMENT
+Submitted Timestamp: 27/11/2026, 17:15:33 ICT
+Expected Reviewer: Manager Hybrid (manager.hybrid@cpe334.local) via CR-04 escalation rule
+Actual Assigned Reviewer: Manager Hybrid
+Status: PENDING
+Screenshot Evidence: docs/labs/lab-07/evidence/screenshots/fig-changed-escalation.png
+Verdict: PASS (Changed behavior verified on deployed Cloud Run system)
+
+=== Test 2: Preserved Behavior Verification (In-Hours Normal Category Mapping) ===
+Action: Submit request with amount <= 5000.00 THB during business hours (17:17 ICT).
+Request ID: REQ-20261127-0002
+Title: Normal Equipment Category Preserved
+Amount: 1,500.00 THB
+Category: EQUIPMENT
+Submitted Timestamp: 27/11/2026, 17:17:44 ICT
+Expected Reviewer: T Reviewer (t.reviewer@cpe334.local) via baseline BR-05 category mapping
+Actual Assigned Reviewer: T Reviewer
+Status: PENDING
+Screenshot Evidence: docs/labs/lab-07/evidence/screenshots/fig-preserved-normal.png
+Verdict: PASS (Preserved baseline behavior verified on deployed Cloud Run system)
