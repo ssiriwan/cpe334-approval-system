@@ -204,36 +204,56 @@ Running Vitest on commit \code{2b56a7b} produced exactly 3 genuine failures and 
 
 \textbf{3. Exact Implementation Code Diff (\code{server/src/services/request.service.ts}):}
 \begin{lstlisting}[language=Java]
+// Verbatim excerpt from server/src/services/request.service.ts at release a5b9636
 function getBangkokHour(date: Date): number {
-  const formatter = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Bangkok', hour: 'numeric', hour12: false });
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Bangkok',
+    hour: 'numeric',
+    hour12: false,
+  });
   return Number.parseInt(formatter.format(date), 10);
 }
 
 export async function resolveAssignedReviewerId(
-  tx: Prisma.TransactionClient, category: RequestCategory, requesterId: string, amount: number, now: Date = new Date()
+  tx: Prisma.TransactionClient,
+  category: RequestCategory,
+  requesterId: string,
+  amount: number,
+  now: Date = new Date()
 ): Promise<string> {
-  const primaryEmail = CATEGORY_PRIMARY_REVIEWER[category];
-  const fallbackEmail = CATEGORY_FALLBACK_REVIEWER[category];
-
-  // Evaluate CR-04 escalation boundary (>5000 THB or out-of-hours <08:00 or >=18:00 ICT)
+  const ESCALATED_REVIEWER_EMAIL = 'manager.hybrid@cpe334.local';
   const bangkokHour = getBangkokHour(now);
   const isOutOfHours = bangkokHour < 8 || bangkokHour >= 18;
-  const isHighValue = amount > 5000.00;
-  const shouldEscalate = isHighValue || isOutOfHours;
-  const targetEmail = shouldEscalate ? 'manager.hybrid@cpe334.local' : primaryEmail;
+  const isHighAmount = amount > 5000;
+  const isEscalated = isHighAmount || isOutOfHours;
 
-  const candidate = await tx.user.findUnique({ where: { email: targetEmail }, select: { id: true, role: true } });
-  if (candidate && candidate.id !== requesterId && (candidate.role === 'REVIEWER' || candidate.role === 'ADMIN')) {
+  const candidateEmail = isEscalated
+    ? ESCALATED_REVIEWER_EMAIL
+    : CATEGORY_PRIMARY_REVIEWER[category];
+
+  const candidate = await tx.user.findUnique({
+    where: { email: candidateEmail },
+    select: { id: true, role: true },
+  });
+
+  if (candidate && candidate.role === Role.REVIEWER && candidate.id !== requesterId) {
     return candidate.id;
   }
 
-  // Fallback to alternate reviewer to preserve BR-01 self-approval invariant
+  // Fallback when candidate is requester or not eligible
+  const fallbackEmail = candidateEmail === ESCALATED_REVIEWER_EMAIL
+    ? 't.reviewer@cpe334.local'
+    : CATEGORY_FALLBACK_REVIEWER[category];
+
   const fallback = await tx.user.findUnique({
-    where: { email: shouldEscalate ? fallbackEmail : 't.reviewer@cpe334.local' }, select: { id: true, role: true }
+    where: { email: fallbackEmail },
+    select: { id: true, role: true },
   });
-  if (fallback && fallback.id !== requesterId && (fallback.role === 'REVIEWER' || fallback.role === 'ADMIN')) {
+
+  if (fallback && fallback.role === Role.REVIEWER && fallback.id !== requesterId) {
     return fallback.id;
   }
+  // ... then any other REVIEWER (full file in repo)
 }
 \end{lstlisting}
 \vspace{-2pt}
@@ -299,9 +319,9 @@ Full test suite executed against release commit \code{a5b9636}. All 7 suites and
 \toprule
 \textbf{PR ID} & \textbf{Title} & \textbf{Base Branch} & \textbf{Author} & \textbf{Reviewer} & \textbf{Merged Commit} \\
 \midrule
-\#61 & \code{docs(lab7): complete Part A plan for CR-04 (#57)} & \code{lab7-staging} & @thhanabun & @ssiriwan & \code{1ecda5b} (25 Nov 2026) \\
-\#63 & \code{feat(requests): implement CR-04 dynamic reviewer (#58)} & \code{lab7-staging} & @ssiriwan & @thhanabun & \code{cd6940a} (25 Nov 2026) \\
-\#64 & \code{release(lab7): CR-04 dynamic reviewer to main (#58)} & \code{main} & @thhanabun & @ssiriwan & \code{a5b9636} (27 Nov 2026) \\
+\#61 & \code{docs(lab7): complete Part A plan for CR-04 (issue 57)} & \code{lab7-staging} & @thhanabun & @ssiriwan & \code{1ecda5b} (25 Nov 2026) \\
+\#63 & \code{feat(requests): implement CR-04 dynamic reviewer (issue 58)} & \code{lab7-staging} & @ssiriwan & @thhanabun & \code{cd6940a} (25 Nov 2026) \\
+\#64 & \code{release(lab7): CR-04 dynamic reviewer to main (issue 58)} & \code{main} & @thhanabun & @ssiriwan & \code{a5b9636} (27 Nov 2026) \\
 \bottomrule
 \end{tabular}
 \end{center}

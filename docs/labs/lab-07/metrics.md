@@ -18,7 +18,7 @@
 | Issue ID | Title | Assignees | Status | Closed Via |
 | :---: | :--- | :--- | :---: | :--- |
 | **#57** | Approve change request and revise contract before code (Part A) | @thhanabun, @ssiriwan | CLOSED | PR #61 (`1ecda5b`, 2026-11-25 19:27 UTC) |
-| **#58** | RED/GREEN implementation, regression and reviewed release (Part B) | @ssiriwan, @thhanabun | CLOSED | PR #63 (`cd6940a`, 2026-11-25 20:43 UTC) |
+| **#58** | RED/GREEN implementation, regression and reviewed release (Part B) | @ssiriwan, @thhanabun | CLOSED | PR #63 (`cd6940a`, 2026-11-25 20:42:22 UTC) |
 | **#59** | Five metrics and release readiness / retrospective (Parts C-D) | @ssiriwan, @thhanabun | CLOSED | This document & `readiness-retro.md` |
 | **#60** | Assemble and submit `lab7_sec1_ปลวกแดง.pdf` (Submission) | @ssiriwan, @thhanabun | In Progress | Final PDF compilation & LEB2 package |
 
@@ -31,7 +31,7 @@
 
 | PR ID | Title | Base Branch | Author | Reviewer (Non-Author) | Merge Commit & Date |
 | :---: | :--- | :---: | :---: | :---: | :--- |
-| **#61** | `docs(lab7): complete Part A plan for CR-04 dynamic reviewer assignment (#57)` | `lab7-staging` | @thhanabun | @ssiriwan (Approved) | `1ecda5b` (25 Nov 2026 16:36 UTC) |
+| **#61** | `docs(lab7): complete Part A plan for CR-04 dynamic reviewer assignment (#57)` | `lab7-staging` | @thhanabun | @ssiriwan (Approved) | `1ecda5b` (25 Nov 2026 18:43:23 UTC) |
 | **#63** | `feat(requests): implement CR-04 dynamic reviewer assignment and pass full regression (#58)` | `lab7-staging` | @ssiriwan | @thhanabun (Changes Requested ➔ Approved) | `cd6940a` (25 Nov 2026 20:42 UTC) |
 | **#64** | `release(lab7): CR-04 dynamic reviewer assignment to main (#58)` | `main` | @thhanabun | @ssiriwan (Approved) | `a5b9636` (27 Nov 2026 07:00 UTC) |
 
