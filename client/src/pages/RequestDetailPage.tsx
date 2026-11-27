@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Clock, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, Clock, RefreshCw, ShieldAlert } from 'lucide-react';
 import {
   ApiError,
   apiFetch,
@@ -17,6 +17,35 @@ export function RequestDetailPage() {
   const [error, setError] = useState<{ status: number; code: string; message: string } | null>(
     null
   );
+  const [auditRefresh, setAuditRefresh] = useState<{ loading: boolean; error: string | null }>({
+    loading: false,
+    error: null,
+  });
+
+  /**
+   * F-05: explicitly re-read the dedicated read-only audit endpoint so the
+   * UI demonstrates the API -> DB retrieval instead of only the detail payload.
+   */
+  async function refreshAuditTrail() {
+    if (!id) return;
+    setAuditRefresh({ loading: true, error: null });
+    try {
+      const data = await apiFetch<{
+        requestId: string;
+        histories: ApprovalHistory[];
+      }>(`/api/requests/${id}/history`);
+      setHistories(data.histories);
+      setAuditRefresh({ loading: false, error: null });
+    } catch (err) {
+      setAuditRefresh({
+        loading: false,
+        error:
+          err instanceof ApiError
+            ? `${err.code}: ${err.message}`
+            : 'Unable to refresh the audit trail.',
+      });
+    }
+  }
 
   useEffect(() => {
     let active = true;
@@ -149,10 +178,27 @@ export function RequestDetailPage() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-        <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">
-          <Clock className="w-4 h-4 text-slate-500" />
-          <span>Approval History</span>
-        </h2>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-slate-500" />
+            <span>Approval History</span>
+          </h2>
+          <button
+            type="button"
+            onClick={() => void refreshAuditTrail()}
+            disabled={auditRefresh.loading}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${auditRefresh.loading ? 'animate-spin' : ''}`} />
+            {auditRefresh.loading ? 'Refreshing...' : 'Refresh audit trail'}
+          </button>
+        </div>
+
+        {auditRefresh.error && (
+          <p className="mb-3 rounded-lg bg-rose-50 border border-rose-200 p-2 text-xs text-rose-700">
+            {auditRefresh.error}
+          </p>
+        )}
 
         {histories.length === 0 ? (
           <p className="text-sm text-slate-500">No history entries recorded.</p>

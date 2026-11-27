@@ -9,6 +9,7 @@ import {
   listMyRequests,
 } from '../services/request.service.js';
 import { listPendingReviews, submitReview } from '../services/review.service.js';
+import { getRequestHistory } from '../services/history.service.js';
 
 const createRequestSchema = z
   .object({
@@ -88,6 +89,17 @@ requestsRouter.get(
     }
   }
 );
+
+// F-05: read-only audit endpoint. Registered before `/:id` so the route
+// intent is explicit; Express still matches `/:id` only for a single segment.
+requestsRouter.get('/:id/history', async (req, res, next) => {
+  try {
+    const history = await getRequestHistory(req.params.id, req.user!.id);
+    res.status(200).json({ data: history });
+  } catch (error) {
+    next(error);
+  }
+});
 
 requestsRouter.get('/:id', async (req, res, next) => {
   try {
