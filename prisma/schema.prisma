@@ -15,6 +15,8 @@ enum Role {
 
 enum RequestStatus {
   PENDING
+  PENDING_STAGE2
+  RETURNED
   APPROVED
   REJECTED
 }
@@ -23,6 +25,8 @@ enum HistoryAction {
   SUBMITTED
   APPROVED
   REJECTED
+  RETURNED
+  RESUBMITTED
 }
 
 model User {
@@ -35,6 +39,7 @@ model User {
   requests        ApprovalRequest[] @relation("UserRequests")
   assignedReviews ApprovalRequest[] @relation("AssignedReviews")
   historyActions  ApprovalHistory[] @relation("UserActions")
+  attachments     Attachment[]
 }
 
 model ApprovalRequest {
@@ -45,6 +50,7 @@ model ApprovalRequest {
   category           String
   description        String
   status             RequestStatus     @default(PENDING)
+  stage              Int               @default(1)
   requesterId        String
   requester          User              @relation("UserRequests", fields: [requesterId], references: [id])
   assignedReviewerId String?
@@ -52,6 +58,7 @@ model ApprovalRequest {
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
   histories          ApprovalHistory[]
+  attachments        Attachment[]
 
   @@index([requesterId, createdAt])
   @@index([assignedReviewerId, status])
@@ -65,8 +72,26 @@ model ApprovalHistory {
   actorId   String
   actor     User            @relation("UserActions", fields: [actorId], references: [id])
   action    HistoryAction
+  stage     Int             @default(1)
   comment   String?
   createdAt DateTime        @default(now())
+
+  @@index([requestId, createdAt])
+}
+
+/// Files attached to an approval request. Stored on local disk under UPLOAD_DIR;
+/// `path` is internal only and must never be serialized to API responses.
+model Attachment {
+  id         String          @id @default(uuid())
+  requestId  String
+  request    ApprovalRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  uploaderId String
+  uploader   User            @relation(fields: [uploaderId], references: [id])
+  filename   String
+  mime       String
+  size       Int
+  path       String
+  createdAt  DateTime        @default(now())
 
   @@index([requestId, createdAt])
 }
