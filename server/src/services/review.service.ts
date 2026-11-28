@@ -6,6 +6,7 @@ import {
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../lib/errors.js';
+import { filterWhere, type ParsedFilters } from '../validation/filters.js';
 import { resolveStage2ReviewerId } from './request.service.js';
 
 const PUBLIC_USER_SELECT = {
@@ -63,13 +64,18 @@ function serializeRequest<
  * BR-05/BR-03: only requests explicitly assigned to this reviewer, and only
  * while they are still PENDING. Oldest first so the queue is FIFO.
  */
-export async function listPendingReviews(reviewerId: string) {
+export async function listPendingReviews(reviewerId: string, filters: ParsedFilters = {}) {
   const records = await prisma.approvalRequest.findMany({
     where: {
-      assignedReviewerId: reviewerId,
-      // F-07: the stage-2 reviewer also needs a queue; the assignment switch
-      // at stage-1 approval makes this filter exclusive per current stage.
-      status: { in: [RequestStatus.PENDING, RequestStatus.PENDING_STAGE2] },
+      AND: [
+        {
+          assignedReviewerId: reviewerId,
+          // F-07: the stage-2 reviewer also needs a queue; the assignment
+          // switch at stage-1 approval keeps this exclusive per current stage.
+          status: { in: [RequestStatus.PENDING, RequestStatus.PENDING_STAGE2] },
+        },
+        filterWhere(filters),
+      ],
     },
     orderBy: [{ createdAt: 'asc' }, { requestNo: 'asc' }],
     include: {
@@ -78,7 +84,8 @@ export async function listPendingReviews(reviewerId: string) {
     },
   });
 
-  return records.map(serializeRequest);
+  const requests = records.map(serializeRequest);
+  return { requests, count: requests.length };
 }
 
 /**

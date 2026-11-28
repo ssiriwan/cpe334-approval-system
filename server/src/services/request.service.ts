@@ -2,6 +2,7 @@ import { HistoryAction, Prisma, RequestStatus, Role } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../lib/errors.js';
+import { filterWhere, type ParsedFilters } from '../validation/filters.js';
 
 export const ALLOWED_CATEGORIES = ['EQUIPMENT', 'TRAVEL', 'SOFTWARE', 'SUPPLIES'] as const;
 export type RequestCategory = (typeof ALLOWED_CATEGORIES)[number];
@@ -281,9 +282,10 @@ export async function createRequest(requesterId: string, input: CreateRequestInp
   throw new AppError(500, 'INTERNAL_ERROR', 'Unable to generate a unique request number.');
 }
 
-export async function listMyRequests(requesterId: string) {
+export async function listMyRequests(requesterId: string, filters: ParsedFilters = {}) {
   const records = await prisma.approvalRequest.findMany({
-    where: { requesterId },
+    // AND keeps the ownership guard authoritative even when filters are set.
+    where: { AND: [{ requesterId }, filterWhere(filters)] },
     orderBy: [{ createdAt: 'desc' }, { requestNo: 'desc' }],
     include: {
       requester: { select: PUBLIC_USER_SELECT },
@@ -291,7 +293,8 @@ export async function listMyRequests(requesterId: string) {
     },
   });
 
-  return records.map(serializeRequest);
+  const requests = records.map(serializeRequest);
+  return { requests, count: requests.length };
 }
 
 export async function getRequestDetail(requestId: string, currentUserId: string) {

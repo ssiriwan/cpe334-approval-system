@@ -11,6 +11,7 @@ import {
 } from '../services/request.service.js';
 import { listPendingReviews, returnRequest, submitReview } from '../services/review.service.js';
 import { getRequestHistory } from '../services/history.service.js';
+import { parseRequestFilters } from '../validation/filters.js';
 import { listAttachments, uploadAttachment } from '../services/attachment.service.js';
 
 const upload = multer({
@@ -40,8 +41,9 @@ requestsRouter.post(
 
 requestsRouter.get('/my', async (req, res, next) => {
   try {
-    const requests = await listMyRequests(req.user!.id);
-    res.status(200).json({ data: { requests } });
+    const filters = parseRequestFilters(req.query);
+    const { requests, count } = await listMyRequests(req.user!.id, filters);
+    res.status(200).json({ data: { requests, count } });
   } catch (error) {
     next(error);
   }
@@ -52,8 +54,9 @@ requestsRouter.get(
   requireRole(Role.REVIEWER),
   async (req, res, next) => {
     try {
-      const requests = await listPendingReviews(req.user!.id);
-      res.status(200).json({ data: { requests } });
+      const filters = parseRequestFilters(req.query);
+      const { requests, count } = await listPendingReviews(req.user!.id, filters);
+      res.status(200).json({ data: { requests, count } });
     } catch (error) {
       next(error);
     }

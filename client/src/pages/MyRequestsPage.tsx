@@ -1,20 +1,33 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { FilePlus2, RefreshCw } from 'lucide-react';
 import { ApiError, apiFetch, type ApprovalRequest } from '../lib/api';
 import { StatusBadge } from '../components/StatusBadge';
+import {
+  RequestFilters,
+  fromParams,
+  toParams,
+  toQuery,
+  type FilterValues,
+} from '../components/RequestFilters';
 
 export function MyRequestsPage() {
   const [requests, setRequests] = useState<ApprovalRequest[]>([]);
+  const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filters: FilterValues = fromParams(searchParams);
 
   const loadRequests = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiFetch<{ requests: ApprovalRequest[] }>('/api/requests/my');
+      const data = await apiFetch<{ requests: ApprovalRequest[]; count: number }>(
+        `/api/requests/my${toQuery(filters)}`
+      );
       setRequests(data.requests);
+      setCount(data.count);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(`${err.code}: ${err.message}`);
@@ -24,7 +37,7 @@ export function MyRequestsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     void loadRequests();
@@ -65,6 +78,13 @@ export function MyRequestsPage() {
           </button>
         </div>
       )}
+
+      <RequestFilters
+        value={filters}
+        onChange={(next) => setSearchParams(toParams(next))}
+        count={count}
+        noun="requests"
+      />
 
       {loading ? (
         <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-sm text-slate-500">
