@@ -11,7 +11,7 @@ import { app } from '../src/app.js';
 const prisma = new PrismaClient();
 
 const PASSWORD = 'Password123!';
-const OWNER_EMAIL = 'oum.requester@cpe334.local';
+const OWNER_EMAIL = 'f09.owner.requester@cpe334.local';
 const REVIEWER_EMAIL = 'manager.hybrid@cpe334.local';
 const OTHER_REQUESTER_EMAIL = 'f09.other.requester@cpe334.local';
 
@@ -97,7 +97,7 @@ afterAll(async () => {
   if (createdRequestIds.length > 0) {
     await prisma.approvalRequest.deleteMany({ where: { id: { in: createdRequestIds } } });
   }
-  await prisma.user.deleteMany({ where: { email: OTHER_REQUESTER_EMAIL } });
+  await prisma.user.deleteMany({ where: { email: { in: [OWNER_EMAIL, OTHER_REQUESTER_EMAIL] } } });
   await prisma.$disconnect();
 });
 
