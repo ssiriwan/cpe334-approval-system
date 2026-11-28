@@ -8,7 +8,7 @@
 > - **Thanabun Tikaew (T):** Student ID `67070501021` (Owner of Reviewer Slice & Reviewer of Part A)  
 > **Accepted Sprint 1 Baseline:** Tag `v0.1.0-sprint1` (commit `f35ad24ede42ed5522b20a68179473bf286744f3`, 8 Nov 2026)  
 > **Evaluated Candidate:** commit `659328e` on `sprint-2-staging` (28 Nov 2026)  
-> **Evaluation Outcome:** **44/44 tests passed (100% PASS in 34.86s)**. Zero regressions on the original Sprint 1 critical domain journey.
+> **Evaluation Outcome:** The curated Sprint 1 continuity subset passed **44/44 (34.86s)**. The **full candidate suite passes 75/75 (14 files)** after freezing the F-06 suite clock to business hours (see reviewer fix on this PR); zero regressions on the original critical journey.
 
 ---
 
@@ -22,7 +22,7 @@
 | **Date** | 8 November 2026 | 28 November 2026 |
 | **Changes Integrated Since Baseline** | Baseline initial release | Labs 5–7 defect fixes + CR-04 dynamic reviewer routing + Sprint 2 features (F-05 audit view, F-06 return/resubmit, F-07 multi-stage approval, F-08 attachments) + Sprint 3 progress (F-09 search/filter) + Part D docs & full traceability |
 | **Database Schema** | Initial schema (3 statuses: `PENDING`, `APPROVED`, `REJECTED`) | Additive migration `20261127183708_sprint2_lifecycle_and_attachments` (added `RETURNED`, `PENDING_STAGE2`, `Attachment` table, `stage` column) |
-| **Regression Test Result** | 35 passed | **44 passed, 0 failed, 0 skipped (100% PASS)** |
+| **Regression Test Result** | 35 passed | **44/44 in the continuity subset; 75/75 in the full candidate suite** |
 
 ---
 
