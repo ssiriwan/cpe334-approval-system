@@ -10,7 +10,7 @@ import {
 import { StatusBadge } from '../components/StatusBadge';
 import { useAuth } from '../context/AuthContext';
 
-type Decision = 'APPROVE' | 'REJECT';
+type Decision = 'APPROVE' | 'REJECT' | 'RETURN';
 
 interface DecisionErrors {
   comment?: string;
@@ -85,6 +85,12 @@ export function ReviewDetailPage() {
       } else if (trimmed.length > 500) {
         nextErrors.comment = 'Comment must not exceed 500 characters.';
       }
+    } else if (decision === 'RETURN') {
+      if (trimmed.length < 3) {
+        nextErrors.comment = 'A return comment of at least 3 characters is required.';
+      } else if (trimmed.length > 500) {
+        nextErrors.comment = 'Comment must not exceed 500 characters.';
+      }
     } else if (trimmed.length > 500) {
       nextErrors.comment = 'Comment must not exceed 500 characters.';
     }
@@ -105,21 +111,38 @@ export function ReviewDetailPage() {
 
     setSubmitting(true);
     try {
-      const data = await apiFetch<{
-        request: ApprovalRequest;
-        history: ApprovalHistory;
-      }>(`/api/requests/${id}/review`, {
-        method: 'POST',
-        body: JSON.stringify({
-          decision,
-          ...(comment.trim().length > 0 ? { comment: comment.trim() } : {}),
-        }),
-      });
+      if (decision === 'RETURN') {
+        const data = await apiFetch<{
+          request: ApprovalRequest;
+          history: ApprovalHistory;
+        }>(`/api/requests/${id}/return`, {
+          method: 'POST',
+          body: JSON.stringify({
+            comment: comment.trim(),
+          }),
+        });
 
-      setRequest(data.request);
-      setHistories((prev) => [...prev, data.history]);
-      setComment('');
-      setSuccessMessage(`Decision recorded: request is now ${data.request.status}.`);
+        setRequest(data.request);
+        setHistories((prev) => [...prev, data.history]);
+        setComment('');
+        setSuccessMessage('Request returned for revision.');
+      } else {
+        const data = await apiFetch<{
+          request: ApprovalRequest;
+          history: ApprovalHistory;
+        }>(`/api/requests/${id}/review`, {
+          method: 'POST',
+          body: JSON.stringify({
+            decision,
+            ...(comment.trim().length > 0 ? { comment: comment.trim() } : {}),
+          }),
+        });
+
+        setRequest(data.request);
+        setHistories((prev) => [...prev, data.history]);
+        setComment('');
+        setSuccessMessage(`Decision recorded: request is now ${data.request.status}.`);
+      }
     } catch (err) {
       if (err instanceof ApiError) {
         setSubmitError(`${err.code}: ${err.message}`);
@@ -300,12 +323,28 @@ export function ReviewDetailPage() {
                   />
                   <span>Reject</span>
                 </label>
+                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-300 text-sm cursor-pointer hover:bg-slate-50">
+                  <input
+                    type="radio"
+                    name="decision"
+                    value="RETURN"
+                    checked={decision === 'RETURN'}
+                    onChange={() => setDecision('RETURN')}
+                    disabled={submitting}
+                  />
+                  <span>Return for Revision</span>
+                </label>
               </div>
             </fieldset>
 
             <div>
               <label htmlFor="comment" className="block text-sm font-medium text-slate-700 mb-1">
-                Comment {decision === 'REJECT' ? '(required, 3-500 characters)' : '(optional)'}
+                Comment{' '}
+                {decision === 'REJECT'
+                  ? '(required, 3-500 characters)'
+                  : decision === 'RETURN'
+                  ? '(required, 3-500 characters)'
+                  : '(optional)'}
               </label>
               <textarea
                 id="comment"
@@ -317,6 +356,8 @@ export function ReviewDetailPage() {
                 placeholder={
                   decision === 'REJECT'
                     ? 'Explain why this request is rejected'
+                    : decision === 'RETURN'
+                    ? 'Explain what revisions are needed before this request can be approved'
                     : 'Optional note for the audit trail'
                 }
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -329,7 +370,11 @@ export function ReviewDetailPage() {
               disabled={submitting}
               className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition-colors"
             >
-              {submitting ? 'Submitting...' : 'Submit Decision'}
+              {submitting
+                ? 'Submitting...'
+                : decision === 'RETURN'
+                ? 'Return Request'
+                : 'Submit Decision'}
             </button>
           </form>
         )}
