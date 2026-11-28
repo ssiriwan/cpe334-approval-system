@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 import bcrypt from 'bcryptjs';
 import { HistoryAction, PrismaClient, RequestStatus, Role } from '@prisma/client';
@@ -76,6 +76,18 @@ afterAll(async () => {
   }
   await prisma.user.deleteMany({ where: { email: OTHER_EMAIL } });
   await prisma.$disconnect();
+});
+
+// CR-04 assigns out-of-hours submissions to manager.hybrid. Freeze the clock
+// to business hours so this suite is deterministic regardless of when CI runs.
+// High-value (>5000) expectations still escalate to manager.hybrid.
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ['Date'] });
+  vi.setSystemTime(new Date('2026-11-26T10:00:00+07:00'));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('F-06 return for revision & resubmission (TEST-15.1..15.6)', () => {
