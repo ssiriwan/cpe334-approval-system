@@ -22,9 +22,9 @@
 | :--- | :--- | :--- | :--- |
 | RED (test only) | `bc89416` | 28 Nov 2026 | `1 failed file`, `4 failed` — filters ignored, `count` undefined |
 | GREEN (backend) | `75af0f5` | 28 Nov 2026 | `1 passed file`, `4 passed` |
-| UI + full regression | this branch head | 28 Nov 2026 | **11 files / 60 tests passed**; `npm run build` clean |
+| UI + full regression | this branch head | 28 Nov 2026 | **12 files / 67 tests passed**; `npm run build` clean |
 
-Evidence IDs: `E-D2-F09-RED` (`bc89416`), `E-D2-F09-GREEN` (`75af0f5`), `E-D2-F09-REG` (60-test summary).
+Evidence IDs: `E-D2-F09-RED` (`bc89416`), `E-D2-F09-GREEN` (`75af0f5`), `E-D2-F09-REG` (67-test summary).
 
 ## 3. Implementation summary
 
