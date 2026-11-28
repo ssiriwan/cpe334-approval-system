@@ -1,81 +1,106 @@
 # Requirements Traceability Matrix
 
-> **CPE 334 Deliverable 1 — Part B (Traceability)**
+> **CPE 334 Deliverable 1 Part B — updated for Deliverable 2 Part D**
 > **Project:** Corporate Expense & Purchase Request Approval System
-> **Theme:** Theme 5 — Workflow and Approval System
 > **Authors:** Oum (67070501075) & T (67070501021)
-> **Status:** Baseline Released (Sprint 1)
+> **Status:** Candidate commit `50e3bf2` on `sprint-2-staging` (28 Nov 2026)
+> **Verification run:** 14 test files / 75 tests passed, `npm run build` clean (see Part E evidence)
 
 ---
 
-## 1. Requirements-to-Feature-to-Sprint Traceability Matrix
+## 1. How to read this matrix
 
-ตารางแสดงความเชื่อมโยงแบบครบถ้วนระหว่าง **ความต้องการ (Requirements: FR, BR, NFR)** → **ฟีเจอร์ (Features: F-01..11)** → **Sprint ที่รับผิดชอบ** → **เกณฑ์การยอมรับ (AC) และรหัสการทดสอบ (Test IDs)**:
-
-### 1.1 Functional Requirements (FR) Traceability
-| Req ID | Requirement Description | Linked Feature | Sprint | Acceptance Criteria (AC) | Verification Method & Test IDs | Baseline Status |
-| :---: | :--- | :---: | :---: | :--- | :--- | :---: |
-| **FR-01** | User Authentication & Cookie Session | F-01 | **Sprint 1** | AC-AUTH-01, AC-AUTH-02, AC-AUTH-03, AC-AUTH-04, AC-AUTH-05 | Integration Tests: `TEST-AUTH-01` ถึง `TEST-AUTH-05` | **Verified (Sprint 1, `2bcbf4a`)** |
-| **FR-02** | Request Creation & Field Validation | F-02 | **Sprint 1** | AC-01, AC-02 | API & DB Tests: `TEST-01`, `TEST-02`, E2E: `E2E-01` | **Verified (Sprint 1, `2bcbf4a`)** |
-| **FR-03** | My Requests & Detail Tracking | F-03 | **Sprint 1** | AC-03, AC-04 | API Isolation Tests: `TEST-03`, `TEST-04`, E2E: `E2E-01` | **Verified (Sprint 1, `2bcbf4a`)** |
-| **FR-04** | Review Queue & Decision Workflow | F-04 | **Sprint 1** | AC-05, AC-06, AC-07, AC-08, AC-09, AC-10, AC-12 | Integration Tests: `TEST-05` ถึง `TEST-13`, E2E: `E2E-02`, `E2E-03` | **Verified (Sprint 1, `2bcbf4a`)** |
-| **FR-05** | Approval History & Audit Trail | F-05 | **S1 (Write) / S2 (View)** | AC-06, AC-11 | Transaction Test: `TEST-06`, Persistence: `TEST-13` | **Write Verified (S1, `2bcbf4a`); view Sprint 2** |
-| **FR-06** | Reviewer Assignment | F-04, F-10 | **S1 (Assign) / S3 (Admin)** | AC-01, AC-05, AC-09 | Assignment Tests: `TEST-01`, `TEST-05`, `TEST-11` | **Assign Verified (S1, `2bcbf4a`); admin Sprint 3** |
-| **FR-07** | Return for Revision & Resubmission | F-06 | **Sprint 2** | Planned in Sprint 2 Contract | Unit & Integration Tests (Sprint 2) | *Planned (Sprint 2)* |
-| **FR-08** | Multi-Stage Approval Workflow | F-07 | **Sprint 2** | Planned in Sprint 2 Contract | Multi-stage Transition Tests (Sprint 2) | *Planned (Sprint 2)* |
-| **FR-09** | Document Attachments | F-08 | **Sprint 2** | Planned in Sprint 2 Contract | Multipart Upload & Auth Tests (Sprint 2) | *Planned (Sprint 2)* |
-| **FR-10** | Search, Filter & Expense Reporting | F-09 | **Sprint 3** | Planned in Sprint 3 Contract | Reporting & Aggregate Query Tests (Sprint 3) | *Planned (Sprint 3)* |
-| **FR-11** | Admin User & Role Management | F-10 | **Sprint 3** | Planned in Sprint 3 Contract | Admin Access & Role Management Tests (Sprint 3) | *Planned (Sprint 3)* |
+"Result" is **PASS** only when an executed test/measurement exists on the candidate. **PLANNED** means the contract (and possibly test IDs) exists but nothing has been executed. A later-sprint item is never marked as passing coverage for an earlier requirement.
 
 ---
 
-### 1.2 Business Rules (BR) Traceability
-| Rule ID | Business Rule / Domain Guard | Linked Feature | Sprint | Acceptance Criteria (AC) | Verification Method & Test IDs | Baseline Status |
-| :---: | :--- | :---: | :---: | :--- | :--- | :---: |
-| **BR-01** | **No Self-Approval:** ห้ามอนุมัติคำขอตนเองเด็ดขาด | F-04 | **Sprint 1** | AC-07 | Backend Guard Test: `TEST-08`, E2E: `E2E-03` | **Verified (Sprint 1, `2bcbf4a`)** |
-| **BR-02** | **Valid State Lifecycle:** `PENDING` → `APPROVED` / `REJECTED` | F-04, F-06, F-07 | **Sprint 1 / S2** | AC-08 (S1) | State Transition Test: `TEST-09` | **Verified S1 (`2bcbf4a`)** |
-| **BR-03** | **Data Isolation:** เข้าถึงได้เฉพาะคำขอที่ตนมีสิทธิ์ | F-03, F-04, F-08 | **Sprint 1 / S2** | AC-04, AC-09 | Forbidden Access Tests: `TEST-04`, `TEST-11` | **Verified S1 (`2bcbf4a`)** |
-| **BR-04** | **Payload Validation:** Title, Amount > 0, Whitelist Category | F-02 | **Sprint 1** | AC-02 | Boundary & Negative Tests: `TEST-02` | **Verified (Sprint 1, `2bcbf4a`)** |
-| **BR-05** | **Reviewer Assignment:** บังคับสิทธิ์ตามผู้อนุมัติที่ได้รับมอบหมาย | F-02, F-04, F-10 | **Sprint 1 / S3** | AC-01, AC-05, AC-09 | Assignment & Unrelated Reviewer Tests: `TEST-05`, `TEST-11` | **Assign Verified (S1, `2bcbf4a`)** |
-| **BR-06** | **Append-Only History:** บันทึกประวัติใน Transaction ห้ามแก้ไข/ลบ | F-04, F-05 | **Sprint 1** | AC-06, AC-11 | Immutability & Persistence Test: `TEST-06`, `TEST-13` | **Verified (Sprint 1, `2bcbf4a`)** |
-| **BR-07** | **Decision Validation:** Approve/Reject format + Reason on Reject | F-04 | **Sprint 1** | AC-12 | Decision Payload Validation Test: `TEST-12` | **Verified (Sprint 1, `2bcbf4a`)** |
+## 2. Functional Requirements (FR)
+
+| Req | Feature / responsibility | Sprint | AC / verification | Planned tests | Actual file / test | Result | Version |
+| :--- | :--- | :---: | :--- | :--- | :--- | :--- | :--- |
+| FR-01 | F-01 Auth & session | S1 | AC-AUTH-01..05 | TEST-AUTH-01..05 | `server/tests/auth.test.ts` (8 tests) | **PASS** | `v0.1.0-sprint1` |
+| FR-02 | F-02 Request creation | S1 | AC-01, AC-02 | TEST-01, TEST-02, E2E-01 | `server/tests/requests.test.ts`, `e2e/` | **PASS** | `v0.1.0-sprint1` + CR-04 |
+| FR-03 | F-03 My requests / isolation; F-09 filters | S1 / S3 progress | AC-03, AC-04, AC-17.1..17.3 | TEST-03, TEST-04, TEST-18.1..18.3 | `server/tests/requests.test.ts`, `server/tests/search-filter.test.ts`, `client/src/pages/Filters.test.tsx` | **PASS** | candidate `50e3bf2` |
+| FR-04 | F-04 Queue & decision; F-07 stage queue | S1 / S2 | AC-05..AC-12, AC-15.2..15.4 | TEST-05..13, TEST-16.2..16.4 | `server/tests/review.test.ts`, `server/tests/multistage.test.ts` | **PASS** | candidate `50e3bf2` |
+| FR-05 | F-05 History write + audit view | S1 write / S2 view | AC-06, AC-11, AC-13.1..13.4 | TEST-06, TEST-13, TEST-14.1..14.4 | `server/tests/review.test.ts`, `server/tests/history.test.ts` | **PASS** | #68 merged |
+| FR-06 | F-02/F-04 assignment; CR-04; F-07 stage 2; F-10 admin | S1 / S2 / S3 | AC-01, AC-05, AC-09, AC-15.1, AC-18.4 | TEST-01, TEST-05, TEST-11, TEST-16.1, TEST-19.4 | `server/tests/requests.test.ts` (CR-04 TEST-01a..01f), `multistage.test.ts`; admin test **not run** | **PASS (assignment & stage 2)**; admin **PLANNED** | candidate `50e3bf2` |
+| FR-07 | F-06 Return & resubmit | S2 | AC-14.1..14.6 | TEST-15.1..15.6 | `server/tests/return-resubmit.test.ts`, `docs/sprints/sprint-2/f-06-completion.md` | **PASS** | #69 merged |
+| FR-08 | F-07 Two-stage approval | S2 | AC-15.1..15.6 | TEST-16.1..16.6 | `server/tests/multistage.test.ts`, `f-07-completion.md` | **PASS** | #70 merged |
+| FR-09 | F-08 Attachments | S2 | AC-16.1..16.6 | TEST-17.1..17.6 | `server/tests/attachments.test.ts`, `client/src/components/AttachmentSection.test.tsx` | **PASS** | #71 merged |
+| FR-10 | F-09 filters (partial) + reporting (planned) | S3 progress | AC-17.1..17.5 | TEST-18.1..18.5 | `server/tests/search-filter.test.ts`, `client/src/pages/Filters.test.tsx` | **PASS (filters)**; reporting **PLANNED** | #72 merged |
+| FR-11 | F-10 Admin user/assignment | S3 | AC-18.1..18.6 | TEST-19.1..19.6 | contract `docs/sprints/sprint-3/f-10-admin-management.md` only | **PLANNED** | v1.0 contract |
 
 ---
 
-### 1.3 Non-Functional Requirements (NFR) Traceability
-| NFR ID | Quality Category | Target & Measure | Linked Feature | Sprint | Verification Method & Evidence |
-| :---: | :--- | :--- | :---: | :---: | :--- |
-| **NFR-01** | Security | bcrypt cost 12, JWT 8h, httpOnly Lax Cookie, no plaintext passwords | F-01, F-04, F-11 | **Sprint 1** | Code audit, `TEST-AUTH-01..05`, Secret scan inspection |
-| **NFR-02** | Performance | API latency p95 < 300 ms ภายใต้ 50 concurrent requests, no N+1 query | F-01..F-04, F-09, F-11 | **S1 / S3** | Local execution timing benchmark scripts |
-| **NFR-03** | Persistence & Durability | ข้อมูลและประวัติคงอยู่หลัง restart, migration & seed รันซ้ำได้ | F-02..F-05, F-11 | **Sprint 1 / Lab 5** | Database restart verification, clean DB seed execution |
-| **NFR-04** | Error Safety & Validation | 100% ของ invalid inputs คืน 4xx พร้อมรหัส error code ชัดเจน | F-01..F-04, F-11 | **Sprint 1** | Negative integration test suites (`TEST-02`, `TEST-12`, `TEST-AUTH-02`) |
-| **NFR-05** | Testability & Traceability | 100% ของ Sprint 1 AC มี automated tests รองรับครบถ้วน | F-01..F-04 | **Sprint 1** | Traceability matrix cross-check + Vitest suite (34 tests) & Playwright E2E-01..03 (all green locally, PR #16) |
-| **NFR-06** | Deployability & Config | Containerized deployment, zero hardcoded secrets, health probe | F-11 | **S1 (Design) / Lab 5** | Dockerfile inspection, `/api/health` probe test |
+## 3. Business Rules (BR)
+
+| Rule | Responsibility | Sprint | AC / verification | Planned tests | Actual file / test | Result | Version |
+| :--- | :--- | :---: | :--- | :--- | :--- | :--- | :--- |
+| BR-01 No self-approval | F-04, F-06 return, F-07 both stages | S1/S2 | AC-07, AC-14.3, AC-15.5 | TEST-08, TEST-15.3, TEST-16.5 | `review.test.ts`, `return-resubmit.test.ts`, `multistage.test.ts` | **PASS** | candidate `50e3bf2` |
+| BR-02 Valid lifecycle | F-02/F-04 + CR-05 F-06/F-07 | S1/S2 | AC-01, AC-08, AC-14.6, AC-15.6 | TEST-01, TEST-09, TEST-15.6, TEST-16.6 | `requests.test.ts`, `review.test.ts`, `return-resubmit.test.ts`, `multistage.test.ts` | **PASS** | candidate `50e3bf2` |
+| BR-03 Data isolation | F-03, F-04, F-05, F-08, F-09 | S1/S2/S3 | AC-04, AC-09, AC-13.3, AC-16.5, AC-17.1/17.4 | TEST-04, TEST-11, TEST-14.3, TEST-17.5, TEST-18.1/18.4 | corresponding test files above | **PASS** | candidate `50e3bf2` |
+| BR-04 Payload validation | F-02, F-06 resubmit | S1/S2 | AC-02, AC-14.5 | TEST-02, TEST-15.5 | `requests.test.ts`, `return-resubmit.test.ts` | **PASS** | candidate `50e3bf2` |
+| BR-05 Assignment | F-02, F-04, F-07, F-10 | S1/S2/S3 | AC-01, AC-05, AC-09, AC-15.1, AC-18.4 | TEST-01, TEST-05, TEST-11, TEST-16.1, TEST-19.4 | `requests.test.ts`, `review.test.ts`, `multistage.test.ts`; admin **not run** | **PASS**; admin **PLANNED** | candidate `50e3bf2` |
+| BR-06 Append-only history | F-04, F-05, F-06, F-07 | S1/S2 | AC-06, AC-11, AC-13.4, AC-14.6, AC-15.6 | TEST-06, TEST-13, TEST-14.4, TEST-15.6, TEST-16.6 | `review.test.ts`, `history.test.ts`, `return-resubmit.test.ts`, `multistage.test.ts` | **PASS** | candidate `50e3bf2` |
+| BR-07 Decision validation | F-04, F-07 | S1/S2 | AC-12 | TEST-12 (S1), TEST-16 with valid decisions | `review.test.ts`, `multistage.test.ts` | **PASS** | candidate `50e3bf2` |
 
 ---
 
-## 2. Coverage Gaps & Honest Disclosure
+## 4. Non-Functional Requirements (NFR)
 
-ตามข้อกำหนดของวิชา CPE 334 ข้อกำหนดที่ไม่สามารถส่งมอบได้ใน Sprint 1 จะต้องระบุสถานะอย่างเปิดเผยและโปร่งใส:
-
-1. **Baseline Requirement Coverage:**
-   * ทุก Requirement (`FR-01..FR-11`, `BR-01..BR-07`, `NFR-01..NFR-06`) ถูกจัดสรรเข้าสู่ฟีเจอร์และ Sprint อย่างครบถ้วน 100% ไม่มี Requirement ใดที่ถูกทิ้งหรือไม่ได้รับการจัดสรร
-2. **Sprint 1 Working Scope:**
-   * `FR-01` ถึง `FR-04`, `FR-05 (Write)`, `FR-06 (Assignment)` และ `BR-01` ถึง `BR-07` ทั้งหมดถูกกำหนดไว้ในขอบเขตการพัฒนาของ Sprint 1 (ผ่าน Issue #3, #4, #5) โดยสถานะ Baseline ในเอกสารนี้คือ **Planned / Ready for Implementation** และจะอัปเดตเป็น **Verified** เมื่อมีหลักฐานการทดสอบและ PR ถูก merge เข้า staging ครบถ้วน
-3. **Later Sprints Scope (Honest Planned Disclosure):**
-   * `FR-07` (Return for revision), `FR-08` (Multi-stage), `FR-09` (Attachments) ถูกระบุสถานะเป็น **Planned for Sprint 2**
-   * `FR-10` (Reporting) และ `FR-11` (Admin) ถูกระบุสถานะเป็น **Planned for Sprint 3**
-   * ยังไม่มี Acceptance Criteria เชิงลึกและ executable tests ในเอกสารรอบนี้ โดยจะมีการทำ Feature Engineering Contracts ฉบับเต็มใน Sprint 2 และ Sprint 3 ตามลำดับ
+| NFR | Target | Responsibility | Verification | Actual evidence | Result |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| NFR-01 | bcrypt 12, JWT HS256 8 h, httpOnly/SameSite, no secrets | System / F-01/F-04/F-11 | TEST-AUTH-01..05 + secret scan | `auth.test.ts`, CI quality gate; secret scan **not yet run** | **PASS (tests)**; secret scan **PLANNED (F-11)** |
+| NFR-02 | p95 < 300 ms / 50 warm requests, no N+1 | F-09 lists + F-11 | autocannon/timing script | **not executed** | **PLANNED (F-11)** |
+| NFR-03 | Survive restart; clean migrate + seed reproducible | F-02..F-05, #77 migration | restart test + `migrate status` + seed | `docs/sprints/sprint-2/migration-note.md`: status clean, 4 demo accounts, 43-test regression after migration | **PASS (migration/seed)**; restart recheck F-11 |
+| NFR-04 | Invalid inputs → 4xx with code; no stack trace | All endpoints | negative/boundary tests | TEST-02/12, TEST-15.2/15.5, TEST-16.6, TEST-17.2, TEST-18.3 | **PASS** |
+| NFR-05 | 100% AC → automated test | All | this matrix + test run | 75 tests passing; every executed AC has a test ID | **PASS for S1+S2+F-09** |
+| NFR-06 | Docker/env/health | F-11 + CI | clean-clone build/run | `ci-docker.yml` runs on `sprint-2-staging` (#76); clean-clone recheck **planned** | **PARTIAL** (CI green; final clean-clone in F-11) |
 
 ---
 
-## 3. Approved Change Log
+## 5. AC → Test registry (Deliverable 2 slices)
 
-บันทึกการเปลี่ยนแปลงข้อกำหนดและขอบเขตที่ผ่านการเห็นชอบร่วมกันระหว่างทีมงาน (Approved Changes):
+| Feature | AC IDs | TEST IDs | Completion record |
+| :--- | :--- | :--- | :--- |
+| F-05 | AC-13.1..13.4 | TEST-14.1..14.4 | `docs/sprints/sprint-2/f-05-completion.md` |
+| F-06 | AC-14.1..14.6 | TEST-15.1..15.6 | `docs/sprints/sprint-2/f-06-completion.md` |
+| F-07 | AC-15.1..15.6 | TEST-16.1..16.6 | `docs/sprints/sprint-2/f-07-completion.md` |
+| F-08 | AC-16.1..16.6 | TEST-17.1..17.6 | `docs/sprints/sprint-2/f-08-completion.md` |
+| F-09 | AC-17.1..17.5 | TEST-18.1..18.5 | `docs/sprints/sprint-3/f-09-completion.md` |
+| F-10 | AC-18.1..18.6 | TEST-19.1..19.6 (planned) | `docs/sprints/sprint-3/f-10-admin-management.md` |
+| F-11 | AC-19.1..19.6 | TEST-20.1..20.6 (planned) | `docs/sprints/sprint-3/f-11-hardening-deployment.md` |
 
-| Change ID | Date | Requirement / Feature | Change Description | Justification & Impact | Approved By | Status |
-| :---: | :---: | :---: | :--- | :--- | :---: | :---: |
-| **CR-01** | 2026-11-04 | Scope / Theme | กำหนดเลือก Theme 5: Workflow and Approval System | อิงตามรหัสนักศึกษา (Oum ท้าย 5, T ท้าย 1); ตกลงเลือก Theme 5 ร่วมกัน | Oum & T | Approved |
-| **CR-02** | 2026-11-04 | FR-02 / Role Matrix | อนุญาตให้ผู้ใช้ Role `REVIEWER` สามารถยื่นคำขอได้ | จำเป็นอย่างยิ่งสำหรับการทดสอบกฎ `BR-01 No Self-Approval` ในสถานการณ์จริง | Oum & T | Approved |
-| **CR-03** | 2026-11-04 | BR-05 / F-02 | กำหนด Reviewer Assignment อิงตามหมวดหมู่คำขอใน Sprint 1 | เพื่อให้ผลลัพธ์การทดสอบมอบหมายงานมีความ deterministic และทดสอบสิทธิ์ Unrelated Reviewer ได้แม่นยำ | Oum & T | Approved |
-| **CR-04** | 2026-11-04 | FR-05 / Scope | แบ่ง F-05 เป็น 2 ส่วน: Write ใน Sprint 1 และ View ใน Sprint 2 | ลดขอบเขต UI ที่ซ้ำซ้อนใน Sprint 1 โดยคงความสมบูรณ์ของการบันทึก Transaction ใน Database | Oum & T | Approved |
+> Every AC above maps to exactly one TEST ID group; no orphan AC and no test ID without an AC.
+
+---
+
+## 6. Coverage gaps & honest disclosure
+
+* **Executed:** FR-01..FR-09 (FR-10 filter part), BR-01..BR-07, NFR-04/05 and the tested parts of NFR-01/03/06.
+* **Planned, not executed:** FR-10 reporting/aggregation, FR-11 admin, TEST-19.x, TEST-20.x, NFR performance p95, final clean-clone deploy check, final secret scan.
+* **Known boundary:** F-07 supports at most two stages and rejects `RETURN` from `PENDING_STAGE2`; recorded in the F-07 contract and the remaining-work table, not silently omitted.
+* No baseline requirement was deleted or moved without an approved change record below.
+
+---
+
+## 7. Approved Change Log
+
+| Change ID | Date | Requirement / Feature | Change | Justification & impact | Approved by | Status |
+| :---: | :--- | :--- | :--- | :--- | :---: | :---: |
+| CR-01 | 4 Nov | Theme | Theme 5 selected | Student ID mapping; team agreement | Oum & T | Approved |
+| CR-02 | 4 Nov | FR-02 / role matrix | REVIEWER may create requests | Needed to test BR-01 realistically | Oum & T | Approved |
+| CR-03 | 4 Nov | BR-05 / F-02 | Category-based assignment | Deterministic assignment tests | Oum & T | Approved |
+| CR-04 | 4 Nov | F-05 split | Write S1 / view S2 | Reduce S1 UI scope | Oum & T | Approved |
+| **CR-04 (Lab 7)** | 25–27 Nov | BR-05, FR-06 | Dynamic assignment by amount/time; fallback when candidate is requester | Risk-based assignment; TEST-01a..01f; TA approval form `NOT AVAILABLE` under updated lab | Oum & T | Implemented & regression-tested |
+| **CR-05** | 28 Nov | BR-02, BR-06, schema | `RETURNED`, `PENDING_STAGE2`, `RESUBMITTED`/`RETURNED` history | Required by F-06/F-07; additive migration `20261127183708...` | Oum & T | Merged (#84) |
+| **F-07 v1.1** | 28 Nov | Seed / D-17 | Third reviewer `finance.reviewer` | Preserves CR-04 fallback (TEST-01f) while giving F-07 a distinct stage-2 reviewer | Oum & T | Merged (#87) |
+
+---
+
+## 8. Version History
+
+| Version | Date | Change |
+| :--- | :--- | :--- |
+| v1.0 | 8 Nov 2026 | Sprint 1 baseline matrix (Deliverable 1). |
+| v1.1 | 28 Nov 2026 | Extended to Sprint 2 + F-09 progress; actual commit/test evidence; approved changes CR-04/CR-05/F-07 v1.1. |

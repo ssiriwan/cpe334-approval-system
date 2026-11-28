@@ -4,7 +4,7 @@
 > **Project:** Corporate Expense & Purchase Request Approval System  
 > **Theme:** Theme 5 — Workflow and Approval System  
 > **Authors:** Oum (67070501075) & T (67070501021)  
-> **Status:** Baseline Released (Sprint 1)
+> **Status:** Baseline Released (Sprint 1); Updated for Sprint 2 / Deliverable 2 candidate (28 Nov 2026)
 
 ---
 
@@ -51,7 +51,25 @@
 - **F-04:** Review Queue & Decision (Approve/Reject with comment, Self-Approval Guard, State Guard)
 - **F-05:** Approval History write (บันทึก transaction พร้อมสถานะ)
 
-### 3.3 Explicit Exclusions (สิ่งที่ยังไม่ทำใน Sprint 1)
+### 3.3 Sprint 2 Increment (Delivered in the Deliverable 2 candidate)
+- **F-05 (View):** read-only audit endpoint `GET /api/requests/:id/history` plus a refreshable timeline; no write route.
+- **F-06:** `RETURNED` lifecycle — reviewer returns with a 3–500 char reason, owner edits and resubmits; reviewer is re-resolved under the current CR-04 rule.
+- **F-07:** bounded two-stage approval for requests over 5,000.00 THB — stage 1 → `PENDING_STAGE2` → `APPROVED`, with a distinct stage-2 reviewer and per-stage history.
+- **F-08:** synthetic attachments (PDF/PNG/JPEG, ≤ 5 MB) stored under gitignored `uploads/`, authorized on every list/download.
+- Additive migration `20261127183708_sprint2_lifecycle_and_attachments` (CR-05) introduces the new enum values, `stage`, and `Attachment`.
+
+### 3.4 Sprint 3 Progress in this Deliverable
+- **F-09 (implemented/tested):** server-side `status`/`category`/`from`/`to` filters on both list endpoints, result count, and URL-synced filter UI.
+- **F-10 (admin) / F-11 (hardening):** contracts only — explicitly **planned**, no AC has been executed.
+
+### 3.5 Explicit Exclusions (สิ่งที่ยังไม่ทำ — status at Deliverable 2)
+- ไม่มีระบบตัดเงินหรือ Payment Gateway จริง; ไม่มีการแจ้งเตือนภายนอก (SMS/Email/Slack); ไม่เชื่อมบัญชีธนาคาร; ใช้สกุล THB เดียว
+- ไม่มี self-registration / password recovery; ใช้ seed demo accounts เท่านั้น
+- Sprint 1 exclusions ที่เลื่อนมาแล้วจาก history: attachments / return-for-revision / multi-stage (ตอนนี้ **ทำแล้วใน Sprint 2**)
+- ยังไม่มี: Admin endpoints (F-10), full reporting/aggregation, audit export, rate limiting, CSRF token, real production secrets (F-11 / Sprint 3)
+- `RETURN` จาก `PENDING_STAGE2` และมากกว่า 2 stages ยังไม่รองรับ (burned into F-07 contract, disclosed)
+
+> มุ่งหมายของ §3.5 คือเอกสาร ณ Deliverable 2 — รายการ Sprint 1 เดิมในหัวข้อเดิมยังคงเป็นหลักฐานประวัติศาสตร์ของสิ่งที่เคยกันออกไปใน Sprint 1
 - ไม่มีระบบตัดเงินหรือ Payment Gateway จริง
 - ไม่มีการส่งแจ้งเตือนผ่านภายนอกจริง (No external SMS, Email, or Slack/Teams)
 - ไม่มีการเชื่อมต่อบัญชีธนาคารจริง (Bank integration)
@@ -73,13 +91,13 @@
 | **FR-02** | ผู้ใช้ที่ยืนยันตัวตนแล้วสามารถสร้างคำขอใหม่โดยระบุ title, amount, category, description; ระบบตรวจสอบความถูกต้อง, สร้าง requestNo, ตั้งสถานะ PENDING และ assign reviewer | S1 | AC-01, AC-02 / TEST-01, TEST-02 |
 | **FR-03** | Requester สามารถดูรายการคำขอของตนเองและดูรายละเอียดสถานะพร้อมประวัติการพิจารณาได้ | S1 | AC-03, AC-04 / TEST-03, TEST-04 |
 | **FR-04** | Assigned Reviewer สามารถดูคิวคำขอรอพิจารณา (PENDING) และทำการ APPROVE หรือ REJECT พร้อมบันทึก comment ได้; ระบบเปลี่ยนสถานะและบันทึกประวัติ | S1 | AC-05..AC-12 / TEST-05..TEST-13 |
-| **FR-05** | ระบบบันทึกประวัติการตัดสินใจแบบ Append-only (ผู้ทำรายการ, การกระทำ, comment, วันเวลา) และมี audit view | S1 (write) / S2 (view) | AC-06, AC-11 / TEST-06, TEST-13 |
-| **FR-06** | ระบบมอบหมาย reviewer ให้คำขอแต่ละใบ; เฉพาะ reviewer ที่ได้รับมอบหมายเท่านั้นที่ตัดสินได้; Admin สามารถแก้ไข assignment ได้ในอนาคต | S1 (assign) / S3 (admin) | AC-05, AC-09 / TEST-05, TEST-11 |
-| **FR-07** | Reviewer สามารถส่งคำขอกลับให้แก้ไข (RETURNED); Requester สามารถแก้ไขและ resubmit ได้ | S2 | Planned S2 Contract |
-| **FR-08** | รองรับการอนุมัติหลายระดับขั้น (Multi-stage Approval) พร้อมบันทึกประวัติแยกแต่ละ stage | S2 | Planned S2 Contract |
-| **FR-09** | รองรับการแนบไฟล์เอกสารประกอบคำขอ พร้อมระบบควบคุมสิทธิ์การเข้าถึงไฟล์ | S2 | Planned S2 Contract |
-| **FR-10** | ค้นหา คัดกรองคำขอ และออกรายงานสรุปยอดงบประมาณตามสถานะและหมวดหมู่ | S3 | Planned S3 Contract |
-| **FR-11** | Admin สามารถจัดการบัญชีผู้ใช้, บทบาท, และ reviewer assignment ได้ | S3 | Planned S3 Contract |
+| **FR-05** | ระบบบันทึกประวัติการตัดสินใจแบบ Append-only (ผู้ทำรายการ, การกระทำ, comment, วันเวลา) และมี audit view | S1 (write) / S2 (view) | AC-06, AC-11 / TEST-06, TEST-13; audit view AC-13.1..13.4 / TEST-14.1..14.4 |
+| **FR-06** | ระบบมอบหมาย reviewer ให้คำขอแต่ละใบ; เฉพาะ reviewer ที่ได้รับมอบหมายเท่านั้นที่ตัดสินได้; Admin สามารถแก้ไข assignment ได้ในอนาคต | S1 (assign) / S2 (CR-04, stage 2) / S3 (admin) | AC-05, AC-09 / TEST-05, TEST-11; CR-04 TEST-01a..01f; stage 2 TEST-16.1..16.6 |
+| **FR-07** | Reviewer สามารถส่งคำขอกลับให้แก้ไข (RETURNED); Requester สามารถแก้ไขและ resubmit ได้ | S2 | AC-14.1..14.6 / TEST-15.1..15.6 (RED `b54d01f` → GREEN `1302efb`) |
+| **FR-08** | รองรับการอนุมัติหลายระดับขั้น (Multi-stage Approval) พร้อมบันทึกประวัติแยกแต่ละ stage | S2 | AC-15.1..15.6 / TEST-16.1..16.6 (RED `9f76c59` → GREEN `142bbe6`) |
+| **FR-09** | รองรับการแนบไฟล์เอกสารประกอบคำขอ พร้อมระบบควบคุมสิทธิ์การเข้าถึงไฟล์ | S2 | AC-16.1..16.6 / TEST-17.1..17.6 (RED `7e9d98b` → GREEN `8ae1271`) |
+| **FR-10** | ค้นหา คัดกรองคำขอ และออกรายงานสรุปยอดงบประมาณตามสถานะและหมวดหมู่ | S3 | **Partial (D2):** filter AC-17.1..17.5 / TEST-18.1..18.5; aggregation/reporting still planned (TEST-19/20 n/a) |
+| **FR-11** | Admin สามารถจัดการบัญชีผู้ใช้, บทบาท, และ reviewer assignment ได้ | S3 | **Planned** — AC-18.1..18.6 / TEST-19.1..19.6 (contract only, none executed) |
 
 ---
 
@@ -88,11 +106,11 @@
 | ID | Rule & Domain Constraint | Failure Behavior | Sprint |
 | :--- | :--- | :--- | :---: |
 | **BR-01** | **No Self-Approval:** ผู้ยื่นคำขอห้ามอนุมัติหรือปฏิเสธคำขอที่ตนเองสร้างขึ้นเด็ดขาด แม้ผู้ใช้นั้นจะมีบทบาทเป็น REVIEWER หรือ ADMIN | 403 `SELF_APPROVAL_NOT_ALLOWED` (ตรวจสอบก่อน assignment check) | S1 |
-| **BR-02** | **Valid State Lifecycle:** คำขอเริ่มต้นที่สถานะ `PENDING`; สามารถเปลี่ยนสถานะได้เพียงทางเดียวไปยัง `APPROVED` หรือ `REJECTED`; ห้ามเปลี่ยนสถานะคำขอที่ตัดสินไปแล้ว | 400 `INVALID_STATE_TRANSITION` | S1 |
+| **BR-02** | **Valid State Lifecycle:** เริ่มที่ `PENDING`; เปลี่ยนได้ `→ APPROVED` / `→ REJECTED` (terminal); **CR-05** เพิ่ม `PENDING → RETURNED → PENDING` (resubmit) และ `PENDING → PENDING_STAGE2 → APPROVED` (F-07); ห้ามเปลี่ยนซ้ำ | 400 `INVALID_STATE_TRANSITION` | S1 + CR-05 (S2) |
 | **BR-03** | **Data Isolation:** Requester สามารถดูได้เฉพาะคำขอของตนเองเท่านั้น; Reviewer ดูได้เฉพาะคำขอที่ได้รับมอบหมาย (หรือคำขอของตนเอง) | 403 `ACCESS_DENIED` | S1 |
 | **BR-04** | **Payload Validation:** `title` ต้องมีความยาว 3–150 ตัวอักษร (หลัง trim); `amount` ต้องเป็นจำนวนบวก > 0 และไม่เกิน 9,999,999,999.99 (Decimal(12,2)); `category` ต้องอยู่ใน whitelist; `description` ต้องมีความยาว 1–1,000 ตัวอักษร | 400 `VALIDATION_ERROR` | S1 |
-| **BR-05** | **Reviewer Assignment:** คำขอทุกใบต้องมี assigned reviewer; เฉพาะ reviewer ที่ได้รับมอบหมายเท่านั้นที่มีสิทธิ์ตัดสินคำขอ | 403 `ACCESS_DENIED` | S1 |
-| **BR-06** | **Append-Only History:** ทุกการกระทำ (submit/approve/reject) ต้องเพิ่ม record ใหม่ลง `ApprovalHistory` เท่านั้น ห้ามแก้ไขหรือลบ; การอัปเดตสถานะและเพิ่ม history ต้องทำใน transaction เดียวกัน | ห้ามมี API แก้ไข/ลบ; Rollback ทั้งหมดหากผิดพลาด | S1 |
+| **BR-05** | **Reviewer Assignment:** คำขอทุกใบต้องมี assigned reviewer; เฉพาะ reviewer ที่ได้รับมอบหมายเท่านั้นที่ตัดสินได้; **CR-04 (Lab 7):** คำขอ > 5,000 THB หรือนอกเวลา 08:00–17:59 ICT → `manager.hybrid`, พร้อม fallback เมื่อ candidate เป็น requester; **F-07:** stage 2 ใช้ reviewer ที่แตกต่างจาก requester และ stage 1; resubmit คำนวณ assignment ใหม่จาก amount/category ปัจจุบัน | 403 `ACCESS_DENIED`; 400 `STAGE_REVIEWER_UNAVAILABLE` เมื่อไม่มี reviewer ที่แตกต่าง | S1 + CR-04 + S2 |
+| **BR-06** | **Append-Only History:** ทุกการกระทำ (submit/approve/reject/return/resubmit) ต้องเพิ่ม record ใหม่ลง `ApprovalHistory` เท่านั้น ห้ามแก้ไขหรือลบ; การอัปเดตสถานะและเพิ่ม history ต้องทำใน transaction เดียวกัน; F-07 บันทึก `stage` ต่อ history row | ห้ามมี API แก้ไข/ลบ; Rollback ทั้งหมดหากผิดพลาด | S1 + S2 |
 | **BR-07** | **Decision Validation:** การตัดสินต้องเป็น `APPROVE` หรือ `REJECT` เท่านั้น; กรณี `REJECT` บังคับต้องระบุ comment ความยาว 3–500 ตัวอักษร; กรณี `APPROVE` ระบุ comment ได้ไม่เกิน 500 ตัวอักษร | 400 `VALIDATION_ERROR` | S1 |
 
 ---
@@ -105,8 +123,8 @@
 | **NFR-02** | Performance | เวลาตอบสนอง p95 < 300 ms สำหรับ API ทั้งหมดใน Sprint 1 ภายใต้ local load 50 concurrent requests (warm DB); การดึงรายการไม่เกิดปัญหา N+1 queries | Supertest execution timer / autocannon script | S1 Baseline; S3 Recheck |
 | **NFR-03** | Persistence & Durability | ข้อมูลคำขอและประวัติทั้งหมดต้องคงอยู่หลัง restart เซิร์ฟเวอร์; รัน database migration และ idempotent seed ได้ซ้ำจากฐานข้อมูลเปล่า | Restart verification test + `prisma migrate reset` + seed script | S1; Lab 5 Deployment |
 | **NFR-04** | Validation & Error Safety | 100% ของ invalid payload ส่งคืน status 4xx พร้อมรหัส error code มาตรฐาน; ห้ามส่งคืน stack trace หรือ 500 สำหรับข้อผิดพลาดที่คาดหมายได้ | Negative & boundary unit/integration tests | S1 |
-| **NFR-05** | Testability & Traceability | 100% ของ Sprint 1 Acceptance Criteria (AC) ต้องมี automated test รองรับอย่างน้อย 1 ตัว; Critical journeys มี Playwright E2E | Traceability matrix cross-check + Vitest coverage | S1 |
-| **NFR-06** | Deployability & Config | สามารถรันผ่าน Docker container โดยอ่านค่าผ่าน environment variables ทั้งหมด, ไม่มี hardcoded secret, มี endpoint `/api/health` สำหรับ probe | Docker build/run test + env inspection | Design in S1; Verify Lab 5 |
+| **NFR-05** | Testability & Traceability | 100% ของ AC ใน Sprint 1 **และ Sprint 2** ต้องมี automated test อย่างน้อย 1 ตัว; Critical journeys มี Playwright E2E | Traceability matrix + AC/TEST registry; 75 tests passing on candidate (`14 files`) | S1 / S2 |
+| **NFR-06** | Deployability & Config | รันผ่าน Docker โดยอ่าน env ทั้งหมด, ไม่มี hardcoded secret, มี `/api/health`; F-08 เพิ่ม `UPLOAD_DIR`, `MAX_ATTACHMENT_MB` (เฉพาะชื่อตัวแปรในเอกสาร) | Docker build/run + env inspection; CI quality gate on `sprint-2-staging` | Design S1; Verify Lab 5; CI S2 |
 
 ---
 
@@ -128,6 +146,22 @@
 | **D-12** | Decision | Assigned Queue Only | Reviewer จะมองเห็นเฉพาะคิวที่ได้รับมอบหมายเท่านั้น ไม่เห็นคำขอทั้งหมดขององค์กร เพื่อความปลอดภัยของข้อมูล |
 | **D-13** | Assumption | Demo Credentials | บัญชีทดสอบทุกบัญชีใช้รหัสผ่าน `Password123!` สำหรับ local development เท่านั้น |
 | **D-14** | Decision | Atomic Status & History Update | การเปลี่ยนสถานะคำขอและการบันทึกประวัติต้องทำภายใน `prisma.$transaction` เดียวกันเพื่อป้องกัน partial failure |
+| **D-15** | Decision (CR-04 / Lab 7) | Dynamic reviewer assignment | คำขอ > 5,000 THB หรือนอกเวลาทำการ → `manager.hybrid`; หาก candidate คือ requester ให้ fallback ไป reviewer อื่น; ใช้กับ resubmit ด้วย |
+| **D-16** | Decision (CR-05) | Lifecycle extension | เพิ่ม `RETURNED`, `PENDING_STAGE2` และ history actions `RETURNED`, `RESUBMITTED` ด้วย migration แบบ additive (`20261127183708_sprint2_lifecycle_and_attachments`) |
+| **D-17** | Decision (F-07 v1.1) | Third seeded reviewer | เพิ่ม `finance.reviewer@cpe334.local` เพื่อให้มี stage-2 reviewer ที่แตกต่างจาก requester และ stage 1 เสมอ โดยไม่เปลี่ยน CR-04 mapping (ป้องกัน regression ของ TEST-01f) |
+| **D-18** | Decision (F-08) | Attachment storage policy | เก็บไฟล์ใน `uploads/` (gitignored) ผ่าน API ที่ authorize ทุกครั้ง; whitelist PDF/PNG/JPEG, ≤ 5 MB, ชื่อไฟล์บน disk เป็น UUID; ไม่มี delete endpoint ใน Sprint 2 |
+| **D-19** | Decision (F-09) | Server-side filters | ใช้ query params บน `/my` และ `/pending` + `AND` กับ ownership predicate; filter ต้องไม่ขยายสิทธิ์; ช่วงวันเป็น Asia/Bangkok แบบ inclusive |
+| **D-20** | Decision (S2 evidence) | Honest status labels | F-10/F-11 มี contract แต่ไม่มี AC ที่รัน → ต้องระบุเป็น *planned* ในตาราง traceability และ PDF Part C |
 | **Q-01** | Open (S3) | Global Admin Visibility | ใน Sprint 3 ผู้ดูแลระบบควรมีสิทธิ์ดูคำขอของทุกแผนกหรือไม่ (ต้องตกลงตอนทำ F-10) |
-| **Q-02** | Open (S2) | Return for Revision Rules | คำขอที่ถูกส่งกลับให้แก้ไข เมื่อยื่นใหม่จะส่งไปยัง Reviewer คนเดิมหรือเริ่มกระบวนการใหม่ |
-| **Q-03** | Open (S2) | Attachment Storage Strategy | กำหนดขนาดไฟล์สูงสุดและประเภทไฟล์ที่อนุญาตสำหรับการแนบหลักฐานใน Sprint 2 |
+| **Q-02** | Resolved (D-16/F-06) | Return for Revision Rules | ยื่นใหม่แล้ว **assign ใหม่ตาม CR-04** จาก amount/category/time ปัจจุบัน ไม่ใช่ reviewer คนเดิมเสมอไป |
+| **Q-03** | Resolved (D-18/F-08) | Attachment Storage Strategy | ≤ 5 MB, PDF/PNG/JPEG, local `uploads/`, authorize ผ่าน API ทุกครั้ง |
+
+---
+
+## 8. Approved Change Register (Deliverable 2)
+
+| ID | Date | Affected baseline | Change | Reason / impact | Approved by |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **CR-04** | 25–27 Nov 2026 | BR-05, FR-06 | Dynamic assignment by amount/time (Lab 7 option 1 adapted) | ทำให้ assignment สอดคล้องความเสี่ยง; มี TEST-01a..01f; ไม่มี TA approval form under updated lab — record `NOT AVAILABLE` | Oum & T |
+| **CR-05** | 28 Nov 2026 | BR-02, BR-06, schema | `RETURNED`, `PENDING_STAGE2`, `RESUBMITTED`/`RETURNED` history | จำเป็นสำหรับ F-06/F-07; migration แบบ additive; ทดสอบ regression 43/43 ก่อน merge | Oum & T |
+| **F-07 v1.1** | 28 Nov 2026 | seed accounts, D-17 | เพิ่ม reviewer คนที่ 3 | กันไม่ให้ F-07 ทำลาย CR-04 fallback (TEST-01f) | Oum & T |
