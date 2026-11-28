@@ -38,6 +38,17 @@ export interface ApprovalHistory {
   createdAt: string;
 }
 
+export interface Attachment {
+  id: string;
+  requestId: string;
+  uploaderId: string;
+  uploader?: PublicUser;
+  filename: string;
+  mime: string;
+  size: number;
+  createdAt: string;
+}
+
 export interface ApiErrorDetail {
   path?: string;
   message: string;

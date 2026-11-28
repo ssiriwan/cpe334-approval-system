@@ -8,6 +8,7 @@ import {
   type ApprovalRequest,
 } from '../lib/api';
 import { StatusBadge } from '../components/StatusBadge';
+import { AttachmentSection } from '../components/AttachmentSection';
 import { useAuth } from '../context/AuthContext';
 
 type Decision = 'APPROVE' | 'REJECT' | 'RETURN';
@@ -387,6 +388,11 @@ export function ReviewDetailPage() {
           </form>
         )}
       </div>
+
+      <AttachmentSection
+        requestId={request.id}
+        canUpload={isAssigned || isOwner}
+      />
 
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center gap-2">

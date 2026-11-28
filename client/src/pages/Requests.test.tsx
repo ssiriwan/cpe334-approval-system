@@ -28,6 +28,10 @@ vi.mock('../context/AuthContext', () => ({
   }),
 }));
 
+vi.mock('../components/AttachmentSection', () => ({
+  AttachmentSection: () => null,
+}));
+
 describe('Requester UI pages', () => {
   afterEach(() => {
     vi.restoreAllMocks();
