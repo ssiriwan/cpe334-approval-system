@@ -50,6 +50,20 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
     return;
   }
 
+  // Multer errors (e.g. file size boundary or unexpected field)
+  if (error && typeof error === 'object' && 'name' in error && error.name === 'MulterError') {
+    const multerErr = error as { code?: string; message?: string };
+    const errCode = multerErr.code === 'LIMIT_FILE_SIZE' ? 'ATTACHMENT_TOO_LARGE' : 'VALIDATION_ERROR';
+    res.status(400).json({
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: multerErr.message || 'File upload error.',
+        details: [{ field: 'file', code: errCode }],
+      },
+    });
+    return;
+  }
+
   // Malformed JSON bodies are rejected by express.json() with a SyntaxError.
   if (error instanceof SyntaxError && 'body' in error) {
     res.status(400).json({

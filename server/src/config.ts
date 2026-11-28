@@ -15,6 +15,8 @@ const envSchema = z.object({
   JWT_EXPIRES_IN_SECONDS: z.coerce.number().int().positive().default(8 * 60 * 60),
   CLIENT_ORIGIN: z.string().min(1).default('http://localhost:5173'),
   COOKIE_SECURE: z.enum(['true', 'false']).optional(),
+  UPLOAD_DIR: z.string().default('uploads'),
+  MAX_ATTACHMENT_MB: z.coerce.number().positive().default(5),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -37,4 +39,7 @@ export const config = {
   jwtExpiresInSeconds: env.JWT_EXPIRES_IN_SECONDS,
   clientOrigin: env.CLIENT_ORIGIN,
   cookieSecure: env.COOKIE_SECURE ? env.COOKIE_SECURE === 'true' : env.NODE_ENV === 'production',
+  uploadDir: path.resolve(repoRoot, env.UPLOAD_DIR),
+  maxAttachmentMb: env.MAX_ATTACHMENT_MB,
+  maxAttachmentBytes: env.MAX_ATTACHMENT_MB * 1024 * 1024,
 } as const;

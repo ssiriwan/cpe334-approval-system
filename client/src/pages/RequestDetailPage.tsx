@@ -9,6 +9,7 @@ import {
   type RequestCategory,
 } from '../lib/api';
 import { StatusBadge } from '../components/StatusBadge';
+import { AttachmentSection } from '../components/AttachmentSection';
 import { useAuth } from '../context/AuthContext';
 
 const CATEGORIES: RequestCategory[] = ['EQUIPMENT', 'TRAVEL', 'SOFTWARE', 'SUPPLIES'];
@@ -401,6 +402,12 @@ export function RequestDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Attachments Section (F-08) */}
+      <AttachmentSection
+        requestId={request.id}
+        canUpload={isOwner || Boolean(user && user.id === request.assignedReviewerId)}
+      />
 
       {/* History Audit Trail */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
