@@ -6,6 +6,7 @@ import {
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../lib/errors.js';
+import { filterWhere, type ParsedFilters } from '../validation/filters.js';
 
 const PUBLIC_USER_SELECT = {
   id: true,
@@ -62,11 +63,16 @@ function serializeRequest<
  * BR-05/BR-03: only requests explicitly assigned to this reviewer, and only
  * while they are still PENDING. Oldest first so the queue is FIFO.
  */
-export async function listPendingReviews(reviewerId: string) {
+export async function listPendingReviews(reviewerId: string, filters: ParsedFilters = {}) {
   const records = await prisma.approvalRequest.findMany({
     where: {
-      assignedReviewerId: reviewerId,
-      status: RequestStatus.PENDING,
+      AND: [
+        {
+          assignedReviewerId: reviewerId,
+          status: RequestStatus.PENDING,
+        },
+        filterWhere(filters),
+      ],
     },
     orderBy: [{ createdAt: 'asc' }, { requestNo: 'asc' }],
     include: {
@@ -75,7 +81,8 @@ export async function listPendingReviews(reviewerId: string) {
     },
   });
 
-  return records.map(serializeRequest);
+  const requests = records.map(serializeRequest);
+  return { requests, count: requests.length };
 }
 
 /**
