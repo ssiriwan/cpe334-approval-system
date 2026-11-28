@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../lib/errors.js';
 import { filterWhere, type ParsedFilters } from '../validation/filters.js';
+import { resolveStage2ReviewerId } from './request.service.js';
 
 const PUBLIC_USER_SELECT = {
   id: true,
@@ -69,7 +70,9 @@ export async function listPendingReviews(reviewerId: string, filters: ParsedFilt
       AND: [
         {
           assignedReviewerId: reviewerId,
-          status: RequestStatus.PENDING,
+          // F-07: the stage-2 reviewer also needs a queue; the assignment
+          // switch at stage-1 approval keeps this exclusive per current stage.
+          status: { in: [RequestStatus.PENDING, RequestStatus.PENDING_STAGE2] },
         },
         filterWhere(filters),
       ],
@@ -104,6 +107,8 @@ export async function submitReview(
       requesterId: true,
       assignedReviewerId: true,
       status: true,
+      amount: true,
+      stage: true,
     },
   });
 
@@ -130,8 +135,12 @@ export async function submitReview(
     );
   }
 
-  // BR-02: decisions are single-shot from PENDING only.
-  if (existing.status !== RequestStatus.PENDING) {
+  // BR-02: decisions are single-shot from PENDING, or from PENDING_STAGE2 at
+  // the second stage of a high-value request (F-07).
+  if (
+    existing.status !== RequestStatus.PENDING &&
+    existing.status !== RequestStatus.PENDING_STAGE2
+  ) {
     throw new AppError(
       400,
       'INVALID_STATE_TRANSITION',
@@ -139,19 +148,43 @@ export async function submitReview(
     );
   }
 
+  const isMultiStage = existing.amount.toNumber() > 5000;
+  const currentStage = existing.status === RequestStatus.PENDING_STAGE2 ? 2 : existing.stage;
+  if (existing.status === RequestStatus.PENDING_STAGE2 && !isMultiStage) {
+    throw new AppError(
+      400,
+      'INVALID_STATE_TRANSITION',
+      'A single-stage request cannot be in the second stage.'
+    );
+  }
+
   // BR-07: validate the payload only after role/self/assignment/state checks.
   const payload = reviewDecisionSchema.parse(body ?? {});
-  const nextStatus =
-    payload.decision === 'APPROVE' ? RequestStatus.APPROVED : RequestStatus.REJECTED;
+  const isStage1Approval = payload.decision === 'APPROVE' && isMultiStage && currentStage === 1;
+  const nextStatus = isStage1Approval
+    ? RequestStatus.PENDING_STAGE2
+    : payload.decision === 'APPROVE'
+      ? RequestStatus.APPROVED
+      : RequestStatus.REJECTED;
   const action =
     payload.decision === 'APPROVE' ? HistoryAction.APPROVED : HistoryAction.REJECTED;
   const comment = payload.comment && payload.comment.length > 0 ? payload.comment : null;
 
   return prisma.$transaction(async (tx) => {
+    // Stage 2 is assigned to the distinct eligible reviewer at stage-1
+    // approval; the requester can never be selected (BR-01).
+    const stage2ReviewerId = isStage1Approval
+      ? await resolveStage2ReviewerId(tx, existing.requesterId, existing.assignedReviewerId!)
+      : undefined;
+
     // Conditional write guards against two reviewers / double submits.
     const updated = await tx.approvalRequest.updateMany({
-      where: { id: requestId, status: RequestStatus.PENDING },
-      data: { status: nextStatus },
+      where: { id: requestId, status: existing.status },
+      data: {
+        status: nextStatus,
+        stage: isStage1Approval ? 2 : currentStage,
+        ...(stage2ReviewerId ? { assignedReviewerId: stage2ReviewerId } : {}),
+      },
     });
 
     if (updated.count === 0) {
@@ -167,6 +200,7 @@ export async function submitReview(
         requestId,
         actorId: reviewerId,
         action,
+        stage: currentStage,
         comment,
       },
       include: {
@@ -208,6 +242,7 @@ export async function returnRequest(
       requesterId: true,
       assignedReviewerId: true,
       status: true,
+      stage: true,
     },
   });
 
@@ -264,6 +299,7 @@ export async function returnRequest(
         requestId,
         actorId: reviewerId,
         action: HistoryAction.RETURNED,
+        stage: existing.stage,
         comment: payload.comment,
       },
       include: {

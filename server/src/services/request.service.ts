@@ -166,6 +166,40 @@ export async function resolveAssignedReviewerId(
   return anyOtherReviewer.id;
 }
 
+/**
+ * F-07: resolve the stage-2 reviewer for a high-value request.
+ *
+ * The stage-2 reviewer must be a REVIEWER distinct from both the requester and
+ * the stage-1 reviewer. With only two seeded reviewers this is impossible when
+ * the requester is one of them, so creation/resubmission fails explicitly
+ * instead of silently downgrading to single-stage.
+ */
+export async function resolveStage2ReviewerId(
+  tx: Prisma.TransactionClient,
+  requesterId: string,
+  stage1ReviewerId: string
+): Promise<string> {
+  const candidate = await tx.user.findFirst({
+    where: {
+      role: Role.REVIEWER,
+      id: { notIn: [requesterId, stage1ReviewerId] },
+    },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true },
+  });
+
+  if (!candidate) {
+    throw new AppError(
+      400,
+      'VALIDATION_ERROR',
+      'No distinct stage-2 reviewer is available for a high-value request.',
+      [{ field: 'stage', code: 'STAGE_REVIEWER_UNAVAILABLE' }]
+    );
+  }
+
+  return candidate.id;
+}
+
 async function generateNextRequestNo(tx: Prisma.TransactionClient): Promise<string> {
   const prefix = formatDatePrefix(new Date());
   const latest = await tx.approvalRequest.findFirst({
@@ -198,6 +232,11 @@ export async function createRequest(requesterId: string, input: CreateRequestInp
           requesterId,
           input.amount
         );
+        // F-07: a high-value request must have a distinct stage-2 reviewer.
+        // Fail before writing anything when none exists (explicit boundary).
+        if (input.amount > 5000) {
+          await resolveStage2ReviewerId(tx, requesterId, assignedReviewerId);
+        }
         const requestNo = await generateNextRequestNo(tx);
 
         const approvalRequest = await tx.approvalRequest.create({
@@ -342,6 +381,10 @@ export async function resubmitRequest(
       requesterId,
       payload.amount
     );
+    // F-07: resubmission with a high value must also satisfy the stage-2 rule.
+    if (payload.amount > 5000) {
+      await resolveStage2ReviewerId(tx, requesterId, assignedReviewerId);
+    }
 
     const updated = await tx.approvalRequest.updateMany({
       where: { id: requestId, status: RequestStatus.RETURNED },

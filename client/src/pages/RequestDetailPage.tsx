@@ -437,7 +437,10 @@ export function RequestDetailPage() {
               >
                 <div>
                   <p className="text-sm font-semibold text-slate-900">
-                    {entry.action}{' '}
+                    {entry.action}
+                    {entry.stage ? (
+                      <span className="ml-1 font-normal text-purple-700">Stage {entry.stage}</span>
+                    ) : null}{' '}
                     <span className="font-normal text-slate-600">
                       by {entry.actor?.name ?? entry.actorId}
                     </span>

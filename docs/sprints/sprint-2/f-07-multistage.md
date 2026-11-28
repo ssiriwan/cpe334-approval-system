@@ -17,8 +17,9 @@ High-value requests require two approvals. The feature is **bounded**: ordinary 
 - Multi-stage applies when `amount > 5000.00 THB` **at creation or resubmission** (the same high-value boundary CR-04 already uses for escalation). Out-of-hours submissions continue to use CR-04 escalation but do **not** by themselves add a stage.
 - `stage` is stored on `ApprovalRequest` (`Int`, default `1`). `stage = 1` while `PENDING`; `stage = 2` while `PENDING_STAGE2`.
 - **Stage 1 reviewer** = the reviewer returned by the existing `resolveAssignedReviewerId` (CR-04). For high-value requests this is normally `manager.hybrid`.
-- **Stage 2 reviewer** = the other eligible `REVIEWER` who is **different from both the requester and the stage-1 reviewer**. With the seeded accounts: requester `oum.requester` → stage 1 `manager.hybrid`, stage 2 `t.reviewer`.
-- If no distinct stage-2 reviewer exists (e.g. the requester is one of only two reviewers), creation/resubmission must fail with `400 VALIDATION_ERROR` (`STAGE_REVIEWER_UNAVAILABLE`) and write nothing. This is an explicit boundary, not a silent downgrade to single-stage.
+- **Stage 2 reviewer** = the other eligible `REVIEWER` who is **different from both the requester and the stage-1 reviewer**. Seeded reviewers are `t.reviewer`, `manager.hybrid` and `finance.reviewer`, so a distinct stage-2 reviewer always exists — including when the requester is themselves a REVIEWER. For requester `oum.requester`: stage 1 `manager.hybrid`, stage 2 `t.reviewer`.
+- Adding `finance.reviewer` (v1.1) preserves the Lab 7 CR-04 contract: a REVIEWER requester still gets a valid stage-1 fallback and may create high-value requests (TEST-01f). The third reviewer is only used for stage 2; CR-04's primary/fallback mapping is unchanged.
+- Safety net: if no distinct stage-2 reviewer exists (data anomaly), creation/resubmission fails with `400 VALIDATION_ERROR` (`STAGE_REVIEWER_UNAVAILABLE`) and writes nothing. This is an explicit boundary, not a silent downgrade to single-stage.
 - Stage-2 reviewer is persisted in `assignedReviewerId` when the request advances, so `GET /api/requests/pending` keeps working with no new queue endpoint: each reviewer sees only requests whose **current** stage is assigned to them.
 
 ### State lifecycle
@@ -132,3 +133,4 @@ Additional checks: regression TEST-08/09/11 and CR-04 boundary tests (5000 vs 50
 | Version | Date | Change | Reason |
 | :--- | :--- | :--- | :--- |
 | v1.0 | 28 Nov 2026 | Initial bounded two-stage contract, stage reviewer rule, AC-15.1..15.6, TEST-16.1..16.6. | Deliverable 2 F-07; compatibility with CR-04 documented. |
+| v1.1 | 28 Nov 2026 | Add third seeded reviewer (`finance.reviewer`) and clarify the stage-2 availability guard as a safety net. | Prevents regression of Lab 7 CR-04 fallback (TEST-01f) while keeping a distinct stage-2 reviewer. |

@@ -189,7 +189,8 @@ export function ReviewDetailPage() {
 
   if (!request) return null;
 
-  const canAttemptDecision = request.status === 'PENDING';
+  const canAttemptDecision =
+    request.status === 'PENDING' || request.status === 'PENDING_STAGE2';
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -206,7 +207,14 @@ export function ReviewDetailPage() {
             <span className="font-mono text-xs text-slate-500 block">{request.requestNo}</span>
             <h1 className="text-2xl font-bold text-slate-900">{request.title}</h1>
           </div>
-          <StatusBadge status={request.status} />
+          <div className="flex items-center gap-2">
+            {Number(request.amount) > 5000 && (
+              <span className="rounded-full border border-purple-200 bg-purple-50 px-2.5 py-0.5 text-xs font-semibold text-purple-800">
+                Stage {request.stage ?? 1} / 2
+              </span>
+            )}
+            <StatusBadge status={request.status} />
+          </div>
         </div>
       </div>
 
@@ -397,7 +405,10 @@ export function ReviewDetailPage() {
               >
                 <div>
                   <p className="text-sm font-semibold text-slate-900">
-                    {entry.action}{' '}
+                    {entry.action}
+                    {entry.stage ? (
+                      <span className="ml-1 font-normal text-purple-700">Stage {entry.stage}</span>
+                    ) : null}{' '}
                     <span className="font-normal text-slate-600">
                       by {entry.actor?.name ?? entry.actorId}
                     </span>
