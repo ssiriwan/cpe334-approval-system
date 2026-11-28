@@ -1,9 +1,49 @@
 import { HistoryAction, Prisma, RequestStatus, Role } from '@prisma/client';
+import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../lib/errors.js';
 
 export const ALLOWED_CATEGORIES = ['EQUIPMENT', 'TRAVEL', 'SOFTWARE', 'SUPPLIES'] as const;
 export type RequestCategory = (typeof ALLOWED_CATEGORIES)[number];
+
+export const createRequestSchema = z
+  .object({
+    title: z
+      .string()
+      .trim()
+      .min(3, 'Title must contain at least 3 characters.')
+      .max(150, 'Title must not exceed 150 characters.'),
+    // F-PB-01: validate the decimal representation, never a floating-point
+    // multiplication (1234567.89 * 100 === 123456788.99999999 in JS).
+    amount: z
+      .union([z.string(), z.number()])
+      .transform((value, ctx) => {
+        const raw = typeof value === 'number' ? String(value) : value.trim();
+        if (!/^\d+(\.\d{1,2})?$/.test(raw)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Amount must have at most 2 decimal places.',
+          });
+          return z.NEVER;
+        }
+        const parsed = Number(raw);
+        if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 9999999999.99) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Amount must be greater than 0 and at most 9,999,999,999.99.',
+          });
+          return z.NEVER;
+        }
+        return parsed;
+      }),
+    category: z.enum(ALLOWED_CATEGORIES),
+    description: z
+      .string()
+      .trim()
+      .min(1, 'Description is required.')
+      .max(1000, 'Description must not exceed 1,000 characters.'),
+  })
+  .strict();
 
 export interface CreateRequestInput {
   title: string;
@@ -243,4 +283,106 @@ export async function getRequestDetail(requestId: string, currentUserId: string)
     request: serializeRequest(requestFields),
     histories,
   };
+}
+
+/**
+ * Resubmit a RETURNED request (F-06 / FR-07).
+ *
+ * Check order:
+ * existence -> BR-03 ownership -> BR-02 state ->
+ * payload validation (createRequestSchema) -> transactional re-resolve reviewer + update + append history.
+ */
+export async function resubmitRequest(
+  requestId: string,
+  requesterId: string,
+  body: unknown
+) {
+  const existing = await prisma.approvalRequest.findUnique({
+    where: { id: requestId },
+    select: {
+      id: true,
+      requesterId: true,
+      status: true,
+    },
+  });
+
+  if (!existing) {
+    throw new AppError(404, 'NOT_FOUND', 'Approval request was not found.');
+  }
+
+  // BR-03: only the owner may resubmit
+  if (existing.requesterId !== requesterId) {
+    throw new AppError(
+      403,
+      'ACCESS_DENIED',
+      'You do not have permission to resubmit this request.'
+    );
+  }
+
+  // BR-02: resubmit only allowed from RETURNED status
+  if (existing.status !== RequestStatus.RETURNED) {
+    throw new AppError(
+      400,
+      'INVALID_STATE_TRANSITION',
+      `Request is in ${existing.status} status and cannot be resubmitted.`
+    );
+  }
+
+  // BR-04: validate payload after existence/ownership/state guards
+  const payload = createRequestSchema.parse(body ?? {});
+
+  return prisma.$transaction(async (tx) => {
+    // Re-resolve assigned reviewer under current rule (CR-04)
+    const assignedReviewerId = await resolveAssignedReviewerId(
+      tx,
+      payload.category,
+      requesterId,
+      payload.amount
+    );
+
+    const updated = await tx.approvalRequest.updateMany({
+      where: { id: requestId, status: RequestStatus.RETURNED },
+      data: {
+        title: payload.title,
+        amount: new Prisma.Decimal(payload.amount.toFixed(2)),
+        category: payload.category,
+        description: payload.description,
+        status: RequestStatus.PENDING,
+        assignedReviewerId,
+      },
+    });
+
+    if (updated.count === 0) {
+      throw new AppError(
+        400,
+        'INVALID_STATE_TRANSITION',
+        'Request has already been resubmitted or status changed.'
+      );
+    }
+
+    const history = await tx.approvalHistory.create({
+      data: {
+        requestId,
+        actorId: requesterId,
+        action: HistoryAction.RESUBMITTED,
+        comment: null,
+      },
+      include: {
+        actor: { select: PUBLIC_USER_SELECT },
+      },
+    });
+
+    const request = await tx.approvalRequest.findUniqueOrThrow({
+      where: { id: requestId },
+      include: {
+        requester: { select: PUBLIC_USER_SELECT },
+        assignedReviewer: { select: PUBLIC_USER_SELECT },
+      },
+    });
+
+    return {
+      request: serializeRequest(request),
+      history,
+    };
+  });
 }

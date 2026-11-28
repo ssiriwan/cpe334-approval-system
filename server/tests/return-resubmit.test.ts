@@ -21,7 +21,12 @@ let reviewerId: string;
 let managerId: string;
 const createdRequestIds: string[] = [];
 
+const cookieCache = new Map<string, string>();
 async function loginCookie(email: string): Promise<string> {
+  const cached = cookieCache.get(email);
+  if (cached) {
+    return cached;
+  }
   const res = await request(app)
     .post('/api/auth/login')
     .send({ email, password: PASSWORD });
@@ -29,6 +34,7 @@ async function loginCookie(email: string): Promise<string> {
   const setCookie = res.headers['set-cookie'] as unknown as string[] | undefined;
   const cookie = setCookie?.[0]?.split(';')[0];
   expect(cookie).toBeDefined();
+  cookieCache.set(email, cookie ?? '');
   return cookie ?? '';
 }
 

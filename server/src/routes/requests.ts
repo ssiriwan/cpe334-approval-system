@@ -1,54 +1,15 @@
 import { Router } from 'express';
 import { Role } from '@prisma/client';
-import { z } from 'zod';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 import {
-  ALLOWED_CATEGORIES,
   createRequest,
+  createRequestSchema,
   getRequestDetail,
   listMyRequests,
+  resubmitRequest,
 } from '../services/request.service.js';
-import { listPendingReviews, submitReview } from '../services/review.service.js';
+import { listPendingReviews, returnRequest, submitReview } from '../services/review.service.js';
 import { getRequestHistory } from '../services/history.service.js';
-
-const createRequestSchema = z
-  .object({
-    title: z
-      .string()
-      .trim()
-      .min(3, 'Title must contain at least 3 characters.')
-      .max(150, 'Title must not exceed 150 characters.'),
-    // F-PB-01: validate the decimal representation, never a floating-point
-    // multiplication (1234567.89 * 100 === 123456788.99999999 in JS).
-    amount: z
-      .union([z.string(), z.number()])
-      .transform((value, ctx) => {
-        const raw = typeof value === 'number' ? String(value) : value.trim();
-        if (!/^\d+(\.\d{1,2})?$/.test(raw)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Amount must have at most 2 decimal places.',
-          });
-          return z.NEVER;
-        }
-        const parsed = Number(raw);
-        if (!Number.isFinite(parsed) || parsed <= 0 || parsed > 9999999999.99) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: 'Amount must be greater than 0 and at most 9,999,999,999.99.',
-          });
-          return z.NEVER;
-        }
-        return parsed;
-      }),
-    category: z.enum(ALLOWED_CATEGORIES),
-    description: z
-      .string()
-      .trim()
-      .min(1, 'Description is required.')
-      .max(1000, 'Description must not exceed 1,000 characters.'),
-  })
-  .strict();
 
 export const requestsRouter = Router();
 
@@ -122,3 +83,25 @@ requestsRouter.post(
     }
   }
 );
+
+requestsRouter.post(
+  '/:id/return',
+  requireRole(Role.REVIEWER),
+  async (req, res, next) => {
+    try {
+      const result = await returnRequest(String(req.params.id), req.user!.id, req.body);
+      res.status(200).json({ data: result });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+requestsRouter.post('/:id/resubmit', async (req, res, next) => {
+  try {
+    const result = await resubmitRequest(String(req.params.id), req.user!.id, req.body);
+    res.status(200).json({ data: result });
+  } catch (error) {
+    next(error);
+  }
+});
