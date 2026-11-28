@@ -1,6 +1,6 @@
 # CPE 334 — Workflow and Approval System
 
-> **Group Project Deliverable 1 (Sprint 1)**  
+> **Group Project Deliverable 2 — Sprint 2 complete + Sprint 3 progress**  
 > **Course:** CPE 334 Introduction to Software Engineering in the Age of AI Agents (Semester 1/2026)  
 > **Theme:** Theme 5 — Workflow and Approval System (Corporate Expense & Purchase Requests)  
 > **Authors:**
@@ -13,7 +13,7 @@
 
 - **Node.js:** `>= 20.x`
 - **npm:** `>= 10.x`
-- **PostgreSQL:** `>= 16.x` (Running locally or in Docker container on host port `5434`)
+- **PostgreSQL:** `>= 17.x` (local instance or Docker container on host port `5434`)
 
 ---
 
@@ -43,7 +43,14 @@ PORT=3000
 NODE_ENV="development"
 CLIENT_ORIGIN="http://localhost:5173"
 COOKIE_SECURE="false"
+
+# Attachment storage (names only — no real secret or absolute path is committed)
+UPLOAD_DIR="uploads"
+MAX_ATTACHMENT_MB="5"
 ```
+
+The complete list of variables and their defaults is in `.env.example`. Environment
+values are read through `server/src/config.ts`; never commit a real secret.
 
 ### 2.4 Database Migration & Seed
 Run Prisma migrations and populate seed accounts:
@@ -53,6 +60,13 @@ npm run prisma:migrate
 npm run prisma:seed
 ```
 
+Two migrations are applied in order: `20261110084745_init_schema` (Sprint 1)
+and `20261127183708_sprint2_lifecycle_and_attachments` (CR-05: `RETURNED`,
+`PENDING_STAGE2`, `stage`, `Attachment`). For released/production environments
+use `npx prisma migrate deploy --schema prisma/schema.prisma`, then verify with
+`npx prisma migrate status`. Details and the rollback note are in
+`docs/sprints/sprint-2/migration-note.md`.
+
 ### 2.5 Seed Accounts (Local Testing Only)
 All demo accounts use password: `Password123!`
 
@@ -60,7 +74,8 @@ All demo accounts use password: `Password123!`
 | :--- | :---: | :--- |
 | `oum.requester@cpe334.local` | `REQUESTER` | Create and track requests |
 | `t.reviewer@cpe334.local` | `REVIEWER` | Review assigned requests (`EQUIPMENT`, `TRAVEL`) |
-| `manager.hybrid@cpe334.local` | `REVIEWER` | Review requests (`SOFTWARE`, `SUPPLIES`) & test BR-01 No Self-Approval |
+| `manager.hybrid@cpe334.local` | `REVIEWER` | Review requests (`SOFTWARE`, `SUPPLIES`); CR-04 escalation for > 5,000 THB / out-of-hours; test BR-01 |
+| `finance.reviewer@cpe334.local` | `REVIEWER` | Distinct stage-2 reviewer for F-07 multi-stage approval (added in Sprint 2) |
 
 ---
 
@@ -77,6 +92,29 @@ npm run dev:client
 ```
 Access the application at `http://localhost:5173`.  
 Backend healthcheck is available at `http://localhost:3000/api/health`.
+
+---
+
+### 3.1 Sprint 2 / Sprint 3 endpoints
+
+All endpoints use the standard `{ data }` / `{ error: { code, message, details? } }`
+envelope and require the HTTP-only `token` cookie unless stated otherwise.
+Role/ownership is always enforced by the backend, not only by the UI.
+
+| Method | Path | Purpose |
+| :---: | :--- | :--- |
+| GET | `/api/requests/:id/history` | Read-only audit trail (F-05) |
+| POST | `/api/requests/:id/return` | Reviewer returns a `PENDING` request with a 3–500 char reason (F-06) |
+| POST | `/api/requests/:id/resubmit` | Owner edits and resubmits a `RETURNED` request (F-06) |
+| POST | `/api/requests/:id/attachments` | Multipart upload, field `file`, PDF/PNG/JPEG ≤ 5 MB (F-08) |
+| GET | `/api/requests/:id/attachments` | Attachment metadata — never exposes the disk path |
+| GET | `/api/attachments/:id` | Authorized file download; rights re-checked at request time |
+| GET | `/api/requests/my`, `/api/requests/pending` | Optional `status`, `category`, `from`, `to` filters plus `count` (F-09) |
+
+High-value requests (`amount > 5000.00` THB) use two approval stages: stage 1
+approve moves to `PENDING_STAGE2`, stage 2 approve finalises to `APPROVED`.
+A request that is already decided cannot be decided again; self-approval is
+blocked with `403 SELF_APPROVAL_NOT_ALLOWED` at every stage.
 
 ---
 
@@ -100,7 +138,14 @@ npm run e2e
 > **Note:** Server API tests are integration tests against the real PostgreSQL
 > database configured by `DATABASE_URL`. Make sure PostgreSQL is running and the
 > migration/seed steps in section 2.4 have been applied before running them. The
-> auth tests create and remove their own `@cpe334.local` test users.
+> auth tests create and remove their own `@cpe334.local` test users. Attachment
+> tests write synthetic files under `UPLOAD_DIR` (gitignored) and clean them up.
+
+On the Deliverable 2 candidate the expected result is **14 test files / 75 tests
+passed** (Sprint 1, CR-04, F-05..F-09 suites) with a clean `npm run build`.
+Test files: `auth`, `health`, `requests`, `review`, `history`,
+`return-resubmit`, `multistage`, `attachments`, `search-filter` (server) plus the
+client page/component suites. AC-to-test mapping is in `docs/traceability.md`.
 
 ### Build Verification
 ```bash
@@ -148,7 +193,7 @@ environment.
 
 | Workflow | Trigger | What it does |
 | :--- | :--- | :--- |
-| `.github/workflows/ci-docker.yml` | Pull request or push to `lab5-staging` / `sprint-1-staging` / `main` | Starts PostgreSQL, runs `prisma migrate deploy`, `npm test`, `npm run build`, builds the Docker image, and smoke-tests the running container. |
+| `.github/workflows/ci-docker.yml` | Pull request or push to `lab5-staging` / `sprint-1-staging` / `sprint-2-staging` / `main` | Starts PostgreSQL, runs `prisma migrate deploy`, `npm test`, `npm run build`, builds the Docker image, and smoke-tests the running container. |
 | `.github/workflows/deploy.yml` | Push to `main` or manual dispatch | Builds and pushes an image tagged with the commit SHA, runs migrations as a Cloud Run job, deploys the image by digest, and verifies `/api/health` reports the release commit. |
 
 `CI quality gate` is the required status check configured for `main`.
@@ -160,11 +205,11 @@ GCP resources, release procedure, rollback, and evidence mapping.
 
 ## 6. Branching & Git Workflow Rules
 
-1. **Base Branch:** All feature work branches from and targets `sprint-1-staging`.
-2. **Never commit directly** to `main` or `sprint-1-staging`.
+1. **Base Branch:** Sprint 1 work used `sprint-1-staging`; Sprint 2/3 work branches from and targets `sprint-2-staging`.
+2. **Never commit directly** to `main` or either staging branch.
 3. **Branch Naming:** `feature/<issue-no>-<slug>` or `chore/<issue-no>-<slug>`.
-4. **Peer Review:** Every Pull Request into `sprint-1-staging` must be reviewed and approved by the teammate. **Authors never self-approve.**
-5. **Release PR:** Once all features and tests pass on `sprint-1-staging`, open a release PR to `main` and tag `v0.1.0-sprint1`.
+4. **Peer Review:** Every PR into a staging branch must be substantively reviewed and approved by the teammate. **Authors never self-approve or self-merge.**
+5. **Release PR:** Once tests pass on staging, open a release PR to `main`, tag the release (`v0.1.0-sprint1` for Sprint 1; `v0.2.0-sprint2` for this candidate). `deploy.yml` deploys automatically on push to `main`.
 
 ---
 
@@ -174,3 +219,8 @@ GCP resources, release procedure, rollback, and evidence mapping.
 - **Peer Review Audit Log:** `docs/reviewer.md`
 - **Sprint 1 Contracts & Specs:** `docs/sprints/sprint-1/`
 - **Lab 5 Deployment Guide:** `docs/labs/lab-05/deployment.md`
+- **Sprint 2 contracts & evidence:** `docs/sprints/sprint-2/`
+- **Sprint 3 contracts & progress:** `docs/sprints/sprint-3/`
+- **Current traceability matrix:** `docs/traceability.md` (v1.1)
+- **Deliverable 2 evidence:** `docs/deliverable-2/evidence/`
+- **Migration note:** `docs/sprints/sprint-2/migration-note.md`

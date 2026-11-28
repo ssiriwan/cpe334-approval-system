@@ -6,6 +6,8 @@ import {
 import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../lib/errors.js';
+import { filterWhere, type ParsedFilters } from '../validation/filters.js';
+import { resolveStage2ReviewerId } from './request.service.js';
 
 const PUBLIC_USER_SELECT = {
   id: true,
@@ -36,6 +38,16 @@ const reviewDecisionSchema = z
     }
   });
 
+const returnDecisionSchema = z
+  .object({
+    comment: z
+      .string({ required_error: 'A return comment is required.' })
+      .trim()
+      .min(3, 'A return comment of at least 3 characters is required.')
+      .max(500, 'Comment must not exceed 500 characters.'),
+  })
+  .strict();
+
 function serializeRequest<
   T extends {
     amount: Prisma.Decimal;
@@ -52,11 +64,18 @@ function serializeRequest<
  * BR-05/BR-03: only requests explicitly assigned to this reviewer, and only
  * while they are still PENDING. Oldest first so the queue is FIFO.
  */
-export async function listPendingReviews(reviewerId: string) {
+export async function listPendingReviews(reviewerId: string, filters: ParsedFilters = {}) {
   const records = await prisma.approvalRequest.findMany({
     where: {
-      assignedReviewerId: reviewerId,
-      status: RequestStatus.PENDING,
+      AND: [
+        {
+          assignedReviewerId: reviewerId,
+          // F-07: the stage-2 reviewer also needs a queue; the assignment
+          // switch at stage-1 approval keeps this exclusive per current stage.
+          status: { in: [RequestStatus.PENDING, RequestStatus.PENDING_STAGE2] },
+        },
+        filterWhere(filters),
+      ],
     },
     orderBy: [{ createdAt: 'asc' }, { requestNo: 'asc' }],
     include: {
@@ -65,7 +84,8 @@ export async function listPendingReviews(reviewerId: string) {
     },
   });
 
-  return records.map(serializeRequest);
+  const requests = records.map(serializeRequest);
+  return { requests, count: requests.length };
 }
 
 /**
@@ -87,6 +107,8 @@ export async function submitReview(
       requesterId: true,
       assignedReviewerId: true,
       status: true,
+      amount: true,
+      stage: true,
     },
   });
 
@@ -113,8 +135,12 @@ export async function submitReview(
     );
   }
 
-  // BR-02: decisions are single-shot from PENDING only.
-  if (existing.status !== RequestStatus.PENDING) {
+  // BR-02: decisions are single-shot from PENDING, or from PENDING_STAGE2 at
+  // the second stage of a high-value request (F-07).
+  if (
+    existing.status !== RequestStatus.PENDING &&
+    existing.status !== RequestStatus.PENDING_STAGE2
+  ) {
     throw new AppError(
       400,
       'INVALID_STATE_TRANSITION',
@@ -122,19 +148,43 @@ export async function submitReview(
     );
   }
 
+  const isMultiStage = existing.amount.toNumber() > 5000;
+  const currentStage = existing.status === RequestStatus.PENDING_STAGE2 ? 2 : existing.stage;
+  if (existing.status === RequestStatus.PENDING_STAGE2 && !isMultiStage) {
+    throw new AppError(
+      400,
+      'INVALID_STATE_TRANSITION',
+      'A single-stage request cannot be in the second stage.'
+    );
+  }
+
   // BR-07: validate the payload only after role/self/assignment/state checks.
   const payload = reviewDecisionSchema.parse(body ?? {});
-  const nextStatus =
-    payload.decision === 'APPROVE' ? RequestStatus.APPROVED : RequestStatus.REJECTED;
+  const isStage1Approval = payload.decision === 'APPROVE' && isMultiStage && currentStage === 1;
+  const nextStatus = isStage1Approval
+    ? RequestStatus.PENDING_STAGE2
+    : payload.decision === 'APPROVE'
+      ? RequestStatus.APPROVED
+      : RequestStatus.REJECTED;
   const action =
     payload.decision === 'APPROVE' ? HistoryAction.APPROVED : HistoryAction.REJECTED;
   const comment = payload.comment && payload.comment.length > 0 ? payload.comment : null;
 
   return prisma.$transaction(async (tx) => {
+    // Stage 2 is assigned to the distinct eligible reviewer at stage-1
+    // approval; the requester can never be selected (BR-01).
+    const stage2ReviewerId = isStage1Approval
+      ? await resolveStage2ReviewerId(tx, existing.requesterId, existing.assignedReviewerId!)
+      : undefined;
+
     // Conditional write guards against two reviewers / double submits.
     const updated = await tx.approvalRequest.updateMany({
-      where: { id: requestId, status: RequestStatus.PENDING },
-      data: { status: nextStatus },
+      where: { id: requestId, status: existing.status },
+      data: {
+        status: nextStatus,
+        stage: isStage1Approval ? 2 : currentStage,
+        ...(stage2ReviewerId ? { assignedReviewerId: stage2ReviewerId } : {}),
+      },
     });
 
     if (updated.count === 0) {
@@ -150,7 +200,107 @@ export async function submitReview(
         requestId,
         actorId: reviewerId,
         action,
+        stage: currentStage,
         comment,
+      },
+      include: {
+        actor: { select: PUBLIC_USER_SELECT },
+      },
+    });
+
+    const request = await tx.approvalRequest.findUniqueOrThrow({
+      where: { id: requestId },
+      include: {
+        requester: { select: PUBLIC_USER_SELECT },
+        assignedReviewer: { select: PUBLIC_USER_SELECT },
+      },
+    });
+
+    return {
+      request: serializeRequest(request),
+      history,
+    };
+  });
+}
+
+/**
+ * Return a request for revision (F-06 / FR-07).
+ *
+ * Check order:
+ * existence -> BR-01 self-approval -> BR-05 assignment -> BR-02 state ->
+ * payload validation (3-500 chars comment) -> transactional update to RETURNED + append history.
+ */
+export async function returnRequest(
+  requestId: string,
+  reviewerId: string,
+  body: unknown
+) {
+  const existing = await prisma.approvalRequest.findUnique({
+    where: { id: requestId },
+    select: {
+      id: true,
+      requesterId: true,
+      assignedReviewerId: true,
+      status: true,
+      stage: true,
+    },
+  });
+
+  if (!existing) {
+    throw new AppError(404, 'NOT_FOUND', 'Approval request was not found.');
+  }
+
+  // BR-01: self-approval guard before assignment guard
+  if (existing.requesterId === reviewerId) {
+    throw new AppError(
+      403,
+      'SELF_APPROVAL_NOT_ALLOWED',
+      'You cannot approve, reject, or return your own request.'
+    );
+  }
+
+  // BR-05: assignment guard
+  if (existing.assignedReviewerId !== reviewerId) {
+    throw new AppError(
+      403,
+      'ACCESS_DENIED',
+      'This request is not assigned to you.'
+    );
+  }
+
+  // BR-02: return is only allowed from PENDING
+  if (existing.status !== RequestStatus.PENDING) {
+    throw new AppError(
+      400,
+      'INVALID_STATE_TRANSITION',
+      `Request is already ${existing.status}.`
+    );
+  }
+
+  // Payload validation after guards
+  const payload = returnDecisionSchema.parse(body ?? {});
+
+  return prisma.$transaction(async (tx) => {
+    const updated = await tx.approvalRequest.updateMany({
+      where: { id: requestId, status: RequestStatus.PENDING },
+      data: { status: RequestStatus.RETURNED },
+    });
+
+    if (updated.count === 0) {
+      throw new AppError(
+        400,
+        'INVALID_STATE_TRANSITION',
+        'Request has already been decided or returned.'
+      );
+    }
+
+    const history = await tx.approvalHistory.create({
+      data: {
+        requestId,
+        actorId: reviewerId,
+        action: HistoryAction.RETURNED,
+        stage: existing.stage,
+        comment: payload.comment,
       },
       include: {
         actor: { select: PUBLIC_USER_SELECT },

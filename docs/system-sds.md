@@ -86,7 +86,7 @@ PostgreSQL 17 (persistent database)
 | Title | Trimmed length must be 3-150 characters. |
 | Category | Must be one of `EQUIPMENT`, `TRAVEL`, `SOFTWARE`, `SUPPLIES`. |
 | Description | Required, non-empty, maximum 1,000 characters. |
-| Status | Starts at `PENDING`; valid transitions are only `PENDING -> APPROVED` or `PENDING -> REJECTED`. |
+| Status | Starts at `PENDING`. Sprint 1 transitions: `PENDING -> APPROVED/REJECTED`. Approved CR-05 adds `PENDING -> RETURNED -> PENDING` and `PENDING -> PENDING_STAGE2 -> APPROVED` (see §13). |
 | Reviewer assignment | `assignedReviewerId` is nullable at database level for migration safety, but the service must set it when creating a request. |
 | History | Append-only. No update/delete endpoint is exposed in Sprint 1. Status update and history insert must share one transaction. |
 | Decision | `decision` must be `APPROVE` or `REJECT`; `REJECT` requires a 3-500 character comment; `APPROVE` comment is optional and at most 500 characters. |
@@ -102,7 +102,7 @@ PostgreSQL 17 (persistent database)
 
 - Local development: `npx prisma migrate dev`.
 - Released/production environments: `npx prisma migrate deploy`.
-- Seed: `prisma/seed.ts` uses idempotent upserts for three synthetic demo accounts.
+- Seed: `prisma/seed.ts` uses idempotent upserts for synthetic demo accounts (three in Sprint 1; a third reviewer `finance.reviewer` was added for F-07 stage 2 — see §13).
 - Demo requests are created through the UI/API; financial records are not hard-coded in the seed.
 - Durability: PostgreSQL volume or Cloud SQL; data and history must survive process restart and redeploy.
 
@@ -374,7 +374,7 @@ GIT_COMMIT=local
 | Testability and traceability | NFR-05 |
 | Deployability and configuration | NFR-06 |
 
-Detailed feature allocation, acceptance criteria, and test IDs are defined in the feature inventory, traceability matrix, and Sprint 1 engineering contracts.
+Detailed feature allocation, acceptance criteria, and test IDs are defined in the feature inventory, traceability matrix, and Sprint 1 engineering contracts. The current (Deliverable 2) requirement-to-test matrix is `docs/traceability.md` v1.1; it reconciles every FR/BR/NFR with an executed test or an explicit "planned" status.
 
 ---
 
@@ -389,8 +389,67 @@ Detailed feature allocation, acceptance criteria, and test IDs are defined in th
 
 ---
 
-## 12. Version History
+## 12. Sprint 2 / 3 SDS Additions (Deliverable 2)
+
+This section extends the Sprint 1 baseline; earlier sections remain the authoritative description of the released slice.
+
+### 13.1 Data model delta (migration `20261127183708_sprint2_lifecycle_and_attachments`)
+
+| Object | Change | Owner |
+| :--- | :--- | :--- |
+| `RequestStatus` | add `RETURNED`, `PENDING_STAGE2` | CR-05 / F-06 / F-07 |
+| `HistoryAction` | add `RETURNED`, `RESUBMITTED` | F-06 |
+| `ApprovalRequest.stage` | `Int @default(1)` | F-07 |
+| `ApprovalHistory.stage` | `Int @default(1)` | F-07 |
+| `Attachment` | new model: `id`, `requestId`, `uploaderId`, `filename`, `mime`, `size`, `path`, `createdAt`; index `(requestId, createdAt)`; FK cascade to request, restrict to user | F-08 |
+
+Migration is additive only. `prisma migrate status` clean, idempotent seed verified, 43-test Sprint 1 regression passed after applying it (`docs/sprints/sprint-2/migration-note.md`).
+
+### 13.2 Extended lifecycle and assignment
+
+```text
+PENDING --APPROVE(ordinary)--> APPROVED
+PENDING --REJECT--> REJECTED
+PENDING --APPROVE(stage 1, amount>5000)--> PENDING_STAGE2 --APPROVE--> APPROVED
+PENDING --RETURN(reviewer)--> RETURNED --RESUBMIT(owner)--> PENDING (re-resolve via CR-04)
+```
+
+- CR-04 (Lab 7): `amount > 5000` or out-of-hours 08:00–17:59 ICT → `manager.hybrid`, with fallback when the candidate is the requester.
+- F-07 stage 2: distinct eligible reviewer, different from requester and stage 1; third seeded reviewer `finance.reviewer@cpe334.local` guarantees availability. No new column for stage 2 — it is derived deterministically and persisted into `assignedReviewerId` at the stage-1 approval.
+- Resubmission re-resolves the reviewer from the **new** amount/category/time (F-06).
+
+### 13.3 Additional endpoints
+
+| Endpoint | Method | Purpose | Authorized roles / check |
+| :--- | :---: | :--- | :--- |
+| `GET /api/requests/:id/history` | GET | Read-only audit rows (`createdAt ASC`, actor public fields) | Owner or current assigned reviewer; 401/403/404; no write route |
+| `POST /api/requests/:id/return` | POST | `PENDING -> RETURNED` + history | `REVIEWER`; BR-01 → BR-05 → BR-02 → comment 3–500 → transaction |
+| `POST /api/requests/:id/resubmit` | POST | `RETURNED -> PENDING` + reassign + history | Owner; existence → ownership → state → BR-04 → transaction |
+| `POST /api/requests/:id/attachments` | POST | Multipart upload (`file`), memory storage, UUID filename | Owner or current assigned reviewer; MIME whitelist PDF/PNG/JPEG; ≤ 5 MB |
+| `GET /api/requests/:id/attachments` | GET | Attachment metadata (no `path`) | Owner or current assigned reviewer |
+| `GET /api/attachments/:id` | GET | Stream file bytes | Owner or current assigned reviewer, re-checked at download time |
+| `GET /api/requests/my`, `GET /api/requests/pending` | GET | Add `status`/`category`/`from`/`to` filters and `count` | Filters combined with base predicate via `AND`; Asia/Bangkok day bounds; no widened access |
+
+### 13.4 UI and config additions
+
+- Screens: history refresh control in `RequestDetailPage`; return form in `ReviewDetailPage`; edit/resubmit form for `RETURNED`; stage badge (`Stage n / 2`) on queue and detail; per-stage history labels; `AttachmentSection` on both detail pages; shared `RequestFilters` bar on `MyRequestsPage`/`PendingReviewsPage` with URL-synced state.
+- Conventions from §5 are unchanged: loading/empty/error states, error banner with code, no optimistic status change, role-aware navigation that is not authorization.
+- New env names (names only, never committed values): `UPLOAD_DIR` (default `uploads/`, gitignored), `MAX_ATTACHMENT_MB` (default 5).
+- CI: `.github/workflows/ci-docker.yml` now triggers on `sprint-2-staging` pull requests and pushes (#76).
+
+### 13.5 Known limitations of the candidate
+
+- `ADMIN` role/endpoints remain planned (F-10).
+- Multi-stage is bounded at two stages; `RETURN` from `PENDING_STAGE2` is rejected.
+- Attachments are append-only in Sprint 2 (no delete/update) and the MIME check trusts the declared content type.
+- Stateless JWT logout still leaves a stolen token valid until expiry.
+- Reporting aggregation, p95 measurement and final clean-clone deploy recheck belong to F-11.
+
+---
+
+## 13. Version History
 
 | Version | Date | Change | Author | Reviewer |
 | :--- | :--- | :--- | :--- | :--- |
 | v1.0 | 6 Nov 2026 | Initial system-level SDS baseline for Sprint 1. | T | Oum |
+| v1.1 | 28 Nov 2026 | Add §12 for CR-05 lifecycle, migration bundle, F-05..F-09 endpoints/UI/config, and candidate limitations; refresh FR/BR/NFR references. | T | Oum (pending review) |

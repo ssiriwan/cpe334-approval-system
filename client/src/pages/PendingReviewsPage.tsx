@@ -1,19 +1,32 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { CheckSquare, RefreshCw } from 'lucide-react';
 import { ApiError, apiFetch, type ApprovalRequest } from '../lib/api';
+import {
+  RequestFilters,
+  fromParams,
+  toParams,
+  toQuery,
+  type FilterValues,
+} from '../components/RequestFilters';
 
 export function PendingReviewsPage() {
   const [requests, setRequests] = useState<ApprovalRequest[]>([]);
+  const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filters: FilterValues = fromParams(searchParams);
 
   const loadQueue = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiFetch<{ requests: ApprovalRequest[] }>('/api/requests/pending');
+      const data = await apiFetch<{ requests: ApprovalRequest[]; count: number }>(
+        `/api/requests/pending${toQuery(filters)}`
+      );
       setRequests(data.requests);
+      setCount(data.count);
     } catch (err) {
       if (err instanceof ApiError) {
         setError(`${err.code}: ${err.message}`);
@@ -23,7 +36,7 @@ export function PendingReviewsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     void loadQueue();
@@ -66,6 +79,13 @@ export function PendingReviewsPage() {
         </div>
       )}
 
+      <RequestFilters
+        value={filters}
+        onChange={(next) => setSearchParams(toParams(next))}
+        count={count}
+        noun="assigned requests"
+      />
+
       {loading ? (
         <div className="bg-white rounded-xl border border-slate-200 p-8 text-center text-sm text-slate-500">
           Loading your review queue...
@@ -91,6 +111,7 @@ export function PendingReviewsPage() {
                   <th className="py-3 px-4">Requester</th>
                   <th className="py-3 px-4">Category</th>
                   <th className="py-3 px-4 text-right">Amount (THB)</th>
+                  <th className="py-3 px-4">Stage</th>
                   <th className="py-3 px-4">Submitted</th>
                   <th className="py-3 px-4 text-right">Action</th>
                 </tr>
@@ -111,6 +132,15 @@ export function PendingReviewsPage() {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
+                      <span
+                        className="inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-800"
+                        aria-label={`Stage ${req.stage ?? 1} of ${Number(req.amount) > 5000 ? 2 : 1}`}
+                      >
+                        Stage {req.stage ?? 1}
+                        {Number(req.amount) > 5000 ? ' / 2' : ''}
+                      </span>
                     </td>
                     <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
                       {new Date(req.createdAt).toLocaleDateString()}
