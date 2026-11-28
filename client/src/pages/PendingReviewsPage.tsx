@@ -91,6 +91,7 @@ export function PendingReviewsPage() {
                   <th className="py-3 px-4">Requester</th>
                   <th className="py-3 px-4">Category</th>
                   <th className="py-3 px-4 text-right">Amount (THB)</th>
+                  <th className="py-3 px-4">Stage</th>
                   <th className="py-3 px-4">Submitted</th>
                   <th className="py-3 px-4 text-right">Action</th>
                 </tr>
@@ -111,6 +112,15 @@ export function PendingReviewsPage() {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       })}
+                    </td>
+                    <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
+                      <span
+                        className="inline-flex items-center rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-xs font-medium text-purple-800"
+                        aria-label={`Stage ${req.stage ?? 1} of ${Number(req.amount) > 5000 ? 2 : 1}`}
+                      >
+                        Stage {req.stage ?? 1}
+                        {Number(req.amount) > 5000 ? ' / 2' : ''}
+                      </span>
                     </td>
                     <td className="py-3.5 px-4 text-slate-600 whitespace-nowrap">
                       {new Date(req.createdAt).toLocaleDateString()}

@@ -247,4 +247,59 @@ describe('Reviewer UI pages', () => {
     });
     expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
+
+  it('F-07: PENDING_STAGE2 request shows a stage badge and still allows a decision', async () => {
+    const user = userEvent.setup();
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            request: buildRequest({
+              status: 'PENDING_STAGE2',
+              stage: 2,
+              amount: '7500.00',
+            }),
+            histories: [
+              {
+                id: 'h-1',
+                requestId: 'req-1',
+                actorId: 'm-1',
+                actor: { ...REVIEWER, id: 'm-1', name: 'Manager Hybrid' },
+                action: 'APPROVED',
+                stage: 1,
+                comment: 'Stage 1 approved',
+                createdAt: new Date('2026-11-12T09:05:00Z').toISOString(),
+              },
+            ],
+          },
+        })
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            request: buildRequest({ status: 'APPROVED', stage: 2, amount: '7500.00' }),
+            history: {
+              id: 'h-2',
+              action: 'APPROVED',
+              stage: 2,
+              comment: 'Stage 2 approved',
+            },
+          },
+        })
+      );
+
+    renderReviewDetail();
+
+    await waitFor(() => {
+      expect(screen.getByText('Stage 2 / 2')).toBeInTheDocument();
+    });
+    expect(screen.getAllByText(/Stage 1/).length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: /Submit Decision/i })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: /Submit Decision/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/request is now APPROVED/i)).toBeInTheDocument();
+    });
+  });
 });

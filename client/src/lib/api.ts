@@ -18,6 +18,7 @@ export interface ApprovalRequest {
   category: RequestCategory;
   description: string;
   status: RequestStatus;
+  stage?: number;
   requesterId: string;
   requester?: PublicUser;
   assignedReviewerId: string | null;
@@ -32,6 +33,7 @@ export interface ApprovalHistory {
   actorId: string;
   actor?: PublicUser;
   action: HistoryAction;
+  stage?: number;
   comment: string | null;
   createdAt: string;
 }
