@@ -198,4 +198,53 @@ describe('Reviewer UI pages', () => {
       expect(screen.getByRole('alert')).toHaveTextContent(/SELF_APPROVAL_NOT_ALLOWED/);
     });
   });
+
+  it('ReviewDetailPage validates return comment and calls return API', async () => {
+    const user = userEvent.setup();
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            request: buildRequest(),
+            histories: [],
+          },
+        })
+      )
+      .mockResolvedValueOnce(
+        jsonResponse({
+          data: {
+            request: buildRequest({ status: 'RETURNED' }),
+            history: {
+              id: 'h-2',
+              requestId: 'req-1',
+              actorId: 'r-1',
+              action: 'RETURNED',
+              comment: 'Please clarify vendor details',
+              createdAt: new Date().toISOString(),
+            },
+          },
+        })
+      );
+
+    renderReviewDetail();
+
+    await waitFor(() => {
+      expect(screen.getByText('Ergonomic Keyboard')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByRole('radio', { name: /Return for Revision/i }));
+    await user.click(screen.getByRole('button', { name: /Return Request/i }));
+
+    expect(
+      screen.getByText(/A return comment of at least 3 characters is required/i)
+    ).toBeInTheDocument();
+
+    await user.type(screen.getByLabelText(/Comment/i), 'Please clarify vendor details');
+    await user.click(screen.getByRole('button', { name: /Return Request/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Request returned for revision/i)).toBeInTheDocument();
+    });
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
+  });
 });

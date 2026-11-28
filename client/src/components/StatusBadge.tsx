@@ -4,6 +4,8 @@ const STATUS_STYLES: Record<RequestStatus, string> = {
   PENDING: 'bg-amber-100 text-amber-800 border-amber-200',
   APPROVED: 'bg-emerald-100 text-emerald-800 border-emerald-200',
   REJECTED: 'bg-rose-100 text-rose-800 border-rose-200',
+  RETURNED: 'bg-orange-100 text-orange-800 border-orange-200',
+  PENDING_STAGE2: 'bg-purple-100 text-purple-800 border-purple-200',
 };
 
 export function StatusBadge({ status }: { status: RequestStatus }) {

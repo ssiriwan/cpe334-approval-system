@@ -36,6 +36,16 @@ const reviewDecisionSchema = z
     }
   });
 
+const returnDecisionSchema = z
+  .object({
+    comment: z
+      .string({ required_error: 'A return comment is required.' })
+      .trim()
+      .min(3, 'A return comment of at least 3 characters is required.')
+      .max(500, 'Comment must not exceed 500 characters.'),
+  })
+  .strict();
+
 function serializeRequest<
   T extends {
     amount: Prisma.Decimal;
@@ -151,6 +161,103 @@ export async function submitReview(
         actorId: reviewerId,
         action,
         comment,
+      },
+      include: {
+        actor: { select: PUBLIC_USER_SELECT },
+      },
+    });
+
+    const request = await tx.approvalRequest.findUniqueOrThrow({
+      where: { id: requestId },
+      include: {
+        requester: { select: PUBLIC_USER_SELECT },
+        assignedReviewer: { select: PUBLIC_USER_SELECT },
+      },
+    });
+
+    return {
+      request: serializeRequest(request),
+      history,
+    };
+  });
+}
+
+/**
+ * Return a request for revision (F-06 / FR-07).
+ *
+ * Check order:
+ * existence -> BR-01 self-approval -> BR-05 assignment -> BR-02 state ->
+ * payload validation (3-500 chars comment) -> transactional update to RETURNED + append history.
+ */
+export async function returnRequest(
+  requestId: string,
+  reviewerId: string,
+  body: unknown
+) {
+  const existing = await prisma.approvalRequest.findUnique({
+    where: { id: requestId },
+    select: {
+      id: true,
+      requesterId: true,
+      assignedReviewerId: true,
+      status: true,
+    },
+  });
+
+  if (!existing) {
+    throw new AppError(404, 'NOT_FOUND', 'Approval request was not found.');
+  }
+
+  // BR-01: self-approval guard before assignment guard
+  if (existing.requesterId === reviewerId) {
+    throw new AppError(
+      403,
+      'SELF_APPROVAL_NOT_ALLOWED',
+      'You cannot approve, reject, or return your own request.'
+    );
+  }
+
+  // BR-05: assignment guard
+  if (existing.assignedReviewerId !== reviewerId) {
+    throw new AppError(
+      403,
+      'ACCESS_DENIED',
+      'This request is not assigned to you.'
+    );
+  }
+
+  // BR-02: return is only allowed from PENDING
+  if (existing.status !== RequestStatus.PENDING) {
+    throw new AppError(
+      400,
+      'INVALID_STATE_TRANSITION',
+      `Request is already ${existing.status}.`
+    );
+  }
+
+  // Payload validation after guards
+  const payload = returnDecisionSchema.parse(body ?? {});
+
+  return prisma.$transaction(async (tx) => {
+    const updated = await tx.approvalRequest.updateMany({
+      where: { id: requestId, status: RequestStatus.PENDING },
+      data: { status: RequestStatus.RETURNED },
+    });
+
+    if (updated.count === 0) {
+      throw new AppError(
+        400,
+        'INVALID_STATE_TRANSITION',
+        'Request has already been decided or returned.'
+      );
+    }
+
+    const history = await tx.approvalHistory.create({
+      data: {
+        requestId,
+        actorId: reviewerId,
+        action: HistoryAction.RETURNED,
+        comment: payload.comment,
       },
       include: {
         actor: { select: PUBLIC_USER_SELECT },

@@ -1,7 +1,7 @@
 export type Role = 'REQUESTER' | 'REVIEWER' | 'ADMIN';
-export type RequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type RequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'RETURNED' | 'PENDING_STAGE2';
 export type RequestCategory = 'EQUIPMENT' | 'TRAVEL' | 'SOFTWARE' | 'SUPPLIES';
-export type HistoryAction = 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+export type HistoryAction = 'SUBMITTED' | 'APPROVED' | 'REJECTED' | 'RETURNED' | 'RESUBMITTED';
 
 export interface PublicUser {
   id: string;

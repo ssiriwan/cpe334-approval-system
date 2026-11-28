@@ -7,6 +7,26 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { NewRequestPage } from './NewRequestPage';
 import { MyRequestsPage } from './MyRequestsPage';
+import { RequestDetailPage } from './RequestDetailPage';
+
+const authState = vi.hoisted(() => ({
+  user: {
+    id: 'u-1',
+    name: 'Oum Requester',
+    email: 'oum.requester@cpe334.local',
+    role: 'REQUESTER' as 'REQUESTER' | 'REVIEWER' | 'ADMIN',
+  },
+}));
+
+vi.mock('../context/AuthContext', () => ({
+  useAuth: () => ({
+    user: authState.user,
+    loading: false,
+    login: vi.fn(),
+    logout: vi.fn(),
+    refreshUser: vi.fn(),
+  }),
+}));
 
 describe('Requester UI pages', () => {
   afterEach(() => {
@@ -116,6 +136,100 @@ describe('Requester UI pages', () => {
     expect(screen.getByText('Standing Desk')).toBeInTheDocument();
     expect(screen.getByText('5,400.00')).toBeInTheDocument();
     expect(screen.getByText('PENDING')).toBeInTheDocument();
+  });
+
+  it('RequestDetailPage renders returned notice and enables owner to edit and resubmit', async () => {
+    const user = userEvent.setup();
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            data: {
+              request: {
+                id: 'req-returned',
+                requestNo: 'REQ-20261128-0001',
+                title: 'Original Title',
+                amount: '1500.00',
+                category: 'EQUIPMENT',
+                description: 'Original Description',
+                status: 'RETURNED',
+                requesterId: 'u-1',
+                assignedReviewerId: 'r-1',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+              histories: [
+                {
+                  id: 'h-1',
+                  requestId: 'req-returned',
+                  actorId: 'r-1',
+                  actor: { id: 'r-1', name: 'T Reviewer' },
+                  action: 'RETURNED',
+                  comment: 'Please adjust specs',
+                  createdAt: new Date().toISOString(),
+                },
+              ],
+            },
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } }
+        )
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            data: {
+              request: {
+                id: 'req-returned',
+                requestNo: 'REQ-20261128-0001',
+                title: 'Updated Title',
+                amount: '2000.00',
+                category: 'EQUIPMENT',
+                description: 'Updated Description',
+                status: 'PENDING',
+                requesterId: 'u-1',
+                assignedReviewerId: 'r-1',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              },
+              history: {
+                id: 'h-2',
+                requestId: 'req-returned',
+                actorId: 'u-1',
+                action: 'RESUBMITTED',
+                comment: null,
+                createdAt: new Date().toISOString(),
+              },
+            },
+          }),
+          { status: 200, headers: { 'Content-Type': 'application/json' } }
+        )
+      );
+
+    render(
+      <MemoryRouter initialEntries={['/requests/req-returned']}>
+        <Routes>
+          <Route path="/requests/:id" element={<RequestDetailPage />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText(/Returned for Revision/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Please adjust specs/i).length).toBeGreaterThanOrEqual(1);
+    });
+
+    expect(screen.getByRole('button', { name: /Resubmit Request/i })).toBeInTheDocument();
+
+    const titleInput = screen.getByLabelText(/Title/i);
+    await user.clear(titleInput);
+    await user.type(titleInput, 'Updated Title');
+
+    await user.click(screen.getByRole('button', { name: /Resubmit Request/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Request has been resubmitted successfully/i)).toBeInTheDocument();
+    });
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
   });
 });
 
