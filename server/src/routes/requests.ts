@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Role } from '@prisma/client';
+import multer from 'multer';
 import { requireAuth, requireRole } from '../middleware/auth.js';
 import {
   createRequest,
@@ -11,6 +12,14 @@ import {
 import { listPendingReviews, returnRequest, submitReview } from '../services/review.service.js';
 import { getRequestHistory } from '../services/history.service.js';
 import { parseRequestFilters } from '../validation/filters.js';
+import { listAttachments, uploadAttachment } from '../services/attachment.service.js';
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
+});
 
 export const requestsRouter = Router();
 
@@ -104,6 +113,35 @@ requestsRouter.post('/:id/resubmit', async (req, res, next) => {
   try {
     const result = await resubmitRequest(String(req.params.id), req.user!.id, req.body);
     res.status(200).json({ data: result });
+  } catch (error) {
+    next(error);
+  }
+});
+
+requestsRouter.post(
+  '/:id/attachments',
+  upload.single('file'),
+  async (req, res, next) => {
+    try {
+      const attachment = await uploadAttachment(
+        String(req.params.id),
+        req.user!.id,
+        req.file
+      );
+      res.status(201).json({ data: { attachment } });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+requestsRouter.get('/:id/attachments', async (req, res, next) => {
+  try {
+    const attachments = await listAttachments(
+      String(req.params.id),
+      req.user!.id
+    );
+    res.status(200).json({ data: { attachments } });
   } catch (error) {
     next(error);
   }

@@ -27,6 +27,10 @@ vi.mock('../context/AuthContext', () => ({
   }),
 }));
 
+vi.mock('../components/AttachmentSection', () => ({
+  AttachmentSection: () => null,
+}));
+
 const REVIEWER = {
   id: 'r-1',
   name: 'T Reviewer',
