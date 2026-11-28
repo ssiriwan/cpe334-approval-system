@@ -15,6 +15,9 @@ const OWNER_EMAIL = 'oum.requester@cpe334.local';
 // High-value amount (7500 > 5000) always escalates to manager.hybrid under
 // CR-04, so this helper is deterministic regardless of the local clock.
 const REVIEWER_EMAIL = 'manager.hybrid@cpe334.local';
+// F-07: after a stage-1 approval the request is assigned to the stage-2
+// reviewer, so the audit-view test must read as that reviewer.
+const STAGE2_EMAIL = 't.reviewer@cpe334.local';
 const OTHER_EMAIL = 'f05.other.requester@cpe334.local';
 
 let ownerId: string;
@@ -70,7 +73,8 @@ beforeAll(async () => {
     });
 
   ownerId = (await upsert(OWNER_EMAIL, 'Oum Requester', Role.REQUESTER)).id;
-  reviewerId = (await upsert(REVIEWER_EMAIL, 'T Reviewer', Role.REVIEWER)).id;
+  reviewerId = (await upsert(REVIEWER_EMAIL, 'Manager Hybrid', Role.REVIEWER)).id;
+  await upsert(STAGE2_EMAIL, 'T Reviewer', Role.REVIEWER);
   await upsert(OTHER_EMAIL, 'F05 Other Requester', Role.REQUESTER);
 });
 
@@ -111,7 +115,7 @@ describe('F-05 read-only approval history (TEST-14.1..14.4)', () => {
       .set('Cookie', await loginCookie(OWNER_EMAIL));
     const reviewerRes = await request(app)
       .get(`/api/requests/${id}/history`)
-      .set('Cookie', await loginCookie(REVIEWER_EMAIL));
+      .set('Cookie', await loginCookie(STAGE2_EMAIL));
 
     expect(reviewerRes.status).toBe(200);
     expect(reviewerRes.body.data.histories).toEqual(ownerRes.body.data.histories);

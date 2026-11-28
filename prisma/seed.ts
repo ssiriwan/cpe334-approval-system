@@ -44,6 +44,14 @@ const accounts = [
     name: 'Manager Hybrid',
     role: Role.REVIEWER,
   },
+  // F-07: a third reviewer guarantees a stage-2 reviewer distinct from both
+  // the requester and the stage-1 reviewer, including when the requester is
+  // themselves a REVIEWER. CR-04's primary/fallback mapping is unchanged.
+  {
+    email: 'finance.reviewer@cpe334.local',
+    name: 'Finance Reviewer',
+    role: Role.REVIEWER,
+  },
 ];
 
 async function main() {

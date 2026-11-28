@@ -105,11 +105,14 @@ describe('F-07 multi-stage approval (TEST-16.1..16.6)', () => {
     createdRequestIds.push(ordinaryId);
     expect((await row(ordinaryId)).stage).toBe(1);
 
-    // Requester is one of only two reviewers -> no distinct stage-2 reviewer.
-    const impossible = await createRequest(await loginCookie(STAGE1_EMAIL), { amount: 7500 });
-    expect(impossible.status).toBe(400);
-    expect(impossible.body.error.code).toBe('VALIDATION_ERROR');
-    expect(JSON.stringify(impossible.body.error.details)).toContain('STAGE_REVIEWER_UNAVAILABLE');
+    // A REVIEWER requester must still be able to create a high-value request
+    // (Lab 7 CR-04 fallback): the third seeded reviewer is available for stage 2.
+    const reviewerOwned = await createRequest(await loginCookie(STAGE1_EMAIL), { amount: 7500 });
+    expect(reviewerOwned.status).toBe(201);
+    const reviewerOwnedId = reviewerOwned.body.data.request.id as string;
+    createdRequestIds.push(reviewerOwnedId);
+    const reviewerOwnedRow = await row(reviewerOwnedId);
+    expect(reviewerOwnedRow.requesterId).not.toBe(reviewerOwnedRow.assignedReviewerId);
   });
 
   it('TEST-16.2: stage-1 approve moves to PENDING_STAGE2 and switches assignment', async () => {
